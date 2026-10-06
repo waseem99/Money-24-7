@@ -4,7 +4,10 @@ export default async function handler(req,res) {
   if(req.method!=='POST') return res.status(405).json({error:'POST required'});
   const required=['LIVEAVATAR_API_KEY','LIVEAVATAR_AVATAR_ID','LIVEAVATAR_VOICE_ID','LIVEAVATAR_CONTEXT_ID','STUDIO_ACCESS_TOKEN'];
   if(required.some(k=>!process.env[k])) return res.status(503).json({error:'The presenter account has not been configured yet.'});
-  const supplied=Buffer.from(req.headers.authorization?.replace(/^Bearer /,'')||'');
+  const authorization=req.headers.authorization;
+  const match=typeof authorization==='string'?/^Bearer ([^\s]+)$/i.exec(authorization):null;
+  if(!match) return res.status(401).json({error:'Studio access code is incorrect.'});
+  const supplied=Buffer.from(match[1]);
   const expected=Buffer.from(process.env.STUDIO_ACCESS_TOKEN);
   if(supplied.length!==expected.length||!timingSafeEqual(supplied,expected)) return res.status(401).json({error:'Studio access code is incorrect.'});
   try {
