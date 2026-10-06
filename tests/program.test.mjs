@@ -7,3 +7,4 @@ test('headlines retain source and publication date without claiming breaking new
 test('stale feed is not read as current news',()=>{assert.doesNotMatch(economicsBulletin(feed,now+900001),/Policy statement/);});
 test('future and malformed headlines are excluded',()=>{assert.match(economicsBulletin({...feed,items:[{...feed.items[0],publishedAt:'2027-01-01'}]},now),/No verified/);});
 test('programme rotates market, economics, chart, context',()=>{assert.deepEqual([0,3,1,2].map(nextSegment),[3,1,2,0]);});
+test('stock segment joins rotation only when available',()=>{assert.equal(nextSegment(0,true),4);assert.equal(nextSegment(4,true),3);assert.equal(nextSegment(0,false),3);});

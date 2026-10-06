@@ -1,3 +1,4 @@
+import {normalizeStock,stockSymbols} from '../src/stock-data.js';
 const products=['BTC-USD','ETH-USD','SOL-USD'];
 export default async function handler(req,res) {
   if(req.method!=='GET') return res.status(405).json({error:'GET required'});
@@ -11,9 +12,9 @@ export default async function handler(req,res) {
       return {symbol,price,change:(price/open-1)*100,high:Number(d.high),low:Number(d.low),volume:Number(d.volume),asOf:null,receivedAt:new Date().toISOString(),source:'Coinbase Exchange',mode:'snapshot'};
     } catch {return null;}
   }));
-  let stocks=[];
-  if(process.env.FINNHUB_API_KEY) stocks=(await Promise.all(['AAPL','MSFT','NVDA','SPY'].map(async symbol=>{
-    try {const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${encodeURIComponent(process.env.FINNHUB_API_KEY)}`,{signal:AbortSignal.timeout(8000)});if(!r.ok)return null;const d=await r.json();if(!(d.c>0&&d.t>0))return null;return {symbol,price:d.c,change:d.dp,high:d.h,low:d.l,asOf:new Date(d.t*1000).toISOString(),source:'Finnhub',mode:'snapshot'};}catch{return null;}
+  let stocks=[];const stockErrors=[];
+  if(process.env.FINNHUB_API_KEY) stocks=(await Promise.all(stockSymbols.map(async symbol=>{
+    try {const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}`,{headers:{'X-Finnhub-Token':process.env.FINNHUB_API_KEY},signal:AbortSignal.timeout(8000)});if(!r.ok){stockErrors.push({symbol,reason:r.status===401?'credentials_rejected':r.status===403?'access_denied':r.status===429?'rate_limited':'provider_unavailable'});return null;}const row=normalizeStock(symbol,await r.json());if(!row)stockErrors.push({symbol,reason:'invalid_quote'});return row;}catch{stockErrors.push({symbol,reason:'provider_unavailable'});return null;}
   }))).filter(Boolean);
-  res.json({quotes:rows.filter(Boolean),stocks,receivedAt:new Date().toISOString(),notice:'REST snapshots may be cached by the source. The WebSocket trade timestamp determines live status.'});
+  res.json({quotes:rows.filter(Boolean),stocks,stockStatus:!process.env.FINNHUB_API_KEY?'not_configured':stocks.length===stockSymbols.length?'available':stocks.length?'partial':'unavailable',stockErrors,receivedAt:new Date().toISOString(),notice:'REST snapshots may be cached by the source. The WebSocket trade timestamp determines live status.'});
 }

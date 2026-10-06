@@ -1,0 +1,6 @@
+import {stockSymbols} from './stock-data.js';
+export function renderStocks(container,data){
+  container.replaceChildren();const heading=document.createElement('h3');heading.textContent='US equities';container.append(heading);
+  const note=document.createElement('p');note.className='source-note';note.textContent=data.stockStatus==='not_configured'?'Stock data account not configured. Quotes will appear after the feed is activated.':data.stockStatus==='available'?'Finnhub snapshots · source timestamps below · not a streaming feed.':'Stock feed partially available or unavailable. Missing quotes are not estimated.';container.append(note);
+  for(const symbol of stockSymbols){const quote=(data.stocks||[]).find(q=>q.symbol===symbol),row=document.createElement('div');row.className='stock-row';const name=document.createElement('strong'),price=document.createElement('span'),time=document.createElement('small');name.textContent=symbol;price.textContent=quote?quote.price.toLocaleString('en-US',{style:'currency',currency:'USD'}):'Unavailable';time.textContent=quote?new Date(quote.asOf).toLocaleString('en-GB',{timeZone:'UTC'})+' UTC · snapshot':'Awaiting verified source data';row.append(name,price,time);container.append(row);}
+}
