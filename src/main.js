@@ -1,3 +1,4 @@
+import {mountNews} from './news.js';
 import {withTimeout} from './session-timeout.js';
 import './style.css';
 import {products,normalizeTicker,isFresh,bulletin} from './market.js';
@@ -39,3 +40,5 @@ $('#setup-form').onsubmit=async event=>{event.preventDefault();if(!state.config.
 async function setupHls(){const url=import.meta.env.VITE_CHANNEL_HLS_URL;if(!url)return;const {default:Hls}=await import('hls.js');const video=$('#avatar-video');if(Hls.isSupported()){const hls=new Hls();hls.loadSource(url);hls.attachMedia(video);hls.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){hls.destroy();state.hls=null;video.style.display='none';$('#concept-label').textContent='ANCHOR CONCEPT · STILL IMAGE';$('#program-tag').textContent='CHANNEL PROTOTYPE';$('#audio-mode').textContent='Browser voice preview';toast('Shared channel feed is unavailable.');}});state.hls=hls;}else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=url;state.hls={native:true};video.onerror=()=>{state.hls=null;video.style.display='none';toast('Shared channel feed is unavailable.');};}else{return;}video.style.display='block';$('#concept-label').textContent='SHARED PROGRAM FEED';$('#program-tag').textContent='CONNECTING CHANNEL';video.onplaying=()=>$('#program-tag').textContent='LIVE CHANNEL';$('#caption').classList.add('hidden');$('#audio-mode').textContent='Shared HLS stream';$('#play').textContent='Play channel';}
 fetch('/api/config').then(r=>r.json()).then(c=>state.config=c).catch(()=>{});snapshot();connectFeed();setupHls();render();narrate();
 setInterval(()=>{$('#clock').textContent=`${new Date().toLocaleTimeString('en-GB',{timeZone:'UTC'})} UTC`;render();if(state.socket?.readyState===WebSocket.OPEN&&Date.now()-state.lastMessage>45000)state.socket.close();},1000);setInterval(snapshot,60000);window.addEventListener('resize',()=>render());window.addEventListener('pagehide',()=>{stop();if(state.avatar)state.avatar.stop().catch(()=>{});clearTimeout(state.reconnect);if(state.socket){state.socket.onclose=null;state.socket.close();}});
+
+mountNews();
