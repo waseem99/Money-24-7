@@ -1,0 +1,10 @@
+{
+  "name": "signal-financial-network",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev": "node dev.mjs", "build": "vite build", "test": "node --test tests/*.test.mjs"},
+  "dependencies": {"@heygen/liveavatar-web-sdk": "0.0.19", "hls.js": "1.6.13"},
+  "devDependencies": {"vite": "8.3.3"},
+  "engines": {"node": ">=22.12.0"}
+}
