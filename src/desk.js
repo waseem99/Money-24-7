@@ -1,0 +1,10 @@
+import {answerDesk} from './desk-answer.js';
+export function mountDesk(getContext){
+  const section=document.createElement('section');section.className='viewer-desk';
+  section.innerHTML='<div class="rundown-top"><h2>Ask the desk</h2><small>SOURCE-BASED ANSWERS</small></div><p class="source-note">Ask about the quotes and official releases on this page. Limited source lookup; messages are not shared with other viewers or saved.</p><div class="desk-prompts"></div><form class="desk-form"><label for="desk-question">Your question</label><div class="desk-input"><input id="desk-question" type="text" maxlength="300" required placeholder="What is Bitcoin trading at?" autocomplete="off"><button class="primary" type="submit">Ask the desk</button></div></form><div class="desk-answer" role="status" aria-live="polite" hidden></div>';
+  document.querySelector('.transcript').before(section);
+  const input=section.querySelector('input'),output=section.querySelector('.desk-answer');
+  const answer=()=>{const data=answerDesk(input.value,getContext());output.replaceChildren();output.hidden=false;const text=document.createElement('p');text.textContent=data.text;output.append(text);for(const source of data.sources){let url;try{url=new URL(source.url);}catch{continue;}if(url.protocol!=='https:')continue;const link=document.createElement('a');link.textContent=source.title;link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';output.append(link);}const timestamp=document.createElement('small');timestamp.textContent='Answered '+new Date(data.answeredAt).toLocaleTimeString('en-GB',{timeZone:'UTC'})+' UTC · refresh by asking again';output.append(timestamp);};
+  section.querySelector('form').onsubmit=event=>{event.preventDefault();answer();};
+  for(const question of ['Bitcoin price','Show official headlines','Explain the 24-hour change']){const button=document.createElement('button');button.className='secondary';button.type='button';button.textContent=question;button.onclick=()=>{input.value=question;answer();};section.querySelector('.desk-prompts').append(button);}
+}

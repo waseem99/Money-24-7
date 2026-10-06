@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {answerDesk} from '../src/desk-answer.js';
+const now=Date.parse('2026-10-07T00:00:00Z');
+const quote={symbol:'BTC-USD',price:100,change:2,asOf:new Date(now).toISOString(),source:'Coinbase Exchange',mode:'stream'};
+test('reports fresh quote with source timestamp',()=>{const a=answerDesk('Bitcoin price',{quotes:[quote]},now);assert.match(a.text,/Live trade from Coinbase Exchange/);assert.match(a.text,/\$100.00/);});
+test('never labels old trade as live',()=>{assert.match(answerDesk('BTC',{quotes:[quote]},now+60000).text,/not a live quote/);});
+test('does not fabricate unavailable stock quote',()=>assert.match(answerDesk('NVDA',{},now).text,/No verified/));
+test('does not turn asset mention into investment advice or causal analysis',()=>{assert.match(answerDesk('Should I buy BTC?',{quotes:[quote]},now).text,/cannot recommend/);assert.match(answerDesk('Why did BTC rise?',{quotes:[quote]},now).text,/does not establish/);});
+test('numeric economics needs connected indicator data',()=>assert.match(answerDesk('latest inflation rate',{},now).text,/not connected/));
+test('ignores stale release cache',()=>assert.match(answerDesk('headlines',{news:{fetchedAt:new Date(now-900001).toISOString(),items:[]}},now).text,/not refreshed/));
+test('unknown questions do not invent an answer',()=>assert.match(answerDesk('Tell me a secret',{},now).text,/does not yet provide general AI chat/));
