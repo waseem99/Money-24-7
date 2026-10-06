@@ -1,3 +1,4 @@
+import {presenterSettings} from '../lib/presenter.js';
 import {timingSafeEqual} from 'node:crypto';
 export default async function handler(req,res) {
   res.setHeader('Cache-Control','no-store');
@@ -10,8 +11,11 @@ export default async function handler(req,res) {
   const supplied=Buffer.from(match[1]);
   const expected=Buffer.from(process.env.STUDIO_ACCESS_TOKEN);
   if(supplied.length!==expected.length||!timingSafeEqual(supplied,expected)) return res.status(401).json({error:'Studio access code is incorrect.'});
+  let settings;
+  try {settings=presenterSettings(req.query?.profile,process.env);}catch{return res.status(400).json({error:'Unknown presenter profile.'});}
+  if(req.query?.profile==='professional'&&req.headers['x-confirm-credit-use']!=='yes')return res.status(400).json({error:'Confirm provider credit use for the professional preview.'});
   try {
-    const response=await fetch('https://api.liveavatar.com/v1/sessions/token',{method:'POST',headers:{'X-API-KEY':process.env.LIVEAVATAR_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({mode:'FULL',avatar_id:process.env.LIVEAVATAR_AVATAR_ID,is_sandbox:process.env.LIVEAVATAR_SANDBOX!=='false',max_session_duration:process.env.LIVEAVATAR_SANDBOX!=='false'?60:120,video_settings:{quality:'high',encoding:'H264'},avatar_persona:{voice_id:process.env.LIVEAVATAR_VOICE_ID,context_id:process.env.LIVEAVATAR_CONTEXT_ID,language:'en'}}),signal:AbortSignal.timeout(20000)});
+    const response=await fetch('https://api.liveavatar.com/v1/sessions/token',{method:'POST',headers:{'X-API-KEY':process.env.LIVEAVATAR_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({mode:'FULL',avatar_id:settings.avatarId,is_sandbox:settings.sandbox,max_session_duration:settings.duration,video_settings:{quality:'high',encoding:'H264'},avatar_persona:{voice_id:settings.voiceId,context_id:process.env.LIVEAVATAR_CONTEXT_ID,language:'en'}}),signal:AbortSignal.timeout(20000)});
     const payload=await response.json();
     if(!response.ok||!payload.data?.session_token) {
       const detail=JSON.stringify(payload).toLowerCase();

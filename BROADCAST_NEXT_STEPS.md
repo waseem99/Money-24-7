@@ -3,12 +3,12 @@
 ## Implemented
 - Operator-controlled LiveAvatar preview with user-browser video/audio confirmation.
 - Four-segment local programme: market bulletin, official economics headlines, price chart, educational context.
-- Auto rundown advances on the next 60-second tick after narration finishes; manual segment controls remain available. Turn Auto rundown off to repeat the selected segment.
+- Auto rundown checks every five seconds and advances after narration finishes, with at least ten seconds per segment; manual segment controls remain available. Turn Auto rundown off to repeat the selected segment.
 - Headlines preserve source and publication date; feeds fetched over 15 minutes ago are not narrated.
 - This is a programme in one viewer's browser, not a shared continuous broadcast.
 
 ## Professional presenter configuration
-The selected intended presenter is Emily Serious. Preserve the current working sandbox environment until a non-sandbox test is deliberately activated.
+The Presenter setup dialog now offers Emily Serious as a professional preview. Selecting it and explicitly confirming credit use sends an authenticated request using fixed server-side assets, capped at 120 seconds. Wayne sandbox remains the default. The following environment settings are only needed if making Emily the deployment default; the new selector does not require those changes.
 
 | Vercel Production variable | Professional test value |
 |---|---|
