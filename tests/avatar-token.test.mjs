@@ -22,8 +22,10 @@ for(const authorization of [null,'Bearer wrong','test-studio','Basic test-studio
 test('authorized request sends server-side settings and returns only session token',async t=>{
   const {res,calls}=await run(t);assert.equal(res.code,200);assert.deepEqual(res.body,{sessionToken:'test-session'});assert.equal(res.headers['Cache-Control'],'no-store');assert.equal(calls.length,1);
   assert.equal(calls[0].url,'https://api.liveavatar.com/v1/sessions/token');assert.equal(calls[0].options.headers['X-API-KEY'],'test-key');
-  const body=JSON.parse(calls[0].options.body);assert.equal(body.is_sandbox,true);assert.equal(body.max_session_duration,300);assert.equal(body.avatar_id,'test-avatar');assert.equal(body.avatar_persona.voice_id,'test-voice');assert.equal(body.avatar_persona.context_id,'test-context');
+  const body=JSON.parse(calls[0].options.body);assert.equal(body.is_sandbox,true);assert.equal(body.max_session_duration,60);assert.equal(body.avatar_id,'test-avatar');assert.equal(body.avatar_persona.voice_id,'test-voice');assert.equal(body.avatar_persona.context_id,'test-context');
 });
 test('provider rejection is sanitized',async t=>{const {res}=await run(t,{reply:{ok:false,json:async()=>({error:'private upstream details'})}});assert.equal(res.code,502);assert.ok(!JSON.stringify(res.body).includes('private'));});
 test('missing session token fails closed',async t=>{const {res}=await run(t,{reply:{ok:true,json:async()=>({data:{}})}});assert.equal(res.code,502);});
 test('network failure is sanitized',async t=>{const {res}=await run(t,{fail:true});assert.equal(res.code,502);assert.ok(!JSON.stringify(res.body).includes('private'));});
+
+test('provider authentication failures are actionable without leaking details',async t=>{const {res}=await run(t,{reply:{ok:false,status:401,json:async()=>({error:'private upstream details'})}});assert.equal(res.body.providerStatus,401);assert.match(res.body.error,/API key rejected/);assert.ok(!JSON.stringify(res.body).includes('private'));});
