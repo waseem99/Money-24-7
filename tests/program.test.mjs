@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {economicsBulletin,nextSegment} from '../src/program.js';
+const now=Date.parse('2026-10-07T00:00:00Z');
+const feed={fetchedAt:new Date(now).toISOString(),items:[{title:'Policy statement',source:'Federal Reserve',publishedAt:'2026-10-05T12:00:00Z'}]};
+test('headlines retain source and publication date without claiming breaking news',()=>{const text=economicsBulletin(feed,now);assert.match(text,/Federal Reserve, published October 5, 2026: Policy statement/);assert.match(text,/not a breaking news bulletin/);});
+test('stale feed is not read as current news',()=>{assert.doesNotMatch(economicsBulletin(feed,now+900001),/Policy statement/);});
+test('future and malformed headlines are excluded',()=>{assert.match(economicsBulletin({...feed,items:[{...feed.items[0],publishedAt:'2027-01-01'}]},now),/No verified/);});
+test('programme rotates market, economics, chart, context',()=>{assert.deepEqual([0,3,1,2].map(nextSegment),[3,1,2,0]);});
