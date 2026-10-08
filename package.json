@@ -6,12 +6,18 @@
   "scripts": {
     "dev": "node dev.mjs",
     "build": "vite build",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "pilot": "node pilot/cli.mjs",
+    "pilot:review": "node pilot/cli.mjs serve",
+    "test:pilot": "node --test tests/pilot*.test.mjs",
+    "verify:media": "node pilot/verify-media.mjs"
   },
   "dependencies": {
     "@heygen/liveavatar-web-sdk": "0.0.19",
+    "ai": "7.0.133",
     "fast-xml-parser": "5.11.2",
-    "hls.js": "1.6.13"
+    "hls.js": "1.6.13",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "vite": "8.3.3"

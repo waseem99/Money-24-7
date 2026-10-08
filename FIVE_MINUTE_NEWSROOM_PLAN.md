@@ -1,6 +1,6 @@
 # Five-minute AI newsroom approval pilot
 
-Status: implementation plan; no finished pilot or new production implementation claimed.
+Status: prepared-pilot pipeline implemented; see PILOT_RUNBOOK.md and PILOT_VERIFICATION.md. A 300-second silent fixture is verified. Actual presenter footage, voice quality and stakeholder approval remain pending; no finished realistic pilot is claimed.
 Created: 8 October 2026.
 Repository: waseem99/Money-24-7.
 Audited production baseline: b19dfb2aa51dc9c20e059b5e8a415d891809654b.

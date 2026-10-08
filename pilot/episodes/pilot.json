@@ -1,0 +1,527 @@
+{
+  "version": 1,
+  "id": "signal-pilot-001",
+  "title": "The bigger picture",
+  "language": "en",
+  "createdAt": "2026-10-08T00:00:00Z",
+  "disclosure": "Prepared programme · AI presenters · Illustrative data",
+  "editorialStatus": "draft",
+  "presenters": {
+    "anchor": {
+      "name": "Maya",
+      "role": "Anchor",
+      "direction": "Composed, warm, precise; medium close-up; charcoal wardrobe; natural pauses. Fictional identity, provider IDs configured privately."
+    },
+    "analyst": {
+      "name": "Daniel",
+      "role": "Markets analyst",
+      "direction": "Conversational, thoughtful, measured; matching eyeline and lighting; navy wardrobe. Fictional identity, provider IDs configured privately."
+    }
+  },
+  "sources": [
+    {
+      "id": "illustration",
+      "kind": "illustrative",
+      "capturedAt": "2026-10-08T00:00:00Z",
+      "summary": "Original hypothetical calculations, not actual securities, companies, prices or current news. Units are illustrative. 105 / 100 - 1 = 5%; 0.60 * 5% + 0.40 * 0% = 3%; 100 - 80 = 20; 110 - 95 = 15; 100 * 0.8 = 80; 100 / 80 - 1 = 25%. No prediction or investment recommendation."
+    }
+  ],
+  "calculations": [
+    {
+      "label": "Basket contribution",
+      "expression": "0.6 * 0.05",
+      "result": 0.03
+    },
+    {
+      "label": "Recovery",
+      "expression": "100 / 80 - 1",
+      "result": 0.25
+    }
+  ],
+  "shots": [
+    {
+      "id": "open",
+      "start": 0,
+      "duration": 15,
+      "speaker": null,
+      "layout": "ident",
+      "segment": "THE BIGGER PICTURE",
+      "headline": "Markets move. Context matters.",
+      "text": "",
+      "cards": [
+        {
+          "label": "SIGNAL",
+          "value": "THE BRIEF"
+        },
+        {
+          "label": "EDITION",
+          "value": "PILOT / 001"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Markets move. Context matters."
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, markets move. context matters., no text, no logos, no real events."
+    },
+    {
+      "id": "welcome",
+      "start": 15,
+      "duration": 14,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "THE BIGGER PICTURE",
+      "headline": "Beyond the headline",
+      "text": "Welcome to Signal. I'm Maya. In this prepared pilot, we're looking beyond a market headline to the numbers underneath it. Daniel joins me to connect the dots.",
+      "cards": [
+        {
+          "label": "TODAY’S LENS",
+          "value": "PRICE • PROFIT • RISK"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Beyond the headline"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, beyond the headline, no text, no logos, no real events."
+    },
+    {
+      "id": "setup",
+      "start": 29,
+      "duration": 11,
+      "speaker": "analyst",
+      "layout": "presenter",
+      "segment": "THE BIGGER PICTURE",
+      "headline": "A simple question",
+      "text": "Thanks, Maya. Our question is simple: when a price moves, what has actually changed? We'll use clearly marked examples, rather than live market quotes.",
+      "cards": [
+        {
+          "label": "OUR QUESTION",
+          "value": "WHAT CHANGED?"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "A simple question"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, a simple question, no text, no logos, no real events."
+    },
+    {
+      "id": "overview-a",
+      "start": 40,
+      "duration": 30,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "MARKET LENS",
+      "headline": "A rise needs a reference point",
+      "text": "Let's begin with the board. This is an illustrative basket, starting at 100. It moves to 105, a gain of 5%. That sounds straightforward. But a percentage needs a reference point. It tells us how far a price has moved from where it started. It doesn't tell us why it moved, whether a business improved, or what might happen next. Daniel, what would you look at alongside that headline?",
+      "cards": [
+        {
+          "label": "START",
+          "value": "100"
+        },
+        {
+          "label": "FINISH",
+          "value": "105"
+        },
+        {
+          "label": "CHANGE",
+          "value": "+5%"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "A rise needs a reference point"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, a rise needs a reference point, no text, no logos, no real events."
+    },
+    {
+      "id": "overview-b",
+      "start": 70,
+      "duration": 35,
+      "speaker": "analyst",
+      "layout": "presenter",
+      "segment": "MARKET LENS",
+      "headline": "Same move. Different contribution.",
+      "text": "I'd look at what sits inside the basket. Here's another made-up example. A large holding accounts for 60% of the starting value and rises by 5%. The remaining 40% is unchanged. The overall gain is 3%, before any fees or other adjustments. So a positive headline can come from one part of the basket. In this example, the total is accurate, but it doesn't mean everything moved together. That distinction is useful whenever we read a broad summary.",
+      "cards": [
+        {
+          "label": "WEIGHT",
+          "value": "60%"
+        },
+        {
+          "label": "HOLDING MOVE",
+          "value": "+5%"
+        },
+        {
+          "label": "BASKET MOVE",
+          "value": "+3%"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Same move. Different contribution."
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, same move. different contribution., no text, no logos, no real events."
+    },
+    {
+      "id": "analysis-q",
+      "start": 105,
+      "duration": 12,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "INSIDE THE NUMBERS",
+      "headline": "Growth is only half the story",
+      "text": "So we need to see what is doing the work. Let's bring that down to a single business. If sales are growing, isn't that enough to call it progress?",
+      "cards": [
+        {
+          "label": "LOOK DEEPER",
+          "value": "SALES AND COSTS"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Growth is only half the story"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, growth is only half the story, no text, no logos, no real events."
+    },
+    {
+      "id": "analysis-a",
+      "start": 117,
+      "duration": 35,
+      "speaker": "analyst",
+      "layout": "presenter",
+      "segment": "INSIDE THE NUMBERS",
+      "headline": "Revenue up. Profit down.",
+      "text": "It can be progress, but let's check the costs. Imagine a business with revenue of 100 and costs of 80. That leaves a profit of 20. In the next period, revenue rises to 110, while costs climb to 95. Profit is now 15. The business is selling more, yet keeping less. These are simplified figures, in the same illustrative units, with no taxes or financing costs. The point is to compare the pieces, rather than treat a sales headline as the whole story.",
+      "cards": [
+        {
+          "label": "REVENUE",
+          "value": "100 → 110"
+        },
+        {
+          "label": "COSTS",
+          "value": "80 → 95"
+        },
+        {
+          "label": "PROFIT",
+          "value": "20 → 15"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Revenue up. Profit down."
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, revenue up. profit down., no text, no logos, no real events."
+    },
+    {
+      "id": "analysis-follow",
+      "start": 152,
+      "duration": 13,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "INSIDE THE NUMBERS",
+      "headline": "Ask what changed underneath",
+      "text": "And that gives us a better follow-up question. What changed in those costs? We haven't answered it with this example, but we now know where to look. A good headline starts the conversation.",
+      "cards": [
+        {
+          "label": "NEXT QUESTION",
+          "value": "WHAT CHANGED?"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Ask what changed underneath"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, ask what changed underneath, no text, no logos, no real events."
+    },
+    {
+      "id": "explainer-a",
+      "start": 165,
+      "duration": 40,
+      "speaker": "analyst",
+      "layout": "graphic",
+      "segment": "THE EXPLAINER",
+      "headline": "The journey back is different",
+      "text": "There's another number that can catch people out: the return needed after a fall. Start with an illustrative value of 100. A decline of 20% takes it to 80. To get from 80 back to 100, the gain must be 25%. The fall and the recovery use different starting points. That's why the percentages aren't the same. Nothing here predicts a recovery, or says how long one would take. It's simply the arithmetic. Showing both steps helps us describe the journey accurately, instead of assuming a rise and a fall of the same percentage cancel each other out.",
+      "cards": [
+        {
+          "label": "START",
+          "value": "100"
+        },
+        {
+          "label": "AFTER −20%",
+          "value": "80"
+        },
+        {
+          "label": "AFTER +25%",
+          "value": "100"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "ILLUSTRATIVE VALUE / ZERO-BASED SCALE"
+        },
+        {
+          "at": 6,
+          "phrase": "Start with an illustrative value",
+          "label": "START / 100 illustrative units"
+        },
+        {
+          "at": 10,
+          "phrase": "A decline of",
+          "label": "FALL / 20% of 100 = 20 units"
+        },
+        {
+          "at": 14,
+          "phrase": "To get from",
+          "label": "RECOVERY / 20 units is 25% of the new starting value"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, the journey back is different, no text, no logos, no real events.",
+      "chart": {
+        "type": "bar",
+        "max": 100,
+        "unit": "Illustrative value",
+        "series": [
+          {
+            "label": "START",
+            "value": 100
+          },
+          {
+            "label": "AFTER −20%",
+            "value": 80
+          },
+          {
+            "label": "AFTER +25%",
+            "value": 100
+          }
+        ]
+      }
+    },
+    {
+      "id": "explainer-b",
+      "start": 205,
+      "duration": 20,
+      "speaker": "anchor",
+      "layout": "graphic",
+      "segment": "THE EXPLAINER",
+      "headline": "Always check the starting point",
+      "text": "Let's hold that graphic for a moment. The distance in units is the same on the way down and on the way back. The base has changed. That's the detail to check when percentages are being compared: the starting value, the ending value, and the period being measured.",
+      "cards": [
+        {
+          "label": "CHECK ONE",
+          "value": "STARTING VALUE"
+        },
+        {
+          "label": "CHECK TWO",
+          "value": "ENDING VALUE"
+        },
+        {
+          "label": "CHECK THREE",
+          "value": "TIME PERIOD"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Always check the starting point"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, always check the starting point, no text, no logos, no real events."
+    },
+    {
+      "id": "question",
+      "start": 225,
+      "duration": 12,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "YOUR QUESTION",
+      "headline": "Does a lower price mean better value?",
+      "text": "For our prepared audience-question demonstration: if something costs less than it did before, does that automatically make it better value? Daniel, how would you frame that question?",
+      "cards": [
+        {
+          "label": "PREPARED QUESTION",
+          "value": "LOWER PRICE = VALUE?"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Does a lower price mean better value?"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, does a lower price mean better value?, no text, no logos, no real events."
+    },
+    {
+      "id": "answer",
+      "start": 237,
+      "duration": 33,
+      "speaker": "analyst",
+      "layout": "presenter",
+      "segment": "YOUR QUESTION",
+      "headline": "Price is one piece of the picture",
+      "text": "I'd separate the price change from the reason for it. In our business example, sales rose but profit fell. A lower price alone wouldn't tell us whether the business had become more attractive; we'd still need to understand its performance and what had changed. Our examples leave many things out, on purpose. They're a way to practise asking questions, not a recommendation to buy or sell anything. The useful habit is to identify what the numbers show, and be equally clear about what they don't.",
+      "cards": [
+        {
+          "label": "PRICE",
+          "value": "WHAT MOVED?"
+        },
+        {
+          "label": "BUSINESS",
+          "value": "WHAT CHANGED?"
+        },
+        {
+          "label": "CONTEXT",
+          "value": "WHAT IS MISSING?"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Price is one piece of the picture"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, price is one piece of the picture, no text, no logos, no real events."
+    },
+    {
+      "id": "question-wrap",
+      "start": 270,
+      "duration": 10,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "YOUR QUESTION",
+      "headline": "Good questions sharpen the picture",
+      "text": "So the answer starts with more context, rather than a shortcut. And that's the kind of conversation we want this newsroom to make easier.",
+      "cards": [
+        {
+          "label": "SIGNAL",
+          "value": "CONTEXT BEFORE CONCLUSIONS"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Good questions sharpen the picture"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, good questions sharpen the picture, no text, no logos, no real events."
+    },
+    {
+      "id": "recap",
+      "start": 280,
+      "duration": 10,
+      "speaker": "analyst",
+      "layout": "presenter",
+      "segment": "THE TAKEAWAY",
+      "headline": "Three checks before the conclusion",
+      "text": "Check the reference point. Look inside the total. And compare revenue with costs. Small checks, but they can change how a headline reads.",
+      "cards": [
+        {
+          "label": "01",
+          "value": "REFERENCE POINT"
+        },
+        {
+          "label": "02",
+          "value": "CONTRIBUTION"
+        },
+        {
+          "label": "03",
+          "value": "SALES AND COSTS"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "Three checks before the conclusion"
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, three checks before the conclusion, no text, no logos, no real events."
+    },
+    {
+      "id": "close",
+      "start": 290,
+      "duration": 10,
+      "speaker": "anchor",
+      "layout": "presenter",
+      "segment": "THE TAKEAWAY",
+      "headline": "The bigger picture. In focus.",
+      "text": "That's our brief. These were illustrative examples with AI presenters in a prepared programme. I'm Maya, with Daniel. Thank you for watching Signal.",
+      "cards": [
+        {
+          "label": "SIGNAL",
+          "value": "THE BIGGER PICTURE"
+        }
+      ],
+      "sourceIds": [
+        "illustration"
+      ],
+      "cues": [
+        {
+          "at": 0,
+          "label": "The bigger picture. In focus."
+        }
+      ],
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, the bigger picture. in focus., no text, no logos, no real events."
+    }
+  ]
+}
