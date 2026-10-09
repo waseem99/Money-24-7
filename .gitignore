@@ -4,3 +4,7 @@ dist/
 !.env.example
 .vercel/
 test-results/
+pilot-runs/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

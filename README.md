@@ -75,3 +75,6 @@ The HLS player branch is implemented but has not been verified with a real progr
 Created with the built-in image-generation tool for this project. Prompt: "An extremely realistic photographic original fictional female financial news anchor aged 32, natural medium skin tone and dark brown hair, tailored navy blazer and ivory blouse, seated at a charcoal glass desk; front-facing, natural hands, direct eye contact. Defocused midnight navy broadcast LED studio, subtle lime and ice-blue highlights, realistic optics, softbox lighting, natural skin texture. Widescreen. No readable text, logos, fake financial numbers, watermark, or celebrity likeness. Photograph, not illustration or 3D render."
 
 The project stores the image at `public/anchor-studio.png`.
+# Five-minute production pilot
+
+The prepared two-presenter pilot worker and private review studio are documented in [PILOT_RUNBOOK.md](PILOT_RUNBOOK.md). Start with `npm run pilot -- doctor`, then `npm run pilot -- init --fixture`. `/pilot.html` previews the production rundown. Fixture output is explicitly not the final realistic recording; actual provider footage and human quality review are still required.
