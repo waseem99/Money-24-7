@@ -102,3 +102,31 @@ Provider references (checked 8 October 2026):
 - https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps
 - https://vercel.com/docs/ai-gateway
 - Installed AI SDK source/README is pinned by `package-lock.json`.
+
+## Production finishing controls (9 October 2026)
+
+The full sequence after script approval now has one resumable command:
+
+```bash
+npm run pilot -- pipeline RUN_ID --paid
+# Optional: append --artwork to generate the opening illustration too.
+# Fixture run: same command without --paid; providers are never called.
+```
+
+The command waits/polls up to 30 minutes, collects generated clips, checks listener dependencies, composes the master, runs QA and writes `output/production-report.json`. It never grants editorial or stakeholder approval itself. A curated/manual-media run does not need LLM access. If generation is still pending, rerun the same command; saved jobs are reused.
+
+**Pronunciation:** add `pronunciations: [{"term":"NASDAQ","say":"Naz-dak"}]` to the episode or presenter. Overrides use word boundaries, preserve numeric claims and are included in the immutable episode revision. Spoken text is recorded with the generated take. Validate the actual voice; a phonetic spelling alone does not guarantee correct pronunciation.
+
+**Targeted retakes:** `npm run pilot -- retake RUN_ID --shot welcome --reason 'Correct cadence'`, then run `pipeline RUN_ID --paid`. This increments only that shot's attempt, archives its prior metadata, preserves its original media file and leaves other clips ready. No credits are spent by the retake command. Pending or ambiguous paid jobs must be collected/reconciled first. Previously approved masters and their approvals are copied to `archive/<master-hash>/` before replacement. Script changes still require a new immutable run and editorial review.
+
+**Split-screen:** the welcome shot now pairs the speaker with a separately supplied moving listener. Import a licensed/approved natural listening take covering the full slot:
+
+```bash
+npm run pilot -- import-listener RUN_ID --shot welcome --file /private/daniel-listening.mp4 --provenance 'Identity, source/render reference and usage permission'
+```
+
+Listener audio is never mixed into the programme. The worker does not loop a short reaction or turn a still image into fake listening footage. The real render stops if a required listener is missing. For a simpler single-presenter edit, change the shot layout to `presenter`, remove `listener`, and initialize/review that episode revision.
+
+**Media checks:** actual presenter sources are scanned for ≥0.25s black frames, ≥2s frozen frames and ≥2s silence. A trailing pause up to 3s is allowed; unexpected internal/leading silence is flagged. A/V track duration difference over 150ms or start offset over 120ms is rejected. Source scan failures produce `output/source-qa.json`. Master black-frame checks run too; intentionally static graphics are exempt from master freeze detection. These are technical defect checks, not an automated judge of natural facial performance or lip sync.
+
+**Measurements:** the ledger/report records request response time, measured speech duration, submitted character count, provider-ready time and any returned usage metadata. Estimated spend and `actualBilledUSD: null` are deliberately distinct. Actual invoiced costs require provider billing evidence; the worker does not fabricate prices from duration. Private review and persistent worker deployment remain as documented above.

@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {readFile, writeFile, rename, mkdir} from 'node:fs/promises';
 import path from 'node:path';
+import {spokenText} from './pronunciation.mjs';
 
 export const hash = value => createHash('sha256').update(typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value)).digest('hex');
 export const id = value => {
@@ -42,7 +43,9 @@ export function validateEpisode(e) {
     if (seen.has(shot.id)) throw new Error('Duplicate shot'); seen.add(shot.id);
     if (shot.start !== time || !Number.isInteger(shot.duration) || shot.duration < 3 || shot.duration > 90) throw new Error('Timeline gap/overlap or invalid duration');
     time += shot.duration;
-    if (!['ident','presenter','graphic'].includes(shot.layout) || !['anchor','analyst',null].includes(shot.speaker)) throw new Error('Invalid shot direction');
+    if (!['ident','presenter','graphic','split'].includes(shot.layout) || !['anchor','analyst',null].includes(shot.speaker)) throw new Error('Invalid shot direction');
+    if(shot.layout==='split'&&(!shot.speaker||!['anchor','analyst'].includes(shot.listener)||shot.listener===shot.speaker))throw new Error('Split scene requires a different listener');
+    if(shot.speaker)spokenText(shot.text,[...(e.pronunciations||[]),...(e.presenters[shot.speaker].pronunciations||[])]);
     if (!shot.headline || shot.headline.length > 70 || !shot.segment || !Array.isArray(shot.cards) || shot.cards.length > 3) throw new Error('Invalid graphics');
     for (const card of shot.cards) if (!card.label || !card.value || card.label.length > 35 || card.value.length > 30) throw new Error('Graphic text exceeds safe area');
     if (!Array.isArray(shot.sourceIds) || shot.sourceIds.some(s=>!sources.has(s))) throw new Error('Unknown evidence reference');

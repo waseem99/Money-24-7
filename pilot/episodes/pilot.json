@@ -74,7 +74,7 @@
       "start": 15,
       "duration": 14,
       "speaker": "anchor",
-      "layout": "presenter",
+      "layout": "split",
       "segment": "THE BIGGER PICTURE",
       "headline": "Beyond the headline",
       "text": "Welcome to Signal. I'm Maya. In this prepared pilot, we're looking beyond a market headline to the numbers underneath it. Daniel joins me to connect the dots.",
@@ -93,7 +93,8 @@
           "label": "Beyond the headline"
         }
       ],
-      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, beyond the headline, no text, no logos, no real events."
+      "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, beyond the headline, no text, no logos, no real events.",
+      "listener": "analyst"
     },
     {
       "id": "setup",
@@ -522,6 +523,16 @@
         }
       ],
       "imagePrompt": "Original financial editorial still, restrained navy and warm ivory, abstract architectural glass, the bigger picture. in focus., no text, no logos, no real events."
+    }
+  ],
+  "pronunciations": [
+    {
+      "term": "NASDAQ",
+      "say": "Naz-dak"
+    },
+    {
+      "term": "EBITDA",
+      "say": "ee bit dah"
     }
   ]
 }

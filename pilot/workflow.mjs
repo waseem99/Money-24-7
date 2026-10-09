@@ -6,6 +6,8 @@ import {hash,atomicJSON,readJSON,validateEpisode,realSetting,id,validateAlignmen
 import {Providers,required} from './providers.mjs';
 import {mediaRecord,checkTake,verifyAudible} from './media.mjs';
 import {compose} from './compositor.mjs';
+import {spokenText} from './pronunciation.mjs';
+import {invalidateOutput} from './archive.mjs';
 
 export const runBase=()=>path.resolve(process.env.PILOT_DATA_DIR || 'pilot-runs');
 export async function exists(file) {try{await access(file);return true;}catch{return false;}}
@@ -69,14 +71,18 @@ export async function produce(run,{paid=false,provider=new Providers(),env=proce
   if(shotId&&!run.episode.shots.some(s=>s.id===shotId&&s.speaker))throw new Error('Unknown audition shot');
   for(const setting of configuration(env).filter(s=>!s.name.startsWith('AI_')))if(!setting.configured)throw new Error(`Configure ${setting.name}`);
   return withLock(run.root,async()=> {
+    const fresh=await readJSON(path.join(run.root,'manifest.json'));for(const key of Object.keys(run.manifest))delete run.manifest[key];Object.assign(run.manifest,fresh);
     const db=new Store(run.root);const cost=estimates(env);const {episode,manifest,root}=run;
     try {
       for(const shot of episode.shots.filter(s=>s.speaker&&(!shotId||s.id===shotId))) {
         if(manifest.assets[shot.id])continue;
         onProgress(`Preparing ${shot.id}`);
-        const voiceFile=path.join(root,'assets',`${shot.id}-voice.mp3`);
-        const sk=jobKey('speech',{episode:manifest.episodeHash,shot:shot.id,voice:env[`ELEVENLABS_${shot.speaker.toUpperCase()}_VOICE_ID`],model:env.ELEVENLABS_MODEL_ID});
-        const speech=await chargedJob(db,sk,{amount:cost.speech,cap:cost.cap,category:'speech'},()=>provider.speech(shot.text,shot.speaker,voiceFile));
+        const attempt=manifest.attempts?.[shot.id]||0;
+        const text=spokenText(shot.text,[...(episode.pronunciations||[]),...(episode.presenters[shot.speaker].pronunciations||[])]);
+        const voiceFile=path.join(root,'assets',`${shot.id}-take${attempt}-voice.mp3`);
+        const sk=jobKey('speech',{episode:manifest.episodeHash,shot:shot.id,attempt,text,voice:env[`ELEVENLABS_${shot.speaker.toUpperCase()}_VOICE_ID`],model:env.ELEVENLABS_MODEL_ID});
+        manifest.pending??={};manifest.pending[shot.id]={...(manifest.pending[shot.id]||{}),speechKey:sk};await atomicJSON(path.join(root,'manifest.json'),manifest);
+        const speech=await chargedJob(db,sk,{amount:cost.speech,cap:cost.cap,category:'speech',units:{characters:text.length}},()=>provider.speech(text,shot.speaker,voiceFile));
         if(!await exists(voiceFile))throw new Error('Completed speech artifact missing; import a recovered take, do not resubmit blindly');
         const voice=await mediaRecord(voiceFile);checkTake(shot,voice,{voice:true});
         await verifyAudible(voiceFile);
@@ -84,14 +90,17 @@ export async function produce(run,{paid=false,provider=new Providers(),env=proce
         const uk=jobKey('upload',{voice:voice.sha256});
         // Upload is cached too, with no billing assumption. Network errors are safe to retry uploads.
         let upload=db.get(uk)?.data;if(!upload){upload=await provider.upload(voiceFile);db.set(uk,'complete',upload);}
-        const ak=jobKey('avatar',{voice:voice.sha256,avatar:env[`HEYGEN_${shot.speaker.toUpperCase()}_AVATAR_ID`]});
-        const submitted=await chargedJob(db,ak,{amount:cost.avatar,cap:cost.cap,category:'avatar'},()=>provider.avatar(upload.assetId,shot.speaker,ak));
+        const ak=jobKey('avatar',{voice:voice.sha256,attempt,shot:shot.id,avatar:env[`HEYGEN_${shot.speaker.toUpperCase()}_AVATAR_ID`]});
+        manifest.pending[shot.id].avatarKey=ak;await atomicJSON(path.join(root,'manifest.json'),manifest);
+        const submitted=await chargedJob(db,ak,{amount:cost.avatar,cap:cost.cap,category:'avatar',units:{sourceSeconds:voice.duration}},()=>provider.avatar(upload.assetId,shot.speaker,ak));
         const status=await provider.status(submitted.videoId);
+        manifest.pending[shot.id]={...manifest.pending[shot.id],videoId:submitted.videoId,state:status.status};await atomicJSON(path.join(root,'manifest.json'),manifest);
+        if(status.status==='completed'){const m=db.metric(ak,{});if(!m.providerReadyAt)db.metric(ak,{providerReadyAt:new Date().toISOString(),elapsedToReadyMs:Date.now()-Date.parse(m.startedAt),providerDurationSeconds:Number.isFinite(status.duration)?status.duration:null});}
         if(['failed','error','canceled'].includes(status.status))throw new Error(`Avatar failed: ${shot.id}. Inspect provider job ${submitted.videoId}; no automatic paid retry.`);
         if(status.status!=='completed'){onProgress(`${shot.id} queued. Run produce again later to poll; no duplicate submit.`);continue;}
         if(!status.video_url)throw new Error('Completed video missing URL');
-        const file=path.join(root,'assets',`${shot.id}.mp4`);await provider.download(status.video_url,file);
-        const record=await mediaRecord(file,{kind:'presenter',fixture:false,provider:'heygen',providerJobId:submitted.videoId,voiceSha256:voice.sha256,alignment:speech.alignment});checkTake(shot,record);
+        const file=path.join(root,'assets',`${shot.id}-take${attempt}.mp4`);await provider.download(status.video_url,file);
+        const record=await mediaRecord(file,{kind:'presenter',fixture:false,provider:'heygen',providerJobId:submitted.videoId,voiceSha256:voice.sha256,spokenText:text,attempt,alignment:speech.alignment});checkTake(shot,record);
         record.sourceLoudness=await verifyAudible(file);
         manifest.assets[shot.id]=record;await atomicJSON(path.join(root,'manifest.json'),manifest);
       }
@@ -109,7 +118,8 @@ export async function importTake(run,shotId,file,{provenance,alignmentFile}={}) 
   const alignment=alignmentFile?await readJSON(alignmentFile):null;
   if(alignment)validateAlignment(alignment,shot.duration);
   return withLock(run.root,async()=> {
-    const dest=path.join(run.root,'assets',`${shotId}.mp4`);await copyFile(path.resolve(file),dest);
+    await invalidateOutput(run.root);
+    const dest=path.join(run.root,'assets',`${shotId}-import-${record.sha256.slice(0,12)}.mp4`);await copyFile(path.resolve(file),dest);
     run.manifest.assets[shotId]={...record,file:path.basename(dest),kind:'presenter',fixture:false,provider:'manual-import',provenance,alignment};
     run.manifest.state='media-imported';await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);
     // Any replacement invalidates the previous render and human approval.
@@ -135,7 +145,7 @@ export async function illustration(run,{paid=false,provider=new Providers(),env=
 export async function render(run,onProgress) {
   if(!run.manifest.fixture)await requireEditorial(run);
   return withLock(run.root,async()=>{
-    await unlink(path.join(run.root,'approval.json')).catch(()=>{});await unlink(path.join(run.root,'output/qa.json')).catch(()=>{});
+    await invalidateOutput(run.root);
     const qa=await compose(run.episode,run.manifest,run.root,{fixture:run.manifest.fixture,onProgress});
     run.manifest.state=run.manifest.fixture?'fixture-rendered':'review-ready';run.manifest.masterHash=qa.master.sha256;
     await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);return qa;

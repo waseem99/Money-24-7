@@ -40,6 +40,10 @@ export function frameSVG(episode,shot,{fixture=false}={}) {
       art+=text(100,781,'ILLUSTRATIVE EXAMPLE  /  NOT LIVE MARKET DATA',21,'#97aeba','letter-spacing="2"');
     }
   }
+  if(shot.layout==='split')for(const [role,x] of [[shot.speaker,96],[shot.listener,984]]){
+    art+=`<rect x="${x}" y="212" width="840" height="600" fill="url(#glass)" stroke="#385364"/>`;
+    if(fixture)art+=text(x+420,482,episode.presenters[role].name,56,'#edf2ed','text-anchor="middle"')+text(x+420,548,role===shot.speaker?'SPEAKING TAKE PENDING':'LISTENING TAKE PENDING',21,'#91afbd','text-anchor="middle"');
+  }
   art+=`<rect x="0" y="870" width="1920" height="142" fill="#eae7df"/><rect x="0" y="870" width="15" height="142" fill="#68d6c3"/>`;
   art+=text(96,916,shot.speaker?`${episode.presenters[shot.speaker].name.toUpperCase()}  /  ${episode.presenters[shot.speaker].role.toUpperCase()}`:'SIGNAL  /  THE BRIEF',19,'#476473','letter-spacing="2"');
   art+=text(96,973,shot.headline,39,'#142638');

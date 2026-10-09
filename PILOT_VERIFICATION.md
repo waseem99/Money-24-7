@@ -41,3 +41,14 @@ The full fixture exposed AAC timestamp overlap at cuts during implementation. Th
 4. Render the actual five-minute programme, listen/watch end to end, correct voice, face, lip-sync and visual issues, then record stakeholder approval.
 
 Issue #6 stays open. #8/#10/#12/#13 cannot be completed by fixture evidence. #7/#9/#11 have implemented code/content but still require editorial/provider/visual acceptance as applicable. #14 (continuous live operation) remains the separately planned post-approval phase. The prepared audience question does not demonstrate fresh real-time generation.
+
+## 9 October implementation follow-through
+
+Added pronunciation dictionaries, single-shot retakes with archived prior takes/approved masters, two-presenter split composition with silent moving listener footage, measured usage/latency, source black/freeze/silence and A/V checks, and the integrated resumable `pipeline` command. The welcome scene now uses the split-screen contract. Existing provider access is still absent; all tests use explicit fixtures or synthetic integration media.
+
+The extended moving-media smoke check passed split-screen composition, real audio routing, loudness processing, black/frozen-source detection, silence rejection and short-master rejection. Neither synthetic footage nor the fixture is presented as an audition or approval film.
+
+- Extended unit/contract suite: **70 passing tests**; Vite build passes.
+- Integrated `pipeline` fixture completed in **107.752 seconds** on the test worker, with zero provider jobs/spend. This local encoding time is not a claim about AI generation latency.
+- New fixture master SHA-256: `5883bb6e3b30387ef42be8ab268026c9539af8a457a2c64a59cb20f4d3b7bfd2`.
+- Fixture final approval correctly remains false. Provider keys, voice IDs and avatar IDs are all unconfigured on the worker.

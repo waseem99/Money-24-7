@@ -1,7 +1,7 @@
 import path from 'node:path';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {renderFrame,renderCue} from './graphics.mjs';
-import {command,mediaRecord,measureLoudness,writeCaptions,checkTake,probe,verifyAudible,timedCues} from './media.mjs';
+import {command,mediaRecord,measureLoudness,writeCaptions,checkTake,probe,verifyAudible,timedCues,inspectMedia} from './media.mjs';
 import {atomicJSON,hash,readJSON} from './contracts.mjs';
 import {soundtrack} from './soundtrack.mjs';
 
@@ -10,7 +10,7 @@ export async function compose(episode,manifest,root,{fixture=false,onProgress=()
   const bed=path.join(output,'soundtrack.wav');if(!fixture)await soundtrack(bed);
   let illustration;
   if(!fixture&&manifest.illustration){illustration=path.join(root,'assets',manifest.illustration.file);if(hash(await readFile(illustration))!==manifest.illustration.sha256)throw new Error('Illustration changed');}
-  const files=[];const sources=[];
+  const files=[];const sources=[];const sourceQA=[];
   const rendererHash=hash(await readFile(new URL('./compositor.mjs',import.meta.url)))+hash(await readFile(new URL('./graphics.mjs',import.meta.url)));
   for(const shot of episode.shots) {
     onProgress(`Composing ${shot.id}`);
@@ -20,17 +20,27 @@ export async function compose(episode,manifest,root,{fixture=false,onProgress=()
       if(!asset || asset.fixture || asset.kind!=='presenter')throw new Error(`Real presenter clip missing: ${shot.id}`);
       const actual=await mediaRecord(path.join(root,'assets',asset.file));if(actual.sha256!==asset.sha256)throw new Error('Source media changed since verification');checkTake(shot,actual);
       await verifyAudible(path.join(root,'assets',asset.file));
+      const analysis=await inspectMedia(path.join(root,'assets',asset.file));sourceQA.push({shot:shot.id,...analysis});await atomicJSON(path.join(output,'source-qa.json'),sourceQA);
+      if(!analysis.pass)throw new Error(`Source media defect in ${shot.id}; inspect output/source-qa.json`);
       sources.push({shot:shot.id,...asset});
     }
+    const listener=manifest.listeners?.[shot.id];
+    if(hasClip&&shot.layout==='split'){if(!listener||listener.speaker!==shot.listener)throw new Error(`Listener missing for ${shot.id}`);const actual=await mediaRecord(path.join(root,'assets',listener.file));if(actual.sha256!==listener.sha256||actual.duration<shot.duration)throw new Error('Listener changed or too short');}
     const file=path.join(output,`${shot.id}.mkv`);
-    const fingerprint=hash({rendererHash,shot,fixture,asset,illustration:manifest.illustration});
+    const fingerprint=hash({rendererHash,shot,fixture,asset,listener,illustration:manifest.illustration});
     const cached=await readJSON(`${file}.json`).catch(()=>null);
     if(cached?.fingerprint===fingerprint){const actual=await mediaRecord(file).catch(()=>null);if(actual?.sha256===cached.sha256&&Math.abs(actual.duration-shot.duration)<=.05){files.push(file);continue;}}
     const args=['-hide_banner','-loglevel','error','-y','-loop','1','-framerate','30','-i',frame];
     if(hasClip) args.push('-i',path.join(root,'assets',asset.file));
     else args.push('-f','lavfi','-i','anullsrc=r=48000:cl=stereo');
+    const split=hasClip&&shot.layout==='split';if(split)args.push('-i',path.join(root,'assets',listener.file));
+    const cueIndex=split?3:2;
     const filters=[];
-    if(hasClip && shot.layout==='presenter') {
+    if(split){
+      filters.push('[1:v]scale=840:600:force_original_aspect_ratio=decrease,pad=840:600:(ow-iw)/2:(oh-ih)/2:color=0x101c2d,setsar=1,tpad=stop_mode=clone:stop_duration=3[speaker]');
+      filters.push('[2:v]scale=840:600:force_original_aspect_ratio=decrease,pad=840:600:(ow-iw)/2:(oh-ih)/2:color=0x101c2d,setsar=1[listener]');
+      filters.push('[0:v][speaker]overlay=96:212:shortest=1[left]');filters.push('[left][listener]overlay=984:212:shortest=1[base]');
+    }else if(hasClip && shot.layout==='presenter') {
       filters.push('[1:v]scale=960:600:force_original_aspect_ratio=decrease,pad=960:600:(ow-iw)/2:(oh-ih)/2:color=0x101c2d,setsar=1,tpad=stop_mode=clone:stop_duration=3[face]');
       filters.push('[0:v][face]overlay=96:212:shortest=1[base]');
     } else filters.push('[0:v]null[base]');
@@ -39,12 +49,12 @@ export async function compose(episode,manifest,root,{fixture=false,onProgress=()
     for(const [i,cue] of cues.entries()) {
       const cueFile=path.join(output,`${shot.id}-cue-${i}.png`);await renderCue(cue.label,cueFile);args.push('-loop','1','-framerate','30','-i',cueFile);
       const end=cues[i+1]?.at??shot.duration;
-      filters.push(`[${prior}][${i+2}:v]overlay=96:819:enable='gte(t,${cue.at})*lt(t,${end})'[cue${i}]`);prior=`cue${i}`;
+      filters.push(`[${prior}][${i+cueIndex}:v]overlay=96:819:enable='gte(t,${cue.at})*lt(t,${end})'[cue${i}]`);prior=`cue${i}`;
     }
     filters.push(`[${prior}]drawbox=x=0:y=1074:w=1920:h=6:color=0x274757:t=fill,format=yuv420p[v]`);
     if(fixture)filters.push('[1:a]aresample=48000,apad[a]');
     else{
-      const musicIndex=2+cues.length;args.push('-ss',String(shot.start),'-t',String(shot.duration),'-i',bed);
+      const musicIndex=cueIndex+cues.length;args.push('-ss',String(shot.start),'-t',String(shot.duration),'-i',bed);
       filters.push('[1:a]aresample=48000,apad[voice]');filters.push(`[voice][${musicIndex}:a]amix=inputs=2:normalize=0:duration=shortest[a]`);
     }
     // PCM intermediates avoid AAC encoder-priming overlap at every edit.
@@ -70,7 +80,8 @@ export async function compose(episode,manifest,root,{fixture=false,onProgress=()
   }
   await writeCaptions(episode,manifest.assets,path.join(output,'captions.vtt'),{fixture});
   const record=await mediaRecord(master);
-  const qa={version:1,fixture,episodeHash:hash(episode),master:record,sources,loudness,checks:{duration:Math.abs(record.duration-300)<=2,canvas:record.video?.width===1920&&record.video?.height===1080,codecs:record.video?.codec==='h264'&&record.audio?.codec==='aac',frameRate:record.video?.fps==='30/1',realPresenters:!fixture&&sources.length===episode.shots.filter(s=>s.speaker).length,loudness:!fixture&&Math.abs(Number(loudness?.input_i)+16)<=1&&Number(loudness?.input_tp)<=-1},review:{status:'pending',items:['Voice naturalness and pronunciation','Lip sync and facial artifacts','Identity/wardrobe/eyeline continuity','Graphic accuracy and timing','Pacing, gaps and handovers','Sources and illustrative disclosures','Music/footage/voice usage rights','Full programme watched by stakeholder']}};
+  const masterAnalysis=await inspectMedia(master,{freeze:false,silence:false});
+  const qa={version:1,fixture,episodeHash:hash(episode),master:record,sources,sourceQA,masterAnalysis,loudness,checks:{blackFrames:masterAnalysis.pass,sourceIntegrity:fixture?false:sourceQA.every(s=>s.pass),duration:Math.abs(record.duration-300)<=2,canvas:record.video?.width===1920&&record.video?.height===1080,codecs:record.video?.codec==='h264'&&record.audio?.codec==='aac',frameRate:record.video?.fps==='30/1',realPresenters:!fixture&&sources.length===episode.shots.filter(s=>s.speaker).length,loudness:!fixture&&Math.abs(Number(loudness?.input_i)+16)<=1&&Number(loudness?.input_tp)<=-1},review:{status:'pending',items:['Voice naturalness and pronunciation','Lip sync and facial artifacts','Identity/wardrobe/eyeline continuity','Graphic accuracy and timing','Pacing, gaps and handovers','Sources and illustrative disclosures','Music/footage/voice usage rights','Full programme watched by stakeholder']}};
   qa.technicalPass=Object.values(qa.checks).every(Boolean);
   await atomicJSON(path.join(output,'qa.json'),qa);await atomicJSON(path.join(output,'episode.json'),episode);
   if(!qa.checks.duration||!qa.checks.canvas||!qa.checks.codecs||!qa.checks.frameRate)throw new Error('Master failed export quality gates; see output/qa.json');

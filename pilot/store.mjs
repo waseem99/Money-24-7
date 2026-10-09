@@ -11,7 +11,8 @@ export class Store {
     this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
       CREATE TABLE IF NOT EXISTS jobs (key TEXT PRIMARY KEY, state TEXT NOT NULL, data TEXT NOT NULL, updated TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS charges (key TEXT PRIMARY KEY, amount REAL NOT NULL, category TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS events (seq INTEGER PRIMARY KEY, job TEXT, kind TEXT, at TEXT);`);
+      CREATE TABLE IF NOT EXISTS events (seq INTEGER PRIMARY KEY, job TEXT, kind TEXT, at TEXT);
+      CREATE TABLE IF NOT EXISTS metrics (key TEXT PRIMARY KEY, data TEXT NOT NULL);`);
   }
   get(key) { const r=this.db.prepare('SELECT * FROM jobs WHERE key=?').get(key); return r?{...r,data:JSON.parse(r.data)}:null; }
   set(key,state,data={}) {
@@ -30,18 +31,20 @@ export class Store {
       this.db.exec('COMMIT');
     } catch(e) {this.db.exec('ROLLBACK');throw e;}
   }
-  summary() {return {jobs:this.db.prepare('SELECT key,state,updated FROM jobs ORDER BY key').all(),reservedEstimateUSD:this.db.prepare('SELECT COALESCE(SUM(amount),0) AS total FROM charges').get().total};}
+  metric(key,data){const old=this.db.prepare('SELECT data FROM metrics WHERE key=?').get(key);const merged={...(old?JSON.parse(old.data):{}),...data};this.db.prepare('INSERT INTO metrics VALUES (?,?) ON CONFLICT(key) DO UPDATE SET data=excluded.data').run(key,JSON.stringify(merged));return merged;}
+  summary() {return {jobs:this.db.prepare('SELECT key,state,updated FROM jobs ORDER BY key').all(),metrics:this.db.prepare('SELECT * FROM metrics ORDER BY key').all().map(r=>({key:r.key,...JSON.parse(r.data)})),reservedEstimateUSD:this.db.prepare('SELECT COALESCE(SUM(amount),0) AS total FROM charges').get().total};}
   close(){this.db.close();}
 }
 export const jobKey = (kind, inputs) => `${kind}-${hash(inputs).slice(0,24)}`;
 
 // No automatic retry of a potentially charged POST after process/network failure.
-export async function chargedJob(store,key,{amount,cap,category},run) {
+export async function chargedJob(store,key,{amount,cap,category,units={}},run) {
   const old=store.get(key);
   if (old?.state==='complete') return old.data;
   if (old) throw new Error(`Job ${key} requires reconciliation; refusing duplicate paid request`);
   store.reserve(key,amount,cap,category);
   store.set(key,'submitting');
-  try {const result=await run(); store.set(key,'complete',result);return result;}
-  catch {store.set(key,'uncertain');throw new Error(`Provider request uncertain (${key}). Reconcile or import output; not automatically retried.`);}
+  const start=Date.now();store.metric(key,{category,units,startedAt:new Date(start).toISOString(),estimatedUSD:amount,actualBilledUSD:null});
+  try {const result=await run(); store.set(key,'complete',result);store.metric(key,{responseMs:Date.now()-start,finishedAt:new Date().toISOString(),providerUsage:result.usage||null});return result;}
+  catch {store.metric(key,{responseMs:Date.now()-start,outcome:'uncertain'});store.set(key,'uncertain');throw new Error(`Provider request uncertain (${key}). Reconcile or import output; not automatically retried.`);}
 }
