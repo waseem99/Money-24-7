@@ -2,6 +2,8 @@
 
 Status: prepared-pilot pipeline implemented; see PILOT_RUNBOOK.md and PILOT_VERIFICATION.md. A 300-second silent fixture is verified. Actual presenter footage, voice quality and stakeholder approval remain pending; no finished realistic pilot is claimed.
 Created: 8 October 2026.
+
+Extension planned 10 October 2026: [AI_FIRST_BROADCAST_V2_PLAN.md](docs/AI_FIRST_BROADCAST_V2_PLAN.md) defines the reference-inspired animated graphics, unequal multi-presenter scene, coordinated dialogue and movement experiments. Use its code map and linked task backlog for new V2 work. This file remains the original approval-milestone baseline; V2 planning does not certify real footage or a finished film.
 Repository: waseem99/Money-24-7.
 Audited production baseline: b19dfb2aa51dc9c20e059b5e8a415d891809654b.
 Approval tracker: [#6](https://github.com/waseem99/Money-24-7/issues/6).
