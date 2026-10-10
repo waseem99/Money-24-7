@@ -13,9 +13,9 @@ import {mediaRecord,verifyAudible,inspectMedia,command,vttTime} from '../media.m
 import {proposedPresenters} from './budget-preflight.mjs';
 
 const turns=[
-  {id:'liza-open',role:'ANCHOR',text:"Welcome to Signal Market Watch. I'm Liza. These market figures are illustrative, not live quotes. Lasse, before we interpret the chart, what should viewers check first?"},
-  {id:'lasse-analysis',role:'ANALYST',text:'Start with timeframe and source. A price may rise in one session yet fall across the week. Check the timestamp and comparison period before drawing conclusions.'},
-  {id:'liza-close',role:'ANCHOR',text:"That's the key. A chart shows what changed, not necessarily why. We'll connect our explanations to the evidence and make uncertainties visible. You're watching Signal Market Watch."}
+  {id:'liza-open',role:'ANCHOR',text:"Good evening, I'm Liza. One strong market session can grab attention, but does it tell the whole story? Lasse, when you look at a chart, where do you start?"},
+  {id:'lasse-analysis',role:'ANALYST',text:"First, the timeframe. Then volume, and whether the move lasts. A single candle can be exciting, but I want the broader trend before drawing conclusions. These figures are examples, not live prices."},
+  {id:'liza-close',role:'ANCHOR',text:"Exactly. The headline catches your eye; the evidence gives it meaning. This is a prepared AI-presenter demonstration using illustrative data. Thanks for joining us on Signal."}
 ];
 
 export const nativeAuditionPlan=Object.freeze({
