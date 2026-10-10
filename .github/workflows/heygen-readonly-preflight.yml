@@ -1,0 +1,77 @@
+name: HeyGen API read-only preflight
+
+# Deliberately runs only from trusted main. Never run secret-bearing code from pull requests.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/heygen-readonly-preflight.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heygen-readonly-preflight
+  cancel-in-progress: false
+
+jobs:
+  verify-key-and-casting:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Authenticate and verify Araj/Kevin with safe GET requests only
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.trim().length<12)throw new Error('HEYGEN_API_KEY secret is not configured or is too short');
+          const avatars=[
+            {name:'Araj',id:'425825d6465b4ba4bd261d334d530430',group:'f643cf465f0e4b1ab46946978dd76a65',voice:'5769809d7ddd445e8173b3d08c509ae1',portrait:true},
+            {name:'Kevin',id:'c8f428c549ea448488fdb2214dbcad57',group:'ce741649eb8c4ca38cd34164881a2ef5',voice:'5141743c956d4a1298b7126c9639d416',portrait:false}
+          ];
+          async function readOnlyGet(path){
+            const response=await fetch('https://api.heygen.com'+path,{
+              method:'GET',
+              headers:{'X-Api-Key':key,'Accept':'application/json'},
+              signal:AbortSignal.timeout(20000),
+              redirect:'error'
+            });
+            // Do not log raw provider bodies, request headers, token, account identity or wallet.
+            if(!response.ok)throw new Error('Read-only HeyGen check failed with HTTP '+response.status+' at '+path.split('/').slice(0,3).join('/')+'. No video requested.');
+            const payload=await response.json();
+            if(payload?.error)throw new Error('HeyGen reported an API read error; response suppressed to protect sensitive data');
+            return payload?.data??payload;
+          }
+          const account=await readOnlyGet('/v3/users/me');
+          if(!account||typeof account!=='object')throw new Error('API key validation returned no usable account');
+          console.log('PASS: direct API key authenticated through GET /v3/users/me');
+
+          const results=[];
+          for(const item of avatars){
+            const look=await readOnlyGet('/v3/avatars/looks/'+encodeURIComponent(item.id));
+            if(look?.id!==item.id||look?.group_id!==item.group||look?.avatar_type!=='digital_twin')
+              throw new Error('Look mismatch for '+item.name+'; no video requested');
+            if(look.status!=='completed'||!look.supported_api_engines?.includes('avatar_iii'))
+              throw new Error('Completed Avatar III look unavailable for '+item.name);
+            if(look.default_voice_id!==item.voice)
+              throw new Error('Default voice mismatch for '+item.name);
+            if(!Number.isFinite(look.image_width)||!Number.isFinite(look.image_height)||
+               (item.portrait?look.image_height<=look.image_width:look.image_width<=look.image_height))
+              throw new Error('Unexpected look orientation for '+item.name);
+            console.log('PASS: '+item.name+' digital-twin look, assigned default voice, Avatar III, and native orientation');
+            results.push(item.name+' — ready for a later separately approved audition');
+          }
+          console.log('PASS: all 3 HTTP calls used GET only; no video generation or paid API calls submitted');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## HeyGen read-only verification\n\n'+
+            '- Direct API key authentication: **PASS**\n'+
+            results.map(x=>'- '+x+'\n').join('')+
+            '- Generation: **none**; this workflow issues only GET requests\n'+
+            '- **No payment or paid clip is authorized by this result.**\n'+
+            '- API wallet / recharge settings: **not independently verified by this test**\n');
+          NODE
