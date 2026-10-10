@@ -4,7 +4,7 @@
  * Read-only and dry-run commands do not call paid APIs. Paid generation is single-turn only.
  */
 import path from 'node:path';
-import {mkdir,readFile,rename,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,rename,writeFile,copyFile} from 'node:fs/promises';
 import {runBase,exists,withLock} from '../workflow.mjs';
 import {hash,atomicJSON,readJSON,id,realSetting} from '../contracts.mjs';
 import {Store,chargedJob,jobKey} from '../store.mjs';
@@ -47,19 +47,19 @@ export function auditNativePlan(plan=nativeAuditionPlan){
     caveat:'Estimates are not actual charges, do not include retakes; no provider-side wallet limit is implied.',
     unresolved:['Real look/voice/API-key compatibility on private direct API account','Lip sync and pronunciation review','R2 standing alpha and non-speaking listener footage']};
 }
-export async function initNative(){
+export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
-  const name=plan.id+'-'+audit.planHash.slice(0,12),root=path.join(runBase(),name);
+  const name=plan.id+'-'+audit.planHash.slice(0,12)+(fixture?'-fixture':''),root=path.join(runBase(),name);
   if(await exists(path.join(root,'manifest.json')))return loadNative(name);
   await mkdir(path.join(root,'assets'),{recursive:true,mode:0o700});
-  const manifest={kind:plan.kind,name,planHash:audit.planHash,state:'prepared',createdAt:new Date().toISOString(),assets:{},providerStatus:{}};
+  const manifest={kind:plan.kind,name,planHash:audit.planHash,fixture,state:'prepared',createdAt:new Date().toISOString(),assets:{},providerStatus:{}};
   await atomicJSON(path.join(root,'plan.json'),plan);await atomicJSON(path.join(root,'manifest.json'),manifest);
   return {name,root,plan,manifest};
 }
 export async function loadNative(name){
   id(name);const root=path.join(runBase(),name);
   const plan=await readJSON(path.join(root,'plan.json')),manifest=await readJSON(path.join(root,'manifest.json'));
-  if(manifest.kind!=='short-presenter-audition'||manifest.name!==name||manifest.planHash!==hash(plan))throw new Error('Audition plan/manifest tampered; generate a new plan');
+  if(manifest.kind!=='short-presenter-audition'||manifest.name!==name||manifest.planHash!==hash(plan)||Boolean(manifest.fixture)!==name.endsWith('-fixture'))throw new Error('Audition plan/manifest tampered; generate a new plan');
   auditNativePlan(plan);
   return {name,root,plan,manifest};
 }
@@ -93,6 +93,7 @@ export async function nativeStatus(run){
 }
 export async function produceNativeTurn(run,turnId,{paid=false,env=process.env,provider=new Providers(env)}={}){
   if(!paid)throw new Error('No paid request: explicit --paid required');
+  if(run.manifest.fixture)throw new Error('Fixture audition cannot call a paid provider');
   const turn=run.plan.turns.find(t=>t.id===turnId);
   if(!turn)throw new Error('Specify exactly one approved --turn');
   const budget=paidGate(run,env);
@@ -122,7 +123,7 @@ export async function produceNativeTurn(run,turnId,{paid=false,env=process.env,p
       const anomalies=await inspectMedia(file,{freeze:true,silence:true});
       if(!anomalies.pass)throw new Error('Audition source has black/frozen/silent sections');
       run.manifest.assets[turnId]={...record,providerVideoId:videoId,providerDurationSeconds:status.duration??null,
-        provider:'heygen',engine:run.plan.engine,lookId:turn.avatarId,voiceId:turn.voiceId,
+        provider:'heygen',synthetic:false,engine:run.plan.engine,lookId:turn.avatarId,voiceId:turn.voiceId,
         scriptHash:hash(turn.text),anomalies,actualBilledUSD:null};
       run.manifest.state=Object.keys(run.manifest.assets).length===run.plan.turns.length?'clips-ready':'clips-partial';
       await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);
@@ -144,6 +145,23 @@ export async function reconcileNative(run,turnId,videoId){
 }
 // Assemble only real, technically verified presenter clips. Not a certification
 // of the standing analyst, moving listener, precise word timing or final R2.
+// Deliberately labelled synthetic clip intake, for FFmpeg verification only.
+export async function importNativeFixture(run,turnId,sourceFile){
+  if(!run.manifest.fixture)throw new Error('Synthetic source is only allowed in a fixture run');
+  const turn=run.plan.turns.find(t=>t.id===turnId);
+  if(!turn)throw new Error('Unknown fixture turn');
+  return withLock(run.root,async()=>{
+    Object.assign(run,await loadNative(run.name));
+    const dest=path.join(run.root,'assets',turnId+'.mp4');
+    await copyFile(sourceFile,dest);
+    const record=await mediaRecord(dest);
+    if(!record.video||!record.audio||record.video.width<1280||record.video.height<720)throw new Error('Synthetic source format inadequate');
+    run.manifest.assets[turnId]={...record,provider:'fixture',synthetic:true,scriptHash:hash(turn.text),
+      providerVideoId:null,actualBilledUSD:0};
+    await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);
+    return {turnId,fixture:true};
+  });
+}
 export async function assembleNative(run){
   return withLock(run.root,async()=>{
     Object.assign(run,await loadNative(run.name));
@@ -151,7 +169,7 @@ export async function assembleNative(run){
     const {assets,plan}= {assets:run.manifest.assets,plan:run.plan};
     for(const t of plan.turns){
       const a=assets[t.id],input=path.join(run.root,'assets',a.file);
-      if(hash(await readFile(input))!==a.sha256||a.provider!=='heygen'||a.scriptHash!==hash(t.text))throw new Error('Real source clip identity mismatch');
+      if(hash(await readFile(input))!==a.sha256||a.provider!==(run.manifest.fixture?'fixture':'heygen')||Boolean(a.synthetic)!==Boolean(run.manifest.fixture)||a.scriptHash!==hash(t.text))throw new Error('Source clip identity/fixture mismatch');
     }
     const inputs=plan.turns.flatMap(t=>['-i',path.join(run.root,'assets',assets[t.id].file)]);
     const filters=[];
@@ -178,7 +196,7 @@ export async function assembleNative(run){
     await writeFile(path.join(out,'captions.vtt'),caption,{mode:0o600});
     const qa={programme:'short native-voice presenter cut audition',masterHash:record.sha256,durationSeconds:record.duration,
       withinRequested30To45Seconds:record.duration>=30&&record.duration<=45,
-      realPresenterSources:true,standingAnalystCertified:false,listenerReactionCertified:false,
+      realPresenterSources:!run.manifest.fixture,synthetic:Boolean(run.manifest.fixture),standingAnalystCertified:false,listenerReactionCertified:false,
       actualProviderCostUSD:null,humanLipSyncApproval:false,sourceClips:plan.turns.map(t=>({turn:t.id,sha256:assets[t.id].sha256,videoId:assets[t.id].providerVideoId}))};
     await atomicJSON(path.join(out,'qa.json'),qa);
     return qa;
