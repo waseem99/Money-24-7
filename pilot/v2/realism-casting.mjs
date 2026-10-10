@@ -69,11 +69,45 @@ const filmed=freeze({
     'Standing/matting and independent silent-listener motions remain unverified.'
   ])
 });
-export const castingShortlist=freeze({keep,filmed});
+const twins=freeze({
+  id:'recast-recorded-digital-twins',approvalStatus:'unapproved public identity change: free video preview and usage rights still require confirmation',
+  approach:'Use public video-trained digital twins, with recorded-motion references and optional premium Avatar V engine.',
+  engine:'avatar_v',rateUSDPerMinute:4,
+  budgetEngine:'avatar_iii',budgetRateUSDPerMinute:1,
+  anchor:freeze({
+    name:'Veronica',role:'Anchor',lookId:'5d7b598f4a564ea2b072b2440b249648',
+    avatarType:'digital_twin',defaultVoiceId:'31d70788ddf3469299f6a65ae2e24a04',
+    imagePreviewUrl:'https://files2.heygen.ai/avatar/v3/5d7b598f4a564ea2b072b2440b249648/full/2.2/preview_target.webp',
+    videoPreviewUrl:'https://files2.heygen.ai/avatar/v3/5d7b598f4a564ea2b072b2440b249648/full/2.2/preview_video_target.mp4',
+    availableEngines:['avatar_v','avatar_iv','avatar_iii'],nativeWidth:1280,nativeHeight:720,
+    voiceDirection:'Measured and calm, approachable primary presenter; test actual default voice for newsroom suitability.',
+    motionDirection:'Prefer recorded reference and default Avatar V behavior; do not layer speculative gestures.',
+    framing:'Landscape 16:9 anchor; medium shot in branded composition with natural illumination.'
+  }),
+  analyst:freeze({
+    name:'Kevin',role:'Analyst',lookId:'c8f428c549ea448488fdb2214dbcad57',
+    avatarType:'digital_twin',defaultVoiceId:'5141743c956d4a1298b7126c9639d416',
+    imagePreviewUrl:'https://files2.heygen.ai/avatar/v3/c8f428c549ea448488fdb2214dbcad57/half/2.2/preview_target.webp',
+    videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/c8f428c549ea448488fdb2214dbcad57/half/2.2/preview_video_target.mp4',
+    availableEngines:['avatar_v','avatar_iv','avatar_iii'],nativeWidth:1280,nativeHeight:720,
+    voiceDirection:'Measured but conversational financial analyst, fewer scripted-corporate phrases; test actual voice.',
+    motionDirection:'Rely on recorded human movement reference and avoid a repeating hand-gesture prompt.',
+    framing:'Landscape 16:9 analyst panel at slight angle, significant room for chart cutaways.'
+  }),
+  constraints:freeze([
+    'These are public, video-trained identities, not private or exclusive actors; neither is approved to replace Liza/Lasse.',
+    'Avatar V is the higher-fidelity engine advertised for both digital-twin looks. A cheaper Avatar III audition can test each identity but may be less lifelike.',
+    'The provider advertises recorded-motion sources, but actual scripted output has not been generated or quality-assessed.',
+    'Avatar V public API billing is reported as approximately $4/min; verify direct-account price and balance before release.',
+    'Full two-person interacting/standing/alpha outputs remain unproven and are not part of simple presenter-cut proof.'
+  ])
+});
+
+export const castingShortlist=freeze({keep,filmed,twins});
 export function realismComparison(){
   const options=Object.values(castingShortlist);
   return {asOf:'2026-10-10',zeroSpend:true,noVideoGenerated:true,paymentStatus:'BLOCKED',
-    approvedCast:'Liza/Lasse photo looks (appearance only)',recommendedForFirstHumanLikePreview:'recast-filmed-studio',
+    approvedCast:'Liza/Lasse photo looks (appearance only)',recommendedForFirstHumanLikePreview:'recast-recorded-digital-twins',
     userMustApproveChangingFaces:true,
     comparisons:options.map(o=>({
       id:o.id,engine:o.engine,presenters:[o.anchor.name,o.analyst.name],
@@ -82,6 +116,8 @@ export function realismComparison(){
       sample45SecSpokenVideoUSD:Math.round(.75*o.rateUSDPerMinute*100)/100,
       fiveMinSpokenVideoUSD:5*o.rateUSDPerMinute,
       three20SecMaxTurnEstimateUSD:o.rateUSDPerMinute,
+      alternateBudgetEngine:o.budgetEngine||null,
+      alternateBudgetEngineRateUSDPerMinute:o.budgetRateUSDPerMinute||null,
       notes:o.constraints
     })),
     exclusions:'Prices are estimates for speaking-avatar footage only; exclude listener/standing layers, extra calls, retakes, licensing, paid speech models, data feeds, hosting and taxes.'
