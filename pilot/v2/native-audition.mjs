@@ -169,7 +169,7 @@ export async function importNativeFixture(run,turnId,sourceFile){
     const dest=path.join(run.root,'assets',turnId+'.mp4');
     await copyFile(sourceFile,dest);
     const record=await mediaRecord(dest);
-    if(!record.video||!record.audio||record.video.width<1280||record.video.height<720)throw new Error('Synthetic source format inadequate');
+    if(!record.video||!record.audio||Math.min(record.video.width,record.video.height)<720||Math.max(record.video.width,record.video.height)<1280)throw new Error('Synthetic source format inadequate');
     run.manifest.assets[turnId]={...record,provider:'fixture',synthetic:true,scriptHash:hash(turn.text),
       providerVideoId:null,actualBilledUSD:0};
     await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);
