@@ -19,24 +19,24 @@ const turns=[
 ];
 
 export const nativeAuditionPlan=Object.freeze({
-  version:2,id:'signal-native-araj-kevin',kind:'short-presenter-audition',engine:'avatar_iii',
+  version:3,id:'signal-native-araj-kevin',kind:'short-presenter-audition',engine:'avatar_iii',
   resolution:'1080p',targetSeconds:45,maxEstimatedClipSeconds:20,disclosure:'AI presenters; illustrative market discussion, not live quotes.',
   turns:turns.map(t=>({...t,avatarId:proposedPresenters[t.role].lookId,
-    voiceId:proposedPresenters[t.role].defaultVoiceId,name:proposedPresenters[t.role].name,
+    voiceId:proposedPresenters[t.role].auditionVoiceId,name:proposedPresenters[t.role].name,
     aspectRatio:proposedPresenters[t.role].preferredAspectRatio,
     fit:proposedPresenters[t.role].preferredAspectRatio==='9:16'?'contain':'cover'}))
 });
 const rateFor=engine=>engine==='avatar_iv'?3:engine==='avatar_iii'?1:NaN;
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
-  if(plan.version!==2||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
+  if(plan.version!==3||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
   if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Araj/Kevin/Araj turns required');
   const ids=new Set;
   for(const t of plan.turns){
     if(ids.has(t.id)||!/^[-a-z0-9]+$/.test(t.id)||!t.text||t.text.length>5000||t.text.split(/\s+/).length>38)throw new Error('Invalid bounded audition turn');
     ids.add(t.id);
     const p=proposedPresenters[t.role];
-    if(t.avatarId!==p.lookId||t.voiceId!==p.defaultVoiceId||t.name!==p.name||t.aspectRatio!==p.preferredAspectRatio||t.fit!==(p.preferredAspectRatio==='9:16'?'contain':'cover'))throw new Error('Presenter/voice changed without a new review');
+    if(t.avatarId!==p.lookId||t.voiceId!==p.auditionVoiceId||t.name!==p.name||t.aspectRatio!==p.preferredAspectRatio||t.fit!==(p.preferredAspectRatio==='9:16'?'contain':'cover'))throw new Error('Presenter/voice changed without a new review');
     if(/live market prices|today's actual quotes|real.time quotes/i.test(t.text))throw new Error('Do not claim synthetic commentary is live');
   }
   if(plan.maxEstimatedClipSeconds<10||plan.maxEstimatedClipSeconds>20||plan.targetSeconds!==45)throw new Error('Bounded audition size changed');
@@ -47,7 +47,7 @@ export function auditNativePlan(plan=nativeAuditionPlan){
       words:t.text.split(/\s+/).length,script:t.text,estimatedReservationUSD:perClip})),
     rateUSDPerVideoMinute:rate,maximumReservedEstimateUSD:usd(perClip*plan.turns.length),
     caveat:'Estimates are not actual charges; no retakes, listener footage, matting or provider-side wallet limit are included. User selected the cast, not spending.',
-    unresolved:['Real look/voice/API-key compatibility on private direct API account','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
+    unresolved:['Prior Araj default voice failed TTS; selected replacement requires real lip-sync audit and separate payment approval','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
 }
 export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
@@ -74,7 +74,7 @@ function paidGate(run,env){
   const key=required(env,'HEYGEN_API_KEY'),proof=run.manifest.lookCheck;
   if(!proof||proof.planHash!==run.manifest.planHash||proof.keyHash!==hash(key)||
      !Number.isFinite(Date.parse(proof.checkedAt))||Date.now()-Date.parse(proof.checkedAt)>24*60*60*1000||
-     !Array.isArray(proof.checks)||proof.checks.length!==2)
+     !Array.isArray(proof.checks)||proof.checks.length!==2||!proof.checks.every(x=>x.voiceProvenance==='starfish-catalog'))
     throw new Error('Paid audition locked: a successful same-key read-only look/voice/engine account check within 24 hours is required');
   return {cap:reserved,perClip:usd(run.plan.maxEstimatedClipSeconds*rateFor(run.plan.engine)/60)};
 }
@@ -89,7 +89,12 @@ export async function lookCheckNative(run,{env=process.env,provider=new Provider
        look.group_id!==p.groupId||look.default_voice_id!==p.defaultVoiceId||
        !look.supported_api_engines?.includes(run.plan.engine))
       throw new Error('Selected '+p.name+' look, default voice or engine is not confirmed for this direct API account');
-    checks.push({presenter:p.name,lookId:look.id,voiceId:look.default_voice_id,voiceProvenance:'look default',engine:run.plan.engine,status:look.status});
+    const voices=await provider.listVoices({gender:role==='ANCHOR'?'female':'male'});
+    const v=voices.find(x=>x.voice_id===p.auditionVoiceId&&x.language==='English'&&x.gender===(role==='ANCHOR'?'female':'male'));
+    if(!v)throw new Error('Chosen '+p.name+' voice is not independently listed as available on the direct Starfish API; paid generation blocked');
+    checks.push({presenter:p.name,lookId:look.id,avatarDefaultVoiceId:look.default_voice_id,
+      voiceId:v.voice_id,voiceName:String(v.name||p.auditionVoiceName).slice(0,100),voiceProvenance:'starfish-catalog',
+      engine:run.plan.engine,status:look.status});
   }
   const checkedAt=new Date().toISOString();
   return withLock(run.root,async()=>{
@@ -97,7 +102,7 @@ export async function lookCheckNative(run,{env=process.env,provider=new Provider
     run.manifest.lookCheck={planHash:run.manifest.planHash,keyHash:hash(token),checkedAt,checks};
     await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);
     return {checks,checkedAt,planHash:run.manifest.planHash,billedRenderRequests:0,
-      apiWalletUnverified:true,voiceAccentUnverified:true,voiceListedAsLookDefault:true};
+      apiWalletUnverified:true,voiceAccentUnverified:true,chosenVoiceVerifiedInStarfishCatalog:true,originalDefaultVoiceMayBeUnavailable:true};
   });
 }
 export async function nativeStatus(run){
