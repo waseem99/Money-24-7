@@ -42,7 +42,7 @@ export class Providers {
     if(!['16:9','9:16'].includes(aspectRatio)||!['cover','contain'].includes(fit))throw new Error('Unsupported verified audition orientation/fit');
     const payload={type:'avatar',avatar_id:avatarId,script:text,voice_id:voiceId,engine:{type:engine},
       aspect_ratio:aspectRatio,resolution:'1080p',fit,
-      background:{type:'color',value:'#102944'},output_format:'mp4',
+      output_format:'mp4',
       caption:{file_format:'srt'},title:`Signal native audition ${callbackId}`,callback_id:callbackId};
     const r=await this.json('https://api.heygen.com/v3/videos',{
       method:'POST',headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY'),'Content-Type':'application/json'},
