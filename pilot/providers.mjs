@@ -61,16 +61,29 @@ export class Providers {
   }
   // Read-only Starfish catalog. Unlike avatar looks, a voice appearing as a
   // look's default does not prove that it can be synthesized through the API.
-  async listVoices({gender,language='English',limit=100}={}){
-    if(!['female','male'].includes(gender)||limit<1||limit>100)throw new Error('Valid bounded voice catalog filter required');
-    const u=new URL('https://api.heygen.com/v3/voices');
-    for(const [k,v] of Object.entries({engine:'starfish',type:'public',language,gender,limit}))u.searchParams.set(k,String(v));
-    const response=await this.json(u.toString(),{headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY')}});
-    if(response?.error)throw new Error('HeyGen read-only voice catalog unavailable');
-    const body=response?.data??response;
-    const items=Array.isArray(body)?body:Array.isArray(body?.voices)?body.voices:Array.isArray(body?.items)?body.items:null;
-    if(!items)throw new Error('Unsupported voice catalog shape; no billable call');
-    return items;
+  async listVoices({gender,language='English',limit=100,searchQuery=null,maxPages=3}={}){
+    if(!['female','male'].includes(gender)||limit<1||limit>100||!Number.isInteger(maxPages)||maxPages<1||maxPages>5||
+       (searchQuery!==null&&(typeof searchQuery!=='string'||searchQuery.length>80)))
+      throw new Error('Valid bounded voice catalog filter required');
+    const key=required(this.env,'HEYGEN_API_KEY'),found=[],seen=new Set;
+    let token=null;
+    for(let page=0;page<maxPages;page++){
+      const u=new URL('https://api.heygen.com/v3/voices');
+      for(const [k,v] of Object.entries({engine:'starfish',type:'public',language,gender,limit}))
+        u.searchParams.set(k,String(v));
+      if(searchQuery)u.searchParams.set('search_query',searchQuery);
+      if(token)u.searchParams.set('token',token);
+      const response=await this.json(u.toString(),{method:'GET',headers:{'x-api-key':key}});
+      if(response?.error)throw new Error('HeyGen read-only voice catalog unavailable');
+      const body=response?.data??response;
+      const items=Array.isArray(body)?body:Array.isArray(body?.voices)?body.voices:Array.isArray(body?.items)?body.items:null;
+      if(!items)throw new Error('Unsupported voice catalog shape; no billable call');
+      found.push(...items);
+      const next=body?.next_token;
+      if(!next||typeof next!=='string'||seen.has(next))break;
+      seen.add(next);token=next;
+    }
+    return found;
   }
   // The official current V3 catalog provides default_voice_id on the look record;
   // there is no documented single-voice GET endpoint used here.
