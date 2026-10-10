@@ -1,0 +1,194 @@
+name: Araj Annie - single paid Avatar III audition
+
+on:
+  push:
+    branches:
+      - ops/heygen-araj-first-once-20261010
+    paths:
+      - .github/workflows/heygen-araj-annie-single-paid.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: signal-araj-annie-single-paid-20261010
+  cancel-in-progress: false
+
+jobs:
+  create-one-araj-annie:
+    if: github.ref == 'refs/heads/ops/heygen-araj-first-once-20261010'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN_FOR_LOCK: ${{ github.token }}
+    steps:
+      - name: Authenticate, verify Annie in voice catalog, lock and submit one clip only
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          import {setTimeout as pause} from 'node:timers/promises';
+          
+          const apiKey=process.env.HEYGEN_API_KEY;
+          const ghToken=process.env.GH_TOKEN_FOR_LOCK;
+          const expectedRepo='waseem99/Money-24-7';
+          const expectedBranch='refs/heads/ops/heygen-araj-first-once-20261010';
+          const onceTag='refs/tags/signal-araj-annie-avatar-iii-single-paid-20261010-a2';
+          const avatarId='425825d6465b4ba4bd261d334d530430';
+          const avatarGroup='f643cf465f0e4b1ab46946978dd76a65';
+          const voiceId='330290724a1b470fb63153f34d4c0183';
+          const script="Good evening, and welcome to Signal. I'm Araj. Markets can move quickly, but one headline rarely tells the whole story. Kevin, what should viewers check first?";
+          const words=script.trim().split(/\s+/).length;
+          
+          if(!apiKey||apiKey.length<12||!ghToken||process.env.GITHUB_REPOSITORY!==expectedRepo||
+             process.env.GITHUB_REF!==expectedBranch||!process.env.GITHUB_SHA)
+            throw new Error('Private credentials or expected trusted branch are missing. No billable request.');
+          if(words>30||script.length>200)
+            throw new Error('First audition script exceeds approved short-test length. No billable request.');
+          
+          async function readOnly(endpoint) {
+            const response=await fetch('https://api.heygen.com'+endpoint,{
+              method:'GET',
+              headers:{'X-Api-Key':apiKey,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)
+            });
+            if(!response.ok)throw new Error('HeyGen GET returned HTTP '+response.status+'. No paid request made.');
+            const data=await response.json();
+            if(data?.error)throw new Error('Read-only provider error. Body suppressed to protect credentials.');
+            return data?.data??data;
+          }
+          
+          // All account, avatar and voice checks are GET only. A failed check costs nothing.
+          const account=await readOnly('/v3/users/me');
+          if(!account||typeof account!=='object')
+            throw new Error('Direct API account authentication failed. No billable request.');
+          const reloadFlags=[
+            account?.wallet?.auto_reload,
+            account?.wallet?.auto_reload_enabled,
+            account?.api_wallet?.auto_reload,
+            account?.api_wallet?.auto_reload_enabled,
+            account?.billing?.auto_reload_enabled
+          ].filter(v=>typeof v==='boolean');
+          if(reloadFlags.includes(true))
+            throw new Error('Automatic wallet recharge appears enabled. Refuse paid generation.');
+          
+          const look=await readOnly('/v3/avatars/looks/'+avatarId);
+          if(look?.id!==avatarId||look?.group_id!==avatarGroup||look?.avatar_type!=='digital_twin'||
+             look?.status!=='completed'||!look.supported_api_engines?.includes('avatar_iii')||
+             !(Number(look.image_height)>Number(look.image_width)))
+            throw new Error('Araj public portrait look is not compatible with Avatar III. No billable request.');
+          
+          const url=new URL('https://api.heygen.com/v3/voices');
+          for(const [name,value] of Object.entries({
+            engine:'starfish',type:'public',language:'English',gender:'female',limit:'100',search_query:'Annie'
+          }))url.searchParams.set(name,value);
+          let cursor=null,annie=null;
+          for(let page=0;page<4;page++){
+            if(cursor)url.searchParams.set('token',cursor);
+            const response=await fetch(url.toString(),{
+              method:'GET',headers:{'X-Api-Key':apiKey,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)
+            });
+            if(!response.ok)throw new Error('Annie voice catalog GET returned HTTP '+response.status+'. No billable request.');
+            const raw=await response.json();
+            if(raw?.error)throw new Error('Annie voice catalog GET error. No billable request.');
+            const body=raw?.data??raw;
+            const items=Array.isArray(body)?body:Array.isArray(body?.items)?body.items:
+              Array.isArray(body?.voices)?body.voices:[];
+            annie=items.find(v=>v.voice_id===voiceId&&v.gender==='female'&&
+              v.language==='English'&&String(v.name||'').includes('Annie'))||null;
+            if(annie||!body?.next_token||body.next_token===cursor)break;
+            cursor=body.next_token;
+          }
+          if(!annie)
+            throw new Error('Approved Annie - Lifelike is NOT available in the direct English female Starfish voice catalog. NO billable request.');
+          console.log('PASS: HeyGen API account, Araj digital twin/Avatar III, and Annie - Lifelike Starfish voice');
+          console.log('One Araj opening only, '+words+' words; estimated $0.20-$0.34 at $1/min Avatar III (not a hard provider charge cap).');
+          console.log(reloadFlags.length?'No automatic-recharge flag reported as enabled.':
+            'Recharge setting not exposed by API; user funded prepaid API balance, no recharge operation is requested.');
+          
+          // Atomic, persistent *attempt* tag is set BEFORE a potentially charged POST.
+          // Do not remove it after failures or repeat a network-uncertain POST.
+          const lock=await fetch('https://api.github.com/repos/'+expectedRepo+'/git/refs',{
+            method:'POST',
+            headers:{
+              Authorization:'Bearer '+ghToken,
+              Accept:'application/vnd.github+json',
+              'Content-Type':'application/json',
+              'X-GitHub-Api-Version':'2022-11-28'
+            },
+            body:JSON.stringify({ref:onceTag,sha:process.env.GITHUB_SHA}),
+            redirect:'error',signal:AbortSignal.timeout(20000)
+          });
+          if(lock.status===422){
+            console.log('STOP: the unique paid attempt tag already exists. Zero additional video POSTs.');
+            process.exit(0);
+          }
+          if(lock.status!==201)
+            throw new Error('Could not acquire permanent one-shot attempt tag (HTTP '+lock.status+'). No video POST.');
+          console.log('Single-use attempt tag created; automatic or manual workflow reruns cannot create another paid video.');
+          
+          const request={
+            type:'avatar',avatar_id:avatarId,voice_id:voiceId,script,
+            engine:{type:'avatar_iii'},aspect_ratio:'9:16',resolution:'1080p',
+            fit:'contain',
+            title:'Signal Araj Annie first approved voice audition 2026-10-10',
+            callback_id:'signal-araj-annie-avatar-iii-single-20261010-a2'
+          };
+          let response;
+          try{
+            response=await fetch('https://api.heygen.com/v3/videos',{
+              method:'POST',
+              headers:{'X-Api-Key':apiKey,'Content-Type':'application/json',Accept:'application/json'},
+              body:JSON.stringify(request),
+              redirect:'error',signal:AbortSignal.timeout(120000)
+            });
+          }catch{
+            throw new Error('Video submission outcome UNKNOWN. Lock remains; inspect HeyGen dashboard. Never retry automatically.');
+          }
+          if(!response.ok)
+            throw new Error('Video provider POST returned HTTP '+response.status+'. Lock remains; inspect dashboard before any new authorization.');
+          let result;
+          try{result=await response.json();}
+          catch{throw new Error('Provider response malformed after paid request. Lock remains. Do not retry.');}
+          const videoId=result?.data?.video_id??result?.video_id;
+          if(typeof videoId!=='string'||!videoId.trim())
+            throw new Error('No video ID returned after possibly charged submission. Lock remains. Inspect HeyGen; do not retry.');
+          console.log('PAID SUBMISSION ACCEPTED - exactly one Araj/Annie clip. HeyGen video ID: '+videoId);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## Araj + Annie single paid audition\n\n'+
+            '- **Video ID:** '+videoId+'\n'+
+            '- **Presenter:** Araj (public digital twin)\n'+
+            '- **Voice:** Annie - Lifelike (verified via GET catalog)\n'+
+            '- **Engine:** Avatar III, 1080p 9:16 portrait\n'+
+            '- **Script:** '+words+' words\n'+
+            '- **Estimated footage cost:** $0.20-$0.34; actual HeyGen billing not confirmed\n'+
+            '- **One-time guard:** '+onceTag+'\n'+
+            '- **No Kevin, third clip, retries or full episode requested.**\n'
+          );
+          
+          // Status checks are non-billable GETs. No further generation.
+          let finalStatus='pending';
+          for(let i=0;i<36;i++){
+            await pause(15000);
+            let record;
+            try{record=await readOnly('/v3/videos/'+encodeURIComponent(videoId));}
+            catch{console.log('Temporary status GET error; no additional video was submitted.');continue;}
+            finalStatus=record?.status??'unknown';
+            if(['completed','failed','error','canceled','cancelled'].includes(finalStatus)){
+              const time=Number(record?.duration);
+              const suffix=Number.isFinite(time)?' duration='+time+'s':'';
+              const code=String(record?.failure_code||record?.error_code||record?.failureCode||'');
+              console.log('VIDEO RESULT: '+finalStatus+' ID '+videoId+suffix+(code?' error_code='+code:''));
+              appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+                '\n- **Final status:** '+finalStatus+suffix+(code?' / '+code:'')+'\n'+
+                '- Review the clip in HeyGen before authorizing another render.\n'
+              );
+              if(finalStatus!=='completed')process.exitCode=1;
+              break;
+            }
+          }
+          if(!['completed','failed','error','canceled','cancelled'].includes(finalStatus))
+            console.log('Render still pending; keep video ID for future read-only status checks. No retry issued.');
+          NODE
