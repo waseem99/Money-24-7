@@ -21,7 +21,8 @@ try{
   assert.equal(calls,0);
   for(let i=0;i<run.plan.turns.length;i++){
     const t=run.plan.turns[i],file=path.join(root,'test-'+i+'.mp4');
-    await command('ffmpeg',['-v','error','-y','-f','lavfi','-i','testsrc2=size=1280x720:rate=30',
+    const size=t.aspectRatio==='9:16'?'720x1280':'1280x720';
+    await command('ffmpeg',['-v','error','-y','-f','lavfi','-i','testsrc2=size='+size+':rate=30',
       '-f','lavfi','-i','sine=frequency='+String(420+i*120)+':sample_rate=48000',
       '-t','2.5','-c:v','libx264','-preset','ultrafast','-threads','2',
       '-pix_fmt','yuv420p','-c:a','aac',file]);
@@ -32,6 +33,7 @@ try{
   assert.equal(qa.synthetic,true);
   assert.equal(qa.realPresenterSources,false);
   assert.equal(qa.humanLipSyncApproval,false);
+  assert.deepEqual(run.plan.turns.map(t=>t.aspectRatio),['9:16','16:9','9:16']);
   assert.equal(qa.withinRequested30To45Seconds,false);
   assert.equal(qa.actualProviderCostUSD,null);
   assert.equal(record.video.width,1920);assert.equal(record.video.height,1080);
