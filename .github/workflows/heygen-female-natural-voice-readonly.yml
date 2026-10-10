@@ -1,0 +1,90 @@
+name: HeyGen female natural voices (read-only)
+
+on:
+  push:
+    branches:
+      - ops/heygen-araj-first-once-20261010
+    paths:
+      - .github/workflows/heygen-female-natural-voice-readonly.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-natural-voices:
+    if: github.ref == 'refs/heads/ops/heygen-araj-first-once-20261010'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Verify humanlike female voice candidates via GET catalog without generating speech
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12)throw new Error('Missing private API key secret');
+          const candidates=[
+            {name:'Georgia - Lifelike - Broadcaster',id:'596d780fd5874d7983847b6a0e0c49e6'},
+            {name:'Annie - Lifelike',id:'330290724a1b470fb63153f34d4c0183'},
+            {name:'Georgia - Lifelike - Serious',id:'84956d8c94644254a4474d0aa09f608d'},
+            {name:'Renata - Clear & Professional',id:'6567750df960424fb6556202d7206640'}
+          ];
+          const found=new Map;
+          async function catalog(query,token){
+            const url=new URL('https://api.heygen.com/v3/voices');
+            for(const [k,v] of Object.entries({engine:'starfish',type:'public',language:'English',gender:'female',limit:'100'}))
+              url.searchParams.set(k,v);
+            if(query)url.searchParams.set('search_query',query);
+            if(token)url.searchParams.set('token',token);
+            const r=await fetch(url.toString(),{method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!r.ok)throw new Error('GET female voice catalog returned HTTP '+r.status+' (no paid call)');
+            const raw=await r.json();
+            if(raw?.error)throw new Error('Read-only catalog returned error; no paid call');
+            const data=raw?.data??raw;
+            const items=Array.isArray(data)?data:
+              Array.isArray(data?.voices)?data.voices:Array.isArray(data?.items)?data.items:[];
+            return {items,next_token:data?.next_token??null};
+          }
+          const seenTokens=new Set;
+          for(const q of ['Lifelike','Georgia','Annie','Natural','Professional']){
+            let token=null;
+            for(let page=0;page<3;page++){
+              const result=await catalog(q,token);
+              for(const v of result.items){
+                if(candidates.some(c=>c.id===v.voice_id)&&v.gender==='female'&&v.language==='English')
+                  found.set(v.voice_id,{name:String(v.name||''),preview:v.preview_audio_url});
+              }
+              if(!result.next_token||seenTokens.has(q+result.next_token))break;
+              seenTokens.add(q+result.next_token);token=result.next_token;
+            }
+          }
+          // Fallback scan a bounded unfiltered catalog to ensure an apparently matched search isn't assumed.
+          if(found.size<candidates.length){
+            let token=null;
+            for(let page=0;page<6;page++){
+              const result=await catalog('',token);
+              for(const v of result.items){
+                if(candidates.some(c=>c.id===v.voice_id)&&v.gender==='female'&&v.language==='English')
+                  found.set(v.voice_id,{name:String(v.name||''),preview:v.preview_audio_url});
+              }
+              if(!result.next_token||seenTokens.has('all'+result.next_token))break;
+              seenTokens.add('all'+result.next_token);token=result.next_token;
+            }
+          }
+          for(const c of candidates){
+            const v=found.get(c.id);
+            console.log((v?'AVAILABLE':'NOT FOUND')+': '+c.name+' ('+c.id+')');
+            if(v?.preview?.startsWith('https://'))console.log('Public preview: '+v.preview);
+          }
+          const favorites=candidates.slice(0,2).filter(c=>found.has(c.id));
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## Read-only HeyGen natural anchor voices\n\n'+
+            candidates.map(c=>'- '+c.name+': **'+(found.has(c.id)?'CATALOG VERIFIED':'NOT VERIFIED')+'**\n').join('')+
+            '\nAll provider calls were GET only. No TTS/video generation or payment.\n');
+          if(!favorites.length)throw new Error('Neither primary natural female voice was API-catalog verified');
+          console.log('PASS: '+favorites.length+' primary natural female voice(s) verified in direct API');
+          console.log('No paid POSTs or key/wallet content logged.');
+          NODE
