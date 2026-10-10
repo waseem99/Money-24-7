@@ -65,11 +65,11 @@ No paid render, payment, API-key generation, provider avatar creation, or real f
 
 The former *unimplemented* direct voice route now has a deliberately separate, bounded implementation. This is **not** the primary V2 `produce` path, which continues to use ElevenLabs for timed word alignments and coordinated studio scenes. The new path sends `script` + exact `voice_id` + `avatar_id` directly to HeyGen V3, with Avatar IV explicitly selected, no added TTS service, no matting, no paid illustration, no AI Gateway and no silent listener take.
 
-**Frozen rehearsal text (illustrative, no current news):**
+**Proposed rehearsal text (illustrative, no current news; requires editorial sign-off):**
 
-1. **Liza — opening:** "Welcome to Signal Market Watch. I'm Liza. These market figures are illustrative, not live quotes. Lasse, before we interpret the chart, what should viewers check first?"
-2. **Lasse — response:** "Start with timeframe and source. A price may rise in one session yet fall across the week. Check the timestamp and comparison period before drawing conclusions."
-3. **Liza — closing:** "That's the key. A chart shows what changed, not necessarily why. We'll connect our explanations to the evidence and make uncertainties visible. You're watching Signal Market Watch."
+1. **Liza — opening:** "Good evening, I'm Liza. One strong market session can grab attention, but does it tell the whole story? Lasse, when you look at a chart, where do you start?"
+2. **Lasse — response:** "First, the timeframe. Then volume, and whether the move lasts. A single candle can be exciting, but I want the broader trend before drawing conclusions. These figures are examples, not live prices."
+3. **Liza — closing:** "Exactly. The headline catches your eye; the evidence gives it meaning. This is a prepared AI-presenter demonstration using illustrative data. Thanks for joining us on Signal."
 
 This is a short sequential **voice/lip-sync audition**, not a simultaneous standing analyst scene. The assembled sample contains one on-screen speaker at a time. Its final duration follows the provider-generated clips; do not trim speech or call it a 45-second acceptance film if it falls outside 30–45 seconds. Captions are one cue per full turn, not misrepresented as word-level alignments.
 
