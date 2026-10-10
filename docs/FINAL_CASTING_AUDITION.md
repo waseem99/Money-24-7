@@ -1,13 +1,13 @@
 # Final casting and zero-spend production gate — Jazz AI Channel
 
 Date: 10 October 2026
-Status: user-delegated casting selected; no provider video generation, no purchase, no deployment, no main-branch merge.
+Status: one authorized Araj API render was submitted and **failed voice validation**. No further paid attempts are authorized, no successful real presenter video exists, and this casting PR remains draft. See [first-attempt diagnosis](HEYGEN_ARAJ_VOICE_DIAGNOSIS.md).
 
 ## Selected public video-trained presenters
 
-Araj — female lead anchor, HeyGen digital-twin look 425825d6465b4ba4bd261d334d530430, default voice 5769809d7ddd445e8173b3d08c509ae1. Source is portrait 720 by 1280. Preserve a 9:16 image inside a professional 16:9 portrait panel, without horizontally stretching or cropping the face.
+Araj — female lead anchor, HeyGen digital-twin look 425825d6465b4ba4bd261d334d530430, look-assigned default voice 5769809d7ddd445e8173b3d08c509ae1 **failed TTS validation**, so the audition now selects accessible **Yuki — Conversational & Easygoing** (0989cd9eec9e485da0d7945fe142dfb9). Source is portrait 720 by 1280. Preserve a 9:16 image inside a professional 16:9 portrait panel, without horizontally stretching or cropping the face.
 
-Kevin — male markets analyst, HeyGen digital-twin look c8f428c549ea448488fdb2214dbcad57, default voice 5141743c956d4a1298b7126c9639d416. Source is landscape 1280 by 720, suited to the wider analysis and chart panel.
+Kevin — male markets analyst, HeyGen digital-twin look c8f428c549ea448488fdb2214dbcad57, look-assigned default voice 5141743c956d4a1298b7126c9639d416, with **Orson — Firm & Measured** (00e3d285aba44b27a83c47c02c9c2d9c) explicitly chosen for the forthcoming audition. Source is landscape 1280 by 720, suited to the wider analysis and chart panel.
 
 Free public previews:
 - Araj: https://resource2.heygen.ai/avatar/v3/425825d6465b4ba4bd261d334d530430/half/2.2/preview_video_target.mp4
@@ -42,18 +42,18 @@ No current market claims are being made. The run is a natural-speech/face auditi
 1. In the existing GitHub draft branch, run npm ci, npm test, npm run build and node pilot/v2/verify-native.mjs. This last step generates only synthetic portrait/landscape test videos and validates 1080p30 FFmpeg composition without provider calls.
 2. Run npm run audition -- audit, followed by npm run audition -- init; preserve its private immutable run name and plan hash.
 3. Generate a HeyGen API key through HeyGen Settings > API if allowed. Store it in the private media worker only; never paste it into chat or put it into GitHub or Vite frontend settings.
-4. Run npm run audition -- look-check RUN_ID. This performs read-only look GET requests with the direct API key and verifies the exact identities, their linked default voices and Avatar III eligibility. The private results, plan hash, checked time and a key hash are retained; the raw API key is not saved. A billed request using a different key or an expired check is blocked.
+4. Run npm run audition -- look-check RUN_ID. This performs read-only look GET requests with the direct API key and verifies the exact identities, their linked default voices, the **separate chosen Starfish voices in the authenticated voice catalog**, and Avatar III eligibility. The private results, plan hash, checked time and a key hash are retained; the raw API key is not saved. A billed request using a different key or an expired check is blocked.
 
 Account access and look eligibility are not equivalent to natural voice and lip-sync approval. With no key, do not attempt payment.
 
-## Paid release is explicitly not authorized
+## Second paid release is explicitly not authorized
 
-Do not top up or launch a provider POST automatically. Following technical validation, obtain the stakeholder's separate agreement on the first wallet payment, allowed loss ceiling, confirmed auto-recharge behavior and exact selected script/engine. Configure the immutable release hash and conservative internal amount in private worker settings only after approval.
+A $5 API wallet top-up was reported by the stakeholder. The first authorized Araj clip was submitted once by GitHub Actions and failed with `TTS_VOICE_UNAVAILABLE_ERR`; the actual charge/refund is not known. **No second paid request is authorized.** Following the corrected catalog verification, obtain separate approval for a replacement clip, an updated wallet/billing check, and an explicit loss ceiling. Do not reuse/delete the existing first-attempt GitHub tag. A new payment authorization requires a new single-attempt record. Configure the immutable release hash and conservative internal amount in private worker settings only after approval.
 
-If approved later, execute one clip at a time, beginning with npm run audition -- produce RUN_ID --turn araj-open --paid. Inspect the resulting face/voice and actual invoice usage, then request approval before kevin-analysis and araj-close. After both performances pass, use npm run audition -- assemble RUN_ID. Repeated produce calls resume the same provider job instead of rebilling; uncertain submissions require manual reconciliation, never automatic retries.
+If separately approved for a new attempt, initialize a new immutable run, verify the selected Starfish voice via GET, and execute one clip at a time, beginning with npm run audition -- produce RUN_ID --turn araj-open --paid. Inspect the resulting face/voice and actual invoice usage, then request approval before kevin-analysis and araj-close. After both performances pass, use npm run audition -- assemble RUN_ID. Repeated produce calls resume the same provider job instead of rebilling; uncertain submissions require manual reconciliation, never automatic retries.
 
 ## Still outside scope
 
 The main V2 full programme still requires ElevenLabs for word-timed alignment; this short HeyGen-only audition does not remove that dependency from the full five-minute programme. A moving silent listener, standing matting/alpha, verified source footage, chart sync, real all-in costing, human full-length review, and shared broadcasting remain open. See GitHub issues 24 and 6.
 
-No money was spent. No newly generated real presenter video exists yet. The GitHub PR must remain draft until all checks pass and release is explicitly authorized.
+Exactly **one paid-capable API submission** occurred, followed by a failed video status; billed cost is unknown. No successful new presenter film exists. The GitHub PR remains draft and additional spending is blocked pending user approval.
