@@ -30,7 +30,7 @@ const rateFor=engine=>engine==='avatar_iv'?3:engine==='avatar_iii'?1:NaN;
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
   if(plan.version!==2||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
-  if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Liza/Lasse/Liza turns required');
+  if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Araj/Kevin/Araj turns required');
   const ids=new Set;
   for(const t of plan.turns){
     if(ids.has(t.id)||!/^[-a-z0-9]+$/.test(t.id)||!t.text||t.text.length>5000||t.text.split(/\s+/).length>38)throw new Error('Invalid bounded audition turn');
