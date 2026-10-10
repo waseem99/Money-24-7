@@ -68,6 +68,22 @@ test('HeyGen native-script request protects portrait anchor proportions and uses
   assert.equal(submitted,2);
 });
 
+test('HeyGen provider voice catalog GET does not create any billable audio/video',async()=>{
+  let urlSeen='',methodSeen=null,calls=0;
+  const p=new Providers({HEYGEN_API_KEY:'offline-test-key'},async(url,options)=>{
+    calls++;urlSeen=url;methodSeen=options.method;
+    return {ok:true,json:async()=>({data:[{voice_id:proposedPresenters.ANCHOR.auditionVoiceId,
+      name:'Yuki - Conversational & Easygoing',language:'English',gender:'female'}]})};
+  });
+  const voices=await p.listVoices({gender:'female'});
+  assert.equal(calls,1);
+  assert.ok(urlSeen.startsWith('https://api.heygen.com/v3/voices?'));
+  assert.ok(urlSeen.includes('engine=starfish'));
+  assert.ok(urlSeen.includes('gender=female'));
+  assert.equal(methodSeen,undefined); // fetch default method is GET; no paid POST
+  assert.equal(voices[0].voice_id,proposedPresenters.ANCHOR.auditionVoiceId);
+});
+
 test('read-only look check stores a same-account preflight; mismatched voice blocks it',async()=>{
   const dir=await mkdtemp(path.join(os.tmpdir(),'signal-native-read-'));
   const old=process.env.PILOT_DATA_DIR;process.env.PILOT_DATA_DIR=dir;
