@@ -42,7 +42,7 @@ test('HeyGen direct native-script payload has the exact selected voice, explicit
   assert.equal(body.audio_asset_id,undefined);
   assert.equal(body.motion_prompt,undefined);
   assert.equal(body.remove_background,undefined);
-  assert.throws(()=>provider.avatarScript('text','bad','bad','job-001',{engine:'avatar_v'}),/approved public avatar/);
+  await assert.rejects(provider.avatarScript('text','bad','bad','job-001',{engine:'avatar_v'}),/approved public avatar/);
 });
 
 test('separate free look+voice queries require both IDs to exist in API account',async()=>{
