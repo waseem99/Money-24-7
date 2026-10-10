@@ -1,5 +1,5 @@
 /**
- * Minimal three-turn, two-voice paid audition route for Signal.
+ * Minimal three-turn, two-voice, no-auto-payment audition route for Signal.
  * This is deliberately NOT the 45-second standing-analyst/alpha/listener R2 acceptance trial.
  * Read-only and dry-run commands do not call paid APIs. Paid generation is single-turn only.
  */
@@ -13,28 +13,30 @@ import {mediaRecord,verifyAudible,inspectMedia,command,vttTime} from '../media.m
 import {proposedPresenters} from './budget-preflight.mjs';
 
 const turns=[
-  {id:'liza-open',role:'ANCHOR',text:"Good evening, I'm Liza. One strong market session can grab attention, but does it tell the whole story? Lasse, when you look at a chart, where do you start?"},
-  {id:'lasse-analysis',role:'ANALYST',text:"First, the timeframe. Then volume, and whether the move lasts. A single candle can be exciting, but I want the broader trend before drawing conclusions. These figures are examples, not live prices."},
-  {id:'liza-close',role:'ANCHOR',text:"Exactly. The headline catches your eye; the evidence gives it meaning. This is a prepared AI-presenter demonstration using illustrative data. Thanks for joining us on Signal."}
+  {id:'araj-open',role:'ANCHOR',text:"Good evening, and welcome to Signal. I'm Araj. Markets can move quickly, but one headline rarely tells the whole story. Kevin, what should viewers check first?"},
+  {id:'kevin-analysis',role:'ANALYST',text:"I start with the timeframe and trading volume. A sharp move across one session can look very different over a week. It's important to check the source and avoid jumping to conclusions."},
+  {id:'araj-close',role:'ANCHOR',text:"Exactly. We'll show the chart and timestamp together, and explain what the numbers can and cannot tell us. This is an AI-presented demonstration using illustrative information. Thanks for watching Signal."}
 ];
 
 export const nativeAuditionPlan=Object.freeze({
-  version:1,id:'signal-native-liza-lasse',kind:'short-presenter-audition',engine:'avatar_iv',
+  version:2,id:'signal-native-araj-kevin',kind:'short-presenter-audition',engine:'avatar_iii',
   resolution:'1080p',targetSeconds:45,maxEstimatedClipSeconds:20,disclosure:'AI presenters; illustrative market discussion, not live quotes.',
   turns:turns.map(t=>({...t,avatarId:proposedPresenters[t.role].lookId,
-    voiceId:proposedPresenters[t.role].defaultVoiceId,name:proposedPresenters[t.role].name}))
+    voiceId:proposedPresenters[t.role].defaultVoiceId,name:proposedPresenters[t.role].name,
+    aspectRatio:proposedPresenters[t.role].preferredAspectRatio,
+    fit:proposedPresenters[t.role].preferredAspectRatio==='9:16'?'contain':'cover'}))
 });
 const rateFor=engine=>engine==='avatar_iv'?3:engine==='avatar_iii'?1:NaN;
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
-  if(plan.version!==1||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
+  if(plan.version!==2||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
   if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Liza/Lasse/Liza turns required');
   const ids=new Set;
   for(const t of plan.turns){
     if(ids.has(t.id)||!/^[-a-z0-9]+$/.test(t.id)||!t.text||t.text.length>5000||t.text.split(/\s+/).length>38)throw new Error('Invalid bounded audition turn');
     ids.add(t.id);
     const p=proposedPresenters[t.role];
-    if(t.avatarId!==p.lookId||t.voiceId!==p.defaultVoiceId||t.name!==p.name)throw new Error('Presenter/voice changed without a new review');
+    if(t.avatarId!==p.lookId||t.voiceId!==p.defaultVoiceId||t.name!==p.name||t.aspectRatio!==p.preferredAspectRatio||t.fit!==(p.preferredAspectRatio==='9:16'?'contain':'cover'))throw new Error('Presenter/voice changed without a new review');
     if(/live market prices|today's actual quotes|real.time quotes/i.test(t.text))throw new Error('Do not claim synthetic commentary is live');
   }
   if(plan.maxEstimatedClipSeconds<10||plan.maxEstimatedClipSeconds>20||plan.targetSeconds!==45)throw new Error('Bounded audition size changed');
@@ -44,8 +46,8 @@ export function auditNativePlan(plan=nativeAuditionPlan){
     turns:plan.turns.map(t=>({id:t.id,presenter:t.name,lookId:t.avatarId,voiceId:t.voiceId,
       words:t.text.split(/\s+/).length,script:t.text,estimatedReservationUSD:perClip})),
     rateUSDPerVideoMinute:rate,maximumReservedEstimateUSD:usd(perClip*plan.turns.length),
-    caveat:'Estimates are not actual charges, do not include retakes; no provider-side wallet limit is implied.',
-    unresolved:['Real look/voice/API-key compatibility on private direct API account','Lip sync and pronunciation review','R2 standing alpha and non-speaking listener footage']};
+    caveat:'Estimates are not actual charges; no retakes, listener footage, matting or provider-side wallet limit are included. User selected the cast, not spending.',
+    unresolved:['Real look/voice/API-key compatibility on private direct API account','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
 }
 export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
@@ -84,7 +86,7 @@ export async function lookCheckNative(run,{env=process.env,provider=new Provider
     if(voice.voice_id!==p.defaultVoiceId||!voice.language)throw new Error('Selected '+p.name+' voice is unavailable to this direct API account');
     checks.push({presenter:p.name,lookId:look.id,voiceId:voice.voice_id,voiceLanguage:voice.language,voiceName:voice.name,engine:run.plan.engine,status:look.status});
   }
-  return {checks,billedRenderRequests:0,apiWalletUnverified:true};
+  return {checks,billedRenderRequests:0,apiWalletUnverified:true,spokenAccentUnverified:true};
 }
 export async function nativeStatus(run){
   const db=new Store(run.root);
@@ -104,7 +106,7 @@ export async function produceNativeTurn(run,turnId,{paid=false,env=process.env,p
     try{
       const key=jobKey('native-heygen-audition',{planHash:run.manifest.planHash,turnId,avatarId:turn.avatarId,voiceId:turn.voiceId,engine:run.plan.engine,text:turn.text});
       const submitted=await chargedJob(db,key,{amount:budget.perClip,cap:budget.cap,category:'avatar',units:{estimatedMaxSeconds:run.plan.maxEstimatedClipSeconds}},
-        ()=>provider.avatarScript(turn.text,turn.avatarId,turn.voiceId,key,{engine:run.plan.engine}));
+        ()=>provider.avatarScript(turn.text,turn.avatarId,turn.voiceId,key,{engine:run.plan.engine,aspectRatio:turn.aspectRatio,fit:turn.fit}));
       const videoId=submitted.videoId;
       const status=await provider.status(videoId);
       run.manifest.providerStatus[turnId]={videoId,status:status.status,checkedAt:new Date().toISOString()};
@@ -174,7 +176,7 @@ export async function assembleNative(run){
     const inputs=plan.turns.flatMap(t=>['-i',path.join(run.root,'assets',assets[t.id].file)]);
     const filters=[];
     for(let i=0;i<plan.turns.length;i++){
-      filters.push('['+i+':v]fps=30,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,setpts=PTS-STARTPTS[v'+i+']');
+      filters.push('['+i+':v]fps=30,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x102944,setsar=1,setpts=PTS-STARTPTS[v'+i+']');
       filters.push('['+i+':a]aresample=48000:async=1,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS[a'+i+']');
     }
     filters.push(plan.turns.map((_,i)=>'[v'+i+'][a'+i+']').join('')+'concat=n=3:v=1:a=1[vout][aout]');
