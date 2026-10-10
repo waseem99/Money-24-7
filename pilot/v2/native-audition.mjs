@@ -89,7 +89,7 @@ export async function lookCheckNative(run,{env=process.env,provider=new Provider
        look.group_id!==p.groupId||look.default_voice_id!==p.defaultVoiceId||
        !look.supported_api_engines?.includes(run.plan.engine))
       throw new Error('Selected '+p.name+' look, default voice or engine is not confirmed for this direct API account');
-    const voices=await provider.listVoices({gender:role==='ANCHOR'?'female':'male'});
+    const voices=await provider.listVoices({gender:role==='ANCHOR'?'female':'male',searchQuery:p.auditionVoiceName.split(' - ')[0],maxPages:3});
     const v=voices.find(x=>x.voice_id===p.auditionVoiceId&&x.language==='English'&&x.gender===(role==='ANCHOR'?'female':'male'));
     if(!v)throw new Error('Chosen '+p.name+' voice is not independently listed as available on the direct Starfish API; paid generation blocked');
     checks.push({presenter:p.name,lookId:look.id,avatarDefaultVoiceId:look.default_voice_id,
