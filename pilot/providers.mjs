@@ -35,12 +35,13 @@ export class Providers {
   }
   // HeyGen-native text+voice path: no ElevenLabs, uploaded audio, custom voice, or motion.
   // This is a PAID POST and must only be invoked by a separately gated, one-turn operator run.
-  async avatarScript(text,avatarId,voiceId,callbackId,{engine='avatar_iv'}={}) {
+  async avatarScript(text,avatarId,voiceId,callbackId,{engine='avatar_iv',aspectRatio='16:9',fit='cover'}={}) {
     if(typeof text!=='string'||!text.trim()||text.length>5000)throw new Error('Valid bounded spoken script required');
     if(!/^[a-zA-Z0-9_-]{8,128}$/.test(avatarId)||!/^[a-zA-Z0-9_-]{8,128}$/.test(voiceId))throw new Error('Exact approved public avatar look and voice required');
-    if(!['avatar_iv','avatar_iii','avatar_v'].includes(engine))throw new Error('Only documented Avatar III/IV/V engines permitted; paid use additionally requires an approved plan and look compatibility');
+    if(!['avatar_iv','avatar_iii'].includes(engine))throw new Error('Direct API paid audition is restricted to published pay-as-you-go Avatar III/IV; Avatar V is not budgeted');
+    if(!['16:9','9:16'].includes(aspectRatio)||!['cover','contain'].includes(fit))throw new Error('Unsupported verified audition orientation/fit');
     const payload={type:'avatar',avatar_id:avatarId,script:text,voice_id:voiceId,engine:{type:engine},
-      aspect_ratio:'16:9',resolution:'1080p',fit:'cover',
+      aspect_ratio:aspectRatio,resolution:'1080p',fit,
       background:{type:'color',value:'#102944'},output_format:'mp4',
       caption:{file_format:'srt'},title:`Signal native audition ${callbackId}`,callback_id:callbackId};
     const r=await this.json('https://api.heygen.com/v3/videos',{
