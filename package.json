@@ -12,7 +12,8 @@
     "test:pilot": "node --test tests/pilot*.test.mjs",
     "verify:media": "node pilot/verify-media.mjs",
     "broadcast": "node pilot/v2/cli.mjs",
-    "verify:broadcast": "node pilot/v2/verify.mjs"
+    "verify:broadcast": "node pilot/v2/verify.mjs",
+    "audition": "node pilot/v2/native-audition-cli.mjs"
   },
   "dependencies": {
     "@heygen/liveavatar-web-sdk": "0.0.19",
