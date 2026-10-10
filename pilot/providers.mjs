@@ -58,6 +58,13 @@ export class Providers {
     });
     if(!r.data?.id)throw new Error('Look lookup unavailable');return r.data;
   }
+  async voiceInfo(voiceId) {
+    if(!/^[a-zA-Z0-9_-]{8,128}$/.test(voiceId))throw new Error('Invalid voice ID');
+    const r=await this.json(`https://api.heygen.com/v3/voices/${encodeURIComponent(voiceId)}`,{
+      headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY')}
+    });
+    if(!r.data?.voice_id)throw new Error('Voice lookup unavailable');return r.data;
+  }
   async status(videoId) {
     const r=await this.json(`https://api.heygen.com/v3/videos/${encodeURIComponent(videoId)}`,{headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY')}});
     if(!r.data?.status) throw new Error('Missing video status');return r.data;
