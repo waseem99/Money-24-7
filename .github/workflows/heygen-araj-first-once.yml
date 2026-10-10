@@ -1,0 +1,135 @@
+name: One-time HeyGen Araj paid audition
+
+on:
+  push:
+    branches:
+      - ops/heygen-araj-first-once-20261010
+    paths:
+      - .github/workflows/heygen-araj-first-once.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: signal-araj-first-paid-20261010
+  cancel-in-progress: false
+
+jobs:
+  submit-first-araj-once:
+    if: github.ref == 'refs/heads/ops/heygen-araj-first-once-20261010'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN_ONCE: ${{ github.token }}
+    steps:
+      - name: Submit exactly one Araj clip after account preflight and atomic Git tag lock
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          import {setTimeout as pause} from 'node:timers/promises';
+
+          const key=process.env.HEYGEN_API_KEY;
+          const gitToken=process.env.GH_TOKEN_ONCE;
+          const repo=process.env.GITHUB_REPOSITORY;
+          const sha=process.env.GITHUB_SHA;
+          const ref='refs/tags/signal-araj-avatar-iii-first-paid-attempt-20261010';
+          const lookId='425825d6465b4ba4bd261d334d530430';
+          const voiceId='5769809d7ddd445e8173b3d08c509ae1';
+          const script="Good evening, and welcome to Signal. I'm Araj. Markets can move quickly, but one headline rarely tells the whole story. Kevin, what should viewers check first?";
+          const words=script.trim().split(/\s+/).length;
+          if(!key||key.length<12||!gitToken||repo!=='waseem99/Money-24-7'||
+             !sha||process.env.GITHUB_REF!=='refs/heads/ops/heygen-araj-first-once-20261010')
+            throw new Error('Invalid trusted run or private credential; no provider POST');
+          if(words>30||script.length>200)throw new Error('Script over permitted first-clip limit');
+
+          async function get(route){
+            const response=await fetch('https://api.heygen.com'+route,{
+              method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!response.ok)throw new Error('Read-only HeyGen check HTTP '+response.status+'. No billable call.');
+            const body=await response.json();
+            if(body?.error)throw new Error('Provider read-only error (response redacted)');
+            return body?.data??body;
+          }
+
+          // All checks precede the single-use GitHub tag and video submission.
+          const account=await get('/v3/users/me');
+          if(!account||typeof account!=='object')throw new Error('Invalid API account');
+          const reload=[account?.wallet?.auto_reload,account?.wallet?.auto_reload_enabled,
+            account?.api_wallet?.auto_reload_enabled,account?.billing?.auto_reload_enabled]
+            .filter(v=>typeof v==='boolean');
+          if(reload.includes(true))throw new Error('Recharge enabled; paid call blocked');
+          const look=await get('/v3/avatars/looks/'+lookId);
+          if(look?.id!==lookId||look?.group_id!=='f643cf465f0e4b1ab46946978dd76a65'||
+             look?.avatar_type!=='digital_twin'||look?.status!=='completed'||
+             look?.default_voice_id!==voiceId||!look?.supported_api_engines?.includes('avatar_iii')||
+             !(look.image_height>look.image_width))
+            throw new Error('Araj look/voice/Avatar III/portrait mismatch; paid call blocked');
+          console.log('PASS: HeyGen API key, Araj look, default voice and Avatar III support');
+          console.log('One 26-word speaking clip only. Indicative USD $0.20–$0.34; provider metering determines actual charge.');
+          console.log(reload.length?'API returned disabled recharge flags.':'No wallet recharge flag exposed; API pay-as-you-go is described as manually funded.');
+
+          // Atomic persistent pre-charge attempt guard. Once created, reruns NEVER submit.
+          const git=await fetch('https://api.github.com/repos/'+repo+'/git/refs',{
+            method:'POST',headers:{Authorization:'Bearer '+gitToken,
+              Accept:'application/vnd.github+json','Content-Type':'application/json',
+              'X-GitHub-Api-Version':'2022-11-28'},
+            body:JSON.stringify({ref,sha}),redirect:'error',signal:AbortSignal.timeout(20000)});
+          if(git.status===422){console.log('Existing one-time attempt tag: no second provider POST.');process.exit(0);}
+          if(git.status!==201)throw new Error('Could not atomically lock first paid attempt. HTTP '+git.status+'; no provider POST.');
+          console.log('Permanent one-time tag acquired. Even on failure, automatic paid retries are forbidden.');
+
+          const payload={type:'avatar',avatar_id:lookId,script,voice_id:voiceId,
+            engine:{type:'avatar_iii'},aspect_ratio:'9:16',resolution:'1080p',fit:'contain',
+            title:'Signal Araj first controlled audition 2026-10-10',
+            callback_id:'signal-araj-avatar-iii-first-paid-attempt-20261010'};
+          let response;
+          try{
+            response=await fetch('https://api.heygen.com/v3/videos',{
+              method:'POST',headers:{'X-Api-Key':key,'Content-Type':'application/json',Accept:'application/json'},
+              body:JSON.stringify(payload),redirect:'error',signal:AbortSignal.timeout(120000)});
+          }catch{
+            throw new Error('Submit outcome unknown. Attempt tag remains. Inspect HeyGen; do not retry automatically.');
+          }
+          if(!response.ok)
+            throw new Error('HeyGen rejected or ambiguously processed first submission (HTTP '+response.status+'); no auto retry.');
+          let result;
+          try{result=await response.json();}catch{
+            throw new Error('Unreadable paid submission response: inspect HeyGen; no automatic retry.');
+          }
+          const videoId=result?.data?.video_id??result?.video_id;
+          if(typeof videoId!=='string'||!videoId.trim())
+            throw new Error('Paid submission returned no usable video id. Inspect dashboard; no automatic retry.');
+          console.log('ONE PAID SUBMISSION ACCEPTED. HeyGen video_id: '+videoId);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## First Araj paid test submitted\n\n'+
+            '- Video ID: '+videoId+'\n'+
+            '- Engine: Avatar III, 1080p portrait\n'+
+            '- Budget: approximately USD 0.20–0.34, actual billed cost not yet verified\n'+
+            '- Single-use prevention tag: '+ref+'\n'+
+            '- No Kevin or additional video submitted\n');
+
+          // Read-only progress requests only. A failure never triggers new generation.
+          let status='pending';
+          for(let i=0;i<32;i++){
+            await pause(15000);
+            let v;
+            try{v=await get('/v3/videos/'+encodeURIComponent(videoId));}
+            catch{console.log('Status GET unavailable. No retry or further submission.');continue;}
+            status=v?.status??'unknown';
+            if(['completed','failed','error','canceled','cancelled'].includes(status)){
+              const duration=Number(v.duration);
+              const durationText=Number.isFinite(duration)?' duration='+duration+'s':'';
+              console.log('Video result: '+status+' id='+videoId+durationText);
+              appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+                '\n- Latest video status: '+status+durationText+'\n- Review actual clip in HeyGen before any further spending.\n');
+              if(status!=='completed')process.exitCode=1;
+              break;
+            }
+          }
+          if(!['completed','failed','error','canceled','cancelled'].includes(status))
+            console.log('Video still pending. Use HeyGen video_id to track it; do not resubmit.');
+          NODE
