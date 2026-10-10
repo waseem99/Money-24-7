@@ -26,7 +26,7 @@ export const nativeAuditionPlan=Object.freeze({
     aspectRatio:proposedPresenters[t.role].preferredAspectRatio,
     fit:proposedPresenters[t.role].preferredAspectRatio==='9:16'?'contain':'cover'}))
 });
-const rateFor=engine=>engine==='avatar_iv'?3:engine==='avatar_iii'?1:NaN;
+const rateFor=engine=>engine==='avatar_iv'?4:engine==='avatar_iii'?1:NaN; // 1080p digital-twin API rates
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
   if(plan.version!==3||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
