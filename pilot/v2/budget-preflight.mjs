@@ -10,21 +10,21 @@ import {validateProgramme} from '../../src/broadcast/contracts.js';
 import {slots} from '../../src/broadcast/timeline.js';
 
 export const proposedPresenters=Object.freeze({
-  ANCHOR:{id:'liza',name:'Liza',role:'Lead anchor',lookName:'Liza Office 1',groupId:'3727ecd034ef4248afea2a3443f7d2b7',lookId:'2753c42eb648421e9463df15aeee723a',defaultVoiceId:'96a7560392c44869a4b66ac849be59a5',avatarType:'photo_avatar',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'proposed — user chose person, exact look/voice not yet quality-approved'},
-  ANALYST:{id:'lasse',name:'Lasse',role:'Markets analyst',lookName:'Lasse Office 3',groupId:'46782f6d3de64ed98cec7f47d3d21ae7',lookId:'de9f36c26bd841c891489a0c9d6174de',defaultVoiceId:'0828ce2c70c94787aee8d6745bcde7d7',avatarType:'photo_avatar',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'proposed — user chose person, exact look/voice not yet quality-approved'}
+  ANCHOR:{id:'araj',name:'Araj',role:'Lead news anchor',lookName:'Araj Digital Twin (portrait)',groupId:'f643cf465f0e4b1ab46946978dd76a65',lookId:'425825d6465b4ba4bd261d334d530430',defaultVoiceId:'5769809d7ddd445e8173b3d08c509ae1',avatarType:'digital_twin',preferredAspectRatio:'9:16',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'user-delegated final cast; look and voice API entitlement/presentation still subject to free read-only check'},
+  ANALYST:{id:'kevin',name:'Kevin',role:'Markets analyst',lookName:'Kevin Digital Twin (landscape)',groupId:'ce741649eb8c4ca38cd34164881a2ef5',lookId:'c8f428c549ea448488fdb2214dbcad57',defaultVoiceId:'5141743c956d4a1298b7126c9639d416',avatarType:'digital_twin',preferredAspectRatio:'16:9',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'user-delegated final cast; look and voice API entitlement/presentation still subject to free read-only check'}
 });
 
 export function selectedProgramme(profile='sample'){
   if(!['sample','pilot'].includes(profile))throw new Error('Only sample and pilot profiles are audited');
   const p=exampleProgramme(profile);
-  const ids={maya:'liza',daniel:'lasse'};
-  p.id=`signal-liza-lasse-${profile}`;
+  const ids={maya:'araj',daniel:'kevin'};
+  p.id=`signal-araj-kevin-${profile}`;
   p.presenters=p.presenters.map(old=>{
     const sel=proposedPresenters[old.configRef];
     if(!sel)throw new Error('Unmapped presenter role');
     return {...old,id:sel.id,name:sel.name,role:sel.role,look:sel.lookName};
   });
-  p.turns=p.turns.map(t=>({...t,speakerId:ids[t.speakerId],text:t.text.replace(/\bMaya\b/g,'Liza').replace(/\bDaniel\b/g,'Lasse')}));
+  p.turns=p.turns.map(t=>({...t,speakerId:ids[t.speakerId],text:t.text.replace(/\bMaya\b/g,'Araj').replace(/\bDaniel\b/g,'Kevin')}));
   p.scenes=p.scenes.map(s=>({...s,presenterIds:s.presenterIds.map(id=>ids[id])}));
   p.cues=p.cues.map(c=>c.presenterId?{...c,presenterId:ids[c.presenterId]}:c);
   return validateProgramme(p);
@@ -42,11 +42,11 @@ export function budgetPreflight(profile='sample'){
   const alphaScenes=p.scenes.filter(s=>slots(s).some(slot=>slot.kind==='alpha')).map(s=>s.id);
   const providers={
     requiredByExistingWorker:['ElevenLabs timed speech','HeyGen external-audio avatar'],
-    proposedMinimum:'HeyGen native script/voice only for the short audition — separate adapter not yet implemented in the production worker',
+    proposedMinimum:'HeyGen-native script/voice route implemented separately for the initial budgeted audition; full V2 still needs ElevenLabs for word-aligned speech',
     optionalForCuratedEpisode:['AI Gateway director','separate AI image generation']
   };
   const blockers=[
-    'Native HeyGen script + default-voice path is not implemented in the V2 paid worker; ElevenLabs is still mandatory',
+    'Full V2 speaking pipeline still requires ElevenLabs; independent HeyGen-only audition route is prepared and unspent',
     'Selected public looks and default voices have not passed an actual pronunciation/lip-sync audition',
     'Standing alpha/matting compatibility and genuine non-speaking listener footage are unverified',
     'R2 full-scene listener, unequal split and standing quality gates are not satisfied by a simple single-speaker audition',
@@ -57,11 +57,11 @@ export function budgetPreflight(profile='sample'){
     asOf:'2026-10-10',noExternalCalls:true,paidRelease:'BLOCKED',
     profile,programme:{id:p.id,durationSeconds:p.durationMs/1000,turns:p.turns.length,scenes:p.scenes.length,roles:p.presenters.map(({name,role,configRef,look})=>({name,role,configRef,look}))},
     publicCatalogLooks:Object.values(proposedPresenters),
-    providerPricing:{source:'https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained',avatarIIIPhotoUsdPerMinute:1,avatarIVPhotoUsdPerMinute:3,apiWalletMinimumUsd:5,pricingIsIndicative:true},
+    providerPricing:{source:'https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained',avatarIIIDigitalTwinUsdPerMinute:1,avatarIVDigitalTwinUsdPerMinute:4,apiWalletMinimumUsd:5,pricingIsIndicative:true,avatarVApiPriceNotVerified:true},
     plannedExposure:{
       speakingSlotUpperSeconds:assignedSeconds,
       avatarIIIForSpeakingSlotsUSD:dollars(assignedSeconds/60),
-      avatarIVForSpeakingSlotsUSD:dollars(assignedSeconds/60*3),
+      avatarIVForSpeakingSlotsUSD:dollars(assignedSeconds/60*4),
       offScreenVoiceSecondsCurrentlySentThroughAvatar:offScreenSeconds,
       fullSceneVisiblePresenterCoverageSeconds:cellSeconds,
       extraListenerFootage:'not included in the above estimates; source/cost unverified',
