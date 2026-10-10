@@ -38,7 +38,7 @@ export class Providers {
   async avatarScript(text,avatarId,voiceId,callbackId,{engine='avatar_iv'}={}) {
     if(typeof text!=='string'||!text.trim()||text.length>5000)throw new Error('Valid bounded spoken script required');
     if(!/^[a-zA-Z0-9_-]{8,128}$/.test(avatarId)||!/^[a-zA-Z0-9_-]{8,128}$/.test(voiceId))throw new Error('Exact approved public avatar look and voice required');
-    if(!['avatar_iv','avatar_iii'].includes(engine))throw new Error('Only audited Avatar III/IV permitted for native audition');
+    if(!['avatar_iv','avatar_iii','avatar_v'].includes(engine))throw new Error('Only documented Avatar III/IV/V engines permitted; paid use additionally requires an approved plan and look compatibility');
     const payload={type:'avatar',avatar_id:avatarId,script:text,voice_id:voiceId,engine:{type:engine},
       aspect_ratio:'16:9',resolution:'1080p',fit:'cover',
       background:{type:'color',value:'#102944'},output_format:'mp4',
