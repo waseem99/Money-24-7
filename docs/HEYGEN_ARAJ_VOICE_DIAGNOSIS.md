@@ -3,6 +3,10 @@
 Date: 2026-10-10
 Paid-retry authorization: **NOT GRANTED**. Budget-constrained project. No new clip should be submitted without explicit user approval.
 
+## Current user-approved pairing — no additional spend authorized
+
+**Araj = Annie — Lifelike** (public Starfish English female voice `330290724a1b470fb63153f34d4c0183`). **Kevin = Orson — Firm & Measured** (`00e3d285aba44b27a83c47c02c9c2d9c`). The user listened to Annie's free sample and explicitly selected it over Georgia; Yuki remains rejected. This supersedes intermediate voice-casting proposals recorded later in this incident history. Annie was present in the same authorized read-only Starfish API catalog, as verified by [the no-cost diagnostic run](https://github.com/waseem99/Money-24-7/actions/runs/38075930139). The corrected draft audition references Annie dynamically and will not use Araj's original failed default voice. **Do not issue another paid video POST merely because voice selection is approved**: first determine whether the failed job consumed credit and obtain separate one-clip paid authorization.
+
 ## Verified attempt
 
 - First and only billable POST through the user's private GitHub Actions secret: [GitHub Action](https://github.com/waseem99/Money-24-7/actions/runs/38075101779).
@@ -26,7 +30,7 @@ Public voice names / audio samples do not establish an American accent or succes
 ## Engineering fix in draft PR #30
 
 1. Preserve the actual HeyGen look's `defaultVoiceId` as catalog metadata, separate from `auditionVoiceId` used for generation.
-2. The initial correction proposed Yuki and Orson. After the user's free-preview feedback, **Orson remains locked**, and the revised Araj proposal is **Georgia — Lifelike, Broadcaster**; Annie is the alternative.
+2. The initial correction proposed Yuki and Orson. The provisional Georgia proposal was superseded by the user's final choice of **Annie — Lifelike**. **Orson remains locked** for Kevin; neither voice has been tested in a completed generated video.
 3. Replace the earlier, inadequate look-default-only readiness check. A read-only GET to `/v3/voices?engine=starfish&type=public&language=English&gender=...` must independently find the selected `auditionVoiceId` and language/gender; otherwise **fail closed before any paid render**.
 4. Maintain same-key and recent-account verification, conservative plan-hash spending reservations and single-turn mode.
 5. Change cost estimator to $1/min for Avatar III digital-twin footage and $4/min for Avatar IV digital twin, per the current HeyGen API pricing.
@@ -40,11 +44,11 @@ The stakeholder accepted **Kevin + Orson** as natural. **Araj + Yuki was rejecte
 - **Georgia — Lifelike, Broadcaster** (preferred *provisional* option): `596d780fd5874d7983847b6a0e0c49e6`; [free listening sample](https://resource2.heygen.ai/text_to_speech/21e28514b7994f46b907b74914a3ca6e/596d780fd5874d7983847b6a0e0c49e6/id=c74ae0d6-5e5f-4594-a18d-8c3940cdb13a.wav).
 - **Annie — Lifelike** (alternative for a softer, less newsreader-sounding cadence): `330290724a1b470fb63153f34d4c0183`; [free listening sample](https://resource2.heygen.ai/text_to_speech/561ac7e163fa4d42a9115b5db9beeaf6/330290724a1b470fb63153f34d4c0183/id=8a40de08-a60e-4d1a-8d03-066c135ebb93&locale=en-US.wav).
 
-A catalog entry, including a label of "Lifelike", **does not guarantee that the user will perceive the generated voice as realistic** or that the script will render successfully. Have the stakeholder review free samples and confirm the choice before authorizing another video POST. Orson is unchanged. The test runner has been configured with Georgia provisionally; all payment gates remain blocked.
+A catalog entry, including a label of "Lifelike", **does not guarantee that the user will perceive the generated voice as realistic** or that the script will render successfully. Have the stakeholder review free samples and confirm the choice before authorizing another video POST. Orson is unchanged. The test runner now uses **Annie**, the user-approved choice, and Kevin remains on **Orson**. All payment gates remain blocked.
 
 ## Before a second paid attempt
 
-- Obtain stakeholder selection of the **Georgia vs Annie** free voice previews for Araj; neither is automatically accepted based on its description.
+- [x] Stakeholder selected **Annie — Lifelike** after hearing the free samples; Yuki rejected, Georgia not selected. This is **voice approval only**, not paid-video approval.
 - Check the HeyGen API billing/usage page for actual charge and remaining wallet, and auto-reload status; the read-only API did not expose enough billing metadata.
 - Complete CI tests on the corrected PR.
 - Re-run read-only account/voice checks with the same GitHub secret, from trusted code.
