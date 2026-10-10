@@ -80,7 +80,9 @@ export async function lookCheckNative(run,{env=process.env,provider=new Provider
     const p=proposedPresenters[role],look=await provider.avatarLook(p.lookId);
     if(look.id!==p.lookId||look.status!=='completed'||look.default_voice_id!==p.defaultVoiceId||!look.supported_api_engines?.includes(run.plan.engine))
       throw new Error('Selected '+p.name+' look/voice/engine is not compatible with this direct API account');
-    checks.push({presenter:p.name,lookId:look.id,voiceId:look.default_voice_id,engine:run.plan.engine,status:look.status});
+    const voice=await provider.voiceInfo(p.defaultVoiceId);
+    if(voice.voice_id!==p.defaultVoiceId||!voice.language)throw new Error('Selected '+p.name+' voice is unavailable to this direct API account');
+    checks.push({presenter:p.name,lookId:look.id,voiceId:voice.voice_id,voiceLanguage:voice.language,voiceName:voice.name,engine:run.plan.engine,status:look.status});
   }
   return {checks,billedRenderRequests:0,apiWalletUnverified:true};
 }
