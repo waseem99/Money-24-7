@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {budgetPreflight,selectedProgramme,proposedPresenters} from '../pilot/v2/budget-preflight.mjs';
+import {requirePaidRelease} from '../pilot/v2/workflow.mjs';
 
 test('Liza/Lasse profile is valid, retains timings and cannot silently use Maya/Daniel dialogue',()=>{
   for(const profile of ['sample','pilot']){
@@ -31,4 +32,15 @@ test('preflight has no paid side effects and keeps budget contingent on listener
   assert.ok(sample.blockers.some(x=>x.includes('ElevenLabs')));
   assert.ok(sample.blockers.some(x=>x.includes('listener footage')));
   assert.ok(sample.plannedExposure.extraListenerFootage.includes('not included'));
+});
+
+test('paid worker rejects unapproved exact episode hash and cap without any provider call',()=>{
+  const run={manifest:{episodeHash:'approved-episode-digest'}};
+  const env={PILOT_MAX_ESTIMATED_USD:'5',PILOT_PAID_RELEASE_MAX_USD:'5',PILOT_PAID_RELEASE_EPISODE_HASH:'wrong-digest'};
+  assert.throws(()=>requirePaidRelease(run,env),/Paid generation locked/);
+  env.PILOT_PAID_RELEASE_EPISODE_HASH=run.manifest.episodeHash;
+  env.PILOT_PAID_RELEASE_MAX_USD='4';
+  assert.throws(()=>requirePaidRelease(run,env),/within a positive/);
+  env.PILOT_PAID_RELEASE_MAX_USD='5';
+  assert.doesNotThrow(()=>requirePaidRelease(run,env));
 });
