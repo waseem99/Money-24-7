@@ -1,126 +1,56 @@
 /**
- * No-spend, preview-only casting brief. Do not switch actual presenter IDs
- * or unlock paid video creation on the basis of this shortlist.
- *
- * HeyGen public look metadata inspected 2026-10-10. Provider prices sourced from
- * https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained
- * Photo Avatar IV 1080p $3/min; Studio Avatar III 1080p $1/min.
+ * User-delegated final casting decision; no paid video or provider credit calls.
+ * Catalog metadata was read from the user's connected HeyGen on 2026-10-10.
+ * An AI-generated face's apparent ethnicity, age, nationality and accent are
+ * not confirmed by the provider catalog; do not invent those attributes.
  */
 import {proposedPresenters} from './budget-preflight.mjs';
-const freeze=obj=>Object.freeze(obj);
 
-const keep=freeze({
-  id:'keep-liza-lasse',approvalStatus:'already approved people; video realism not approved',
-  approach:'Retain faces: minimize synthetic mannerisms and frame as a factual newsroom.',
-  engine:'avatar_iv',rateUSDPerMinute:3,
-  anchor:freeze({
-    name:'Liza',role:'Anchor',lookId:proposedPresenters.ANCHOR.lookId,
-    avatarType:'photo_avatar',defaultVoiceId:proposedPresenters.ANCHOR.defaultVoiceId,
-    imagePreviewUrl:'https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office80_p2_a1.jpg',
-    videoPreviewUrl:'https://resource2.heygen.ai/public-avatars/Liza/image_videos/office80_p2_a1.mp4',
-    voiceDirection:'Warm, calmly authoritative, subtle variation and pauses; no exaggerated promo-style enthusiasm.',
-    motionDirection:'Natural mouth and eye movement, restrained expression; avoid repeated smiling or constant hand movement.',
-    framing:'Seated newsroom anchor; medium close-up, clean eyeline, restrained side-lighting; cut to chart during longer explanation.'
+export const finalCast=Object.freeze({
+  status:'cast-selected-for-audition',
+  accountPurchaseAuthorized:false,
+  liveVideoProduced:false,
+  dialogueApprovalPending:true,
+  anchor:Object.freeze({
+    ...proposedPresenters.ANCHOR,
+    videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/425825d6465b4ba4bd261d334d530430/half/2.2/preview_video_target.mp4',
+    sourceWidth:720,sourceHeight:1280,
+    characterDirection:'Warm, poised, clear financial-news presenter; short questions, small expressions, natural pauses, not an advertisement voice.',
+    cameraDirection:'9:16 source preserved inside a branded vertical portrait window in the 16:9 show; no facial stretch or harsh widescreen crop.'
   }),
-  analyst:freeze({
-    name:'Lasse',role:'Analyst',lookId:proposedPresenters.ANALYST.lookId,
-    avatarType:'photo_avatar',defaultVoiceId:proposedPresenters.ANALYST.defaultVoiceId,
-    imagePreviewUrl:'https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office120_p3_a1.jpg',
-    videoPreviewUrl:'https://resource2.heygen.ai/public-avatars/Lasse/image_videos/office120_p3_a1.mp4',
-    voiceDirection:'Conversational analyst, slightly measured tempo, concise language, thoughtful natural pauses.',
-    motionDirection:'Minimal head motion and small reactions; no broad pointing, looping gestures or unnecessary hand movements.',
-    framing:'Slight three-quarter analyst framing; wider chart space beside the face, frequent evidence cutaways.'
-  }),
-  constraints:freeze([
-    'All available looks for these two public identities are photo_avatar: no filmed-motion reference was found.',
-    'At this time prompt tuning cannot turn these identities into recorded human video looks.',
-    'Do not use custom motion on 10+ second shots without a loop/hold check.',
-    'Do not fake simultaneous listener reactions using a frozen photo.'
-  ])
-});
-
-const filmed=freeze({
-  id:'recast-filmed-studio',approvalStatus:'unapproved face and voice change: free preview review required',
-  approach:'Two different public filmed studio-avatar identities instead of photo-animated faces.',
-  engine:'avatar_iii',rateUSDPerMinute:1,
-  anchor:freeze({
-    name:'Daphne',role:'Anchor',lookId:'Daphne_public_1',
-    avatarType:'studio_avatar',defaultVoiceId:'c9c03f392dcb449593b2b282701a7a17',
-    imagePreviewUrl:'https://files2.heygen.ai/avatar/v3/180f7fceee0f4548acead17f466c267c_63120/preview_target.webp',
-    videoPreviewUrl:'https://files2.heygen.ai/avatar/v3/180f7fceee0f4548acead17f466c267c_63120/preview_video_target.mp4',
-    voiceDirection:'Confident and calm, warm short intros, unforced endings.',
-    motionDirection:'Recorded-appearance studio footage: assess authentic head/eye/gesture continuity in the free preview.',
-    framing:'Grey blazer; seated desk framing, clean camera-level eyeline, mid-shot crop in a 16:9 programme panel.'
-  }),
-  analyst:freeze({
-    name:'Bryce',role:'Analyst',lookId:'Bryce_public_1',
-    avatarType:'studio_avatar',defaultVoiceId:'536fee878bef49ca96bda0c2fdb0e68b',
-    imagePreviewUrl:'https://files2.heygen.ai/avatar/v3/61b1f2295f114bcf9a467a28854ae7f5_63020/preview_target.webp',
-    videoPreviewUrl:'https://files2.heygen.ai/avatar/v3/61b1f2295f114bcf9a467a28854ae7f5_63020/preview_video_target.mp4',
-    voiceDirection:'Distinct conversational, analytical rhythm and a less-presenter-like delivery; avoid monotony.',
-    motionDirection:'Assess source-based hand/body motion in free preview; do not claim gestures are dynamically controllable.',
-    framing:'Blue blazer; wider analytical panel with chart graphics, complementary camera angle to the anchor.'
-  }),
-  constraints:freeze([
-    'This option replaces the faces/names Liza and Lasse: an explicit casting approval is required.',
-    'Both selected public studio looks advertise Avatar III API only, not Avatar IV/Avatar V.',
-    'Source portrait/near-square footage should be contained in a designed programme frame, not blindly cropped to 16:9.',
-    'Even filmed avatars may have lip-sync or facial artefacts; human review of a paid clip is still mandatory.',
-    'Standing/matting and independent silent-listener motions remain unverified.'
-  ])
-});
-const twins=freeze({
-  id:'recast-recorded-digital-twins',approvalStatus:'unapproved public identity change: free video preview and usage rights still require confirmation',
-  approach:'Use public video-trained digital twins, with recorded-motion references and optional premium Avatar V engine.',
-  engine:'avatar_v',rateUSDPerMinute:4,
-  budgetEngine:'avatar_iii',budgetRateUSDPerMinute:1,
-  anchor:freeze({
-    name:'Veronica',role:'Anchor',lookId:'5d7b598f4a564ea2b072b2440b249648',
-    avatarType:'digital_twin',defaultVoiceId:'31d70788ddf3469299f6a65ae2e24a04',
-    imagePreviewUrl:'https://files2.heygen.ai/avatar/v3/5d7b598f4a564ea2b072b2440b249648/full/2.2/preview_target.webp',
-    videoPreviewUrl:'https://files2.heygen.ai/avatar/v3/5d7b598f4a564ea2b072b2440b249648/full/2.2/preview_video_target.mp4',
-    availableEngines:['avatar_v','avatar_iv','avatar_iii'],nativeWidth:1280,nativeHeight:720,
-    voiceDirection:'Measured and calm, approachable primary presenter; test actual default voice for newsroom suitability.',
-    motionDirection:'Prefer recorded reference and default Avatar V behavior; do not layer speculative gestures.',
-    framing:'Landscape 16:9 anchor; medium shot in branded composition with natural illumination.'
-  }),
-  analyst:freeze({
-    name:'Kevin',role:'Analyst',lookId:'c8f428c549ea448488fdb2214dbcad57',
-    avatarType:'digital_twin',defaultVoiceId:'5141743c956d4a1298b7126c9639d416',
-    imagePreviewUrl:'https://files2.heygen.ai/avatar/v3/c8f428c549ea448488fdb2214dbcad57/half/2.2/preview_target.webp',
+  analyst:Object.freeze({
+    ...proposedPresenters.ANALYST,
     videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/c8f428c549ea448488fdb2214dbcad57/half/2.2/preview_video_target.mp4',
-    availableEngines:['avatar_v','avatar_iv','avatar_iii'],nativeWidth:1280,nativeHeight:720,
-    voiceDirection:'Measured but conversational financial analyst, fewer scripted-corporate phrases; test actual voice.',
-    motionDirection:'Rely on recorded human movement reference and avoid a repeating hand-gesture prompt.',
-    framing:'Landscape 16:9 analyst panel at slight angle, significant room for chart cutaways.'
+    sourceWidth:1280,sourceHeight:720,
+    characterDirection:'Measured market analyst, concise, conversational, thoughtful speech and a distinct cadence from the anchor.',
+    cameraDirection:'16:9 full landscape frame, with chart/data cutaways; no unsupported pointing or theatrical gestures.'
   }),
-  constraints:freeze([
-    'These are public, video-trained identities, not private or exclusive actors; neither is approved to replace Liza/Lasse.',
-    'Avatar V is the higher-fidelity engine advertised for both digital-twin looks. A cheaper Avatar III audition can test each identity but may be less lifelike.',
-    'The provider advertises recorded-motion sources, but actual scripted output has not been generated or quality-assessed.',
-    'Avatar V public API billing is reported as approximately $4/min; verify direct-account price and balance before release.',
-    'Full two-person interacting/standing/alpha outputs remain unproven and are not part of simple presenter-cut proof.'
+  auditionEngine:'avatar_iii',
+  estimatedEngineUsdPerGeneratedMinute:1,
+  upgradeEngine:'avatar_iv',
+  estimatedUpgradeEngineUsdPerGeneratedMinute:4,
+  avatarVDirectApiPriceConfirmed:false,
+  sharedRules:Object.freeze([
+    'No extra avatar expressions or motion prompts in the first paid audition.',
+    'No voice-cloning or likeness claims; reuse the licensed public default voices if available in API.',
+    'No two-person fake listener loops; show active speaker or verified chart.',
+    'Display the programme as AI-presented illustrative footage; do not claim live financial facts.',
+    'No paid render until exact script hash, two look/voice account reads and an explicit wallet ceiling are verified.'
   ])
 });
 
-export const castingShortlist=freeze({keep,filmed,twins});
 export function realismComparison(){
-  const options=Object.values(castingShortlist);
-  return {asOf:'2026-10-10',zeroSpend:true,noVideoGenerated:true,paymentStatus:'BLOCKED',
-    approvedCast:'Liza/Lasse photo looks (appearance only)',recommendedForFirstHumanLikePreview:'recast-recorded-digital-twins',
-    userMustApproveChangingFaces:true,
-    comparisons:options.map(o=>({
-      id:o.id,engine:o.engine,presenters:[o.anchor.name,o.analyst.name],
-      lookIds:[o.anchor.lookId,o.analyst.lookId],avatarTypes:[o.anchor.avatarType,o.analyst.avatarType],
-      rateUSDPerMinute:o.rateUSDPerMinute,
-      sample45SecSpokenVideoUSD:Math.round(.75*o.rateUSDPerMinute*100)/100,
-      fiveMinSpokenVideoUSD:5*o.rateUSDPerMinute,
-      three20SecMaxTurnEstimateUSD:o.rateUSDPerMinute,
-      alternateBudgetEngine:o.budgetEngine||null,
-      alternateBudgetEngineRateUSDPerMinute:o.budgetRateUSDPerMinute||null,
-      notes:o.constraints
-    })),
-    exclusions:'Prices are estimates for speaking-avatar footage only; exclude listener/standing layers, extra calls, retakes, licensing, paid speech models, data feeds, hosting and taxes.'
+  const a=finalCast;
+  return {
+    selectedPair:['Araj','Kevin'],femaleLead:true,maleAnalyst:true,
+    type:'video-trained public digital twins',reviewRequired:['appearance and suitable diversity','American-accent suitability','lip sync and speaker movement','portrait-safe newsroom composition'],
+    avatarIIICostPerMinuteUSD:1,avatarIVCostPerMinuteUSD:4,avatarVDirectApiPriceConfirmed:false,
+    hypothetical45SecondIIIUSD:0.75,hypothetical45SecondIVUSD:3,
+    hypotheticalFiveMinuteSpeakingIIIUSD:5,hypotheticalFiveMinuteSpeakingIVUSD:20,
+    includedInQuotes:'Avatar speech video seconds only.',
+    excluded:'retakes, silent listener footage, standing/matting, editorial/data licensing, hosting, other models and account-level billing',
+    payAsYouGoMinTopUpUSD:5,noSpend:true,readyForPaidRelease:false
   };
 }
+
 if(process.argv[1]?.endsWith('realism-casting.mjs'))console.log(JSON.stringify(realismComparison(),null,2));
