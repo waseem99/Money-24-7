@@ -82,3 +82,7 @@ The prepared two-presenter pilot worker and private review studio are documented
 ## Next execution plan: animated multi-presenter broadcast
 
 The [AI-first V2 plan](docs/AI_FIRST_BROADCAST_V2_PLAN.md) and [linked execution backlog](docs/BROADCAST_V2_BACKLOG.json) specify six animated layouts, financial charts, a seated-anchor/standing-analyst scene, coordinated dialogue/listening reactions, a 45-second real-media gate, and the five-minute approval film. Precise movement is a separate experiment; buffered shared output follows film approval. These V2 capabilities are planned, not implemented. Begin with NR-01, then the no-paid-API graphics prototype.
+
+## Broadcast V2
+
+The [V2 runbook](docs/BROADCAST_V2_RUNBOOK.md) covers six animated newsroom layouts, programme-clock charts, multi-presenter turns, transparent standing footage, timed captions and private media review. Open `/broadcast-preview.html` for the labelled layout rehearsal. The real audition, final film approval and later live-channel experiment remain external gates; see [implementation evidence](docs/BROADCAST_V2_VERIFICATION.md).

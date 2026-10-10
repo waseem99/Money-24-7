@@ -1,6 +1,6 @@
 {
   "planningVersion": 1,
-  "status": "planned",
+  "status": "core-implemented-real-media-gates-open",
   "updatedAt": "2026-10-10",
   "repository": "waseem99/Money-24-7",
   "baselineCommit": "da9758bfa025b7e59256c0c9ed65892728e2206c",
@@ -14,13 +14,24 @@
       "title": "Versioned scene, claim and multi-presenter contracts",
       "priority": "P0",
       "release": "R1",
-      "status": "planned",
+      "status": "implemented-tested",
       "issueNumber": 18,
       "ownerRole": "Backend / contracts",
       "dependsOn": [],
-      "relatedIssues": [7, 9],
+      "relatedIssues": [
+        7,
+        9
+      ],
       "externalDependencies": [],
-      "codePaths": ["pilot/v2/contracts.mjs", "pilot/v2/migrate-v1.mjs", "pilot/v2/show-bible.json", "pilot/v2/themes/signal.json", "pilot/contracts.mjs", "tests/broadcast-v2/contracts.test.mjs", "package.json"],
+      "codePaths": [
+        "pilot/v2/contracts.mjs",
+        "pilot/v2/migrate-v1.mjs",
+        "pilot/v2/show-bible.json",
+        "pilot/v2/themes/signal.json",
+        "pilot/contracts.mjs",
+        "tests/broadcast-v2/contracts.test.mjs",
+        "package.json"
+      ],
       "scope": [
         "Define V2 Programme, SourceSnapshot, Metric, Claim, Presenter, Turn, Scene, Cue, Asset and readiness contracts from the plan.",
         "Add explicit sample/pilot/segment duration profiles while preserving the existing V1 300-second contract.",
@@ -35,21 +46,43 @@
         "A three-presenter synthetic manifest validates without new provider credentials.",
         "Plan/example schemas do not include credentials or treat synthetic sources as current market data."
       ],
-      "evidence": ["Versioned fixture manifests", "Focused contract tests plus existing regression suite", "Migration and rollback notes"],
-      "excluded": ["Paid calls", "Full application framework migration", "Automatic approval of real content"]
+      "evidence": [
+        "Versioned fixture manifests",
+        "Focused contract tests plus existing regression suite",
+        "Migration and rollback notes"
+      ],
+      "excluded": [
+        "Paid calls",
+        "Full application framework migration",
+        "Automatic approval of real content"
+      ]
     },
     {
       "id": "NR-02",
       "title": "Reference-inspired animated broadcast layouts and renderer decision",
       "priority": "P0",
       "release": "R1",
-      "status": "planned",
+      "status": "implemented-fixture-verified",
       "issueNumber": 19,
       "ownerRole": "Broadcast graphics / frontend",
-      "dependsOn": ["NR-01"],
-      "relatedIssues": [11],
-      "externalDependencies": ["Remotion is conditional on appropriate licence; native browser/FFmpeg route remains available"],
-      "codePaths": ["src/broadcast/layouts/", "src/broadcast/scene-state.js", "broadcast-preview.html", "src/broadcast-preview.js", "pilot/v2/themes/signal.json", "vite.config.js", "tests/broadcast-v2/layouts.test.mjs"],
+      "dependsOn": [
+        "NR-01"
+      ],
+      "relatedIssues": [
+        11
+      ],
+      "externalDependencies": [
+        "Remotion is conditional on appropriate licence; native browser/FFmpeg route remains available"
+      ],
+      "codePaths": [
+        "src/broadcast/layouts/",
+        "src/broadcast/scene-state.js",
+        "broadcast-preview.html",
+        "src/broadcast-preview.js",
+        "pilot/v2/themes/signal.json",
+        "vite.config.js",
+        "tests/broadcast-v2/layouts.test.mjs"
+      ],
       "scope": [
         "Implement anchor-full, discussion-two, presenter-board, anchor-analyst-wall, chart-full and story-visual with shared lower third, source/disclosure/captions and ticker lanes.",
         "Match reference composition hierarchy using original Signal branding; unequal anchor/analyst split is mandatory.",
@@ -64,25 +97,45 @@
         "Seeking reconstructs the correct state; reduced-motion mode works; fonts/assets are pinned and ready before capture.",
         "Renderer decision includes dependencies/licence, measured test time/hardware and no AI-generation latency claim."
       ],
-      "evidence": ["Six reference-state screenshots", "Animated preview URL and short fixture MP4", "Renderer decision and measurements"],
-      "excluded": ["Copying broadcaster branding or supplied presenter likenesses", "Claiming animated placeholders are real presenter footage"]
+      "evidence": [
+        "Six reference-state screenshots",
+        "Animated preview URL and short fixture MP4",
+        "Renderer decision and measurements"
+      ],
+      "excluded": [
+        "Copying broadcaster branding or supplied presenter likenesses",
+        "Claiming animated placeholders are real presenter footage"
+      ]
     },
     {
       "id": "NR-03",
       "title": "Snapshot-driven financial charts, indicators and market board",
       "priority": "P0",
       "release": "R1",
-      "status": "planned",
+      "status": "implemented-tested",
       "issueNumber": 20,
       "ownerRole": "Data / graphics",
-      "dependsOn": ["NR-01"],
-      "relatedIssues": [7, 11, 14],
-      "externalDependencies": ["Licensed live source and display rights only when enabling current data; replay development is unblocked"],
-      "codePaths": ["pilot/v2/data/snapshots.mjs", "pilot/v2/data/indicators.mjs", "src/broadcast/charts/", "tests/broadcast-v2/data.test.mjs"],
+      "dependsOn": [
+        "NR-01"
+      ],
+      "relatedIssues": [
+        7,
+        11,
+        14
+      ],
+      "externalDependencies": [
+        "Licensed live source and display rights only when enabling current data; replay development is unblocked"
+      ],
+      "codePaths": [
+        "pilot/v2/data/snapshots.mjs",
+        "pilot/v2/data/indicators.mjs",
+        "src/broadcast/charts/",
+        "tests/broadcast-v2/data.test.mjs"
+      ],
       "scope": [
         "Normalize OHLCV, instrument/venue/type/currency, as-of timestamps, prior-close basis, source revision and synthetic/historical/current classifications.",
         "Calculate returns, SMA/EMA, RSI and MACD in deterministic code with explicit seeding and missing-history behavior.",
-        "Render candlestick/line/volume/indicator panes, comparison graphics and 4–6-row boards; retain required chart attribution.",
+        "Render candlestick/line/volume/indicator panes, comparison graphics and 4\u20136-row boards; retain required chart attribution.",
         "Bind narrative charts to an immutable segment snapshot; implement separate timestamped ticker replay without changing spoken figures mid-turn.",
         "Add chart annotation targets in data coordinates for shared highlight/zoom and later pointing experiments."
       ],
@@ -93,21 +146,44 @@
         "Price/percentage/time/source shown on screen agree with bound claims; futures and cash indices cannot silently share an identifier.",
         "No live-data dependency, copied chart image or provider key is needed for the graphics proof."
       ],
-      "evidence": ["Metric fixtures and tests", "Recorded chart/board replay with source IDs", "Attribution and data-source mode notes"],
-      "excluded": ["Invented market facts", "A full technical-trading platform", "A market data purchase"]
+      "evidence": [
+        "Metric fixtures and tests",
+        "Recorded chart/board replay with source IDs",
+        "Attribution and data-source mode notes"
+      ],
+      "excluded": [
+        "Invented market facts",
+        "A full technical-trading platform",
+        "A market data purchase"
+      ]
     },
     {
       "id": "NR-04",
       "title": "AI editorial, dialogue and visual director with grounded repair",
       "priority": "P0",
       "release": "R2",
-      "status": "planned",
+      "status": "implemented-mock-tested-real-model-pending",
       "issueNumber": 21,
       "ownerRole": "AI orchestration / editorial",
-      "dependsOn": ["NR-01", "NR-03"],
-      "relatedIssues": [7, 9],
-      "externalDependencies": ["AI Gateway/model access for the real-model test; deterministic contract development can proceed first"],
-      "codePaths": ["pilot/v2/director.mjs", "pilot/v2/prompts/", "pilot/v2/qa.mjs", "pilot/providers.mjs", "pilot/cli.mjs", "tests/broadcast-v2/director.test.mjs"],
+      "dependsOn": [
+        "NR-01",
+        "NR-03"
+      ],
+      "relatedIssues": [
+        7,
+        9
+      ],
+      "externalDependencies": [
+        "AI Gateway/model access for the real-model test; deterministic contract development can proceed first"
+      ],
+      "codePaths": [
+        "pilot/v2/director.mjs",
+        "pilot/v2/prompts/",
+        "pilot/v2/qa.mjs",
+        "pilot/providers.mjs",
+        "pilot/cli.mjs",
+        "tests/broadcast-v2/director.test.mjs"
+      ],
       "scope": [
         "Generate claim-linked story brief, coordinated presenter dialogue, template/cue selections and illustration/motion prompts from versioned show instructions.",
         "Validate entity, numbers, units, comparison interval and qualifiers; replace the assumption that digit equality alone validates a claim.",
@@ -121,21 +197,45 @@
         "Repair attempts are bounded; malformed outputs cannot trigger paid downstream jobs.",
         "Real-model evidence is separately identified from fixture/mock tests; editor review evaluates factual meaning."
       ],
-      "evidence": ["Input/output manifests with hashes and prompt versions", "Adversarial claim-validation tests", "Real-model run trace when access is available"],
-      "excluded": ["Unsupervised publication of financial recommendations", "Unlimited model self-repair", "Handwritten production prompt per shot"]
+      "evidence": [
+        "Input/output manifests with hashes and prompt versions",
+        "Adversarial claim-validation tests",
+        "Real-model run trace when access is available"
+      ],
+      "excluded": [
+        "Unsupervised publication of financial recommendations",
+        "Unlimited model self-repair",
+        "Handwritten production prompt per shot"
+      ]
     },
     {
       "id": "NR-05",
       "title": "Multi-presenter turns, listener reactions and provider capabilities",
       "priority": "P0",
       "release": "R2",
-      "status": "planned",
+      "status": "implemented-synthetic-tested-real-performances-pending",
       "issueNumber": 22,
       "ownerRole": "Media orchestration",
-      "dependsOn": ["NR-01"],
-      "relatedIssues": [8, 9, 10],
-      "externalDependencies": ["Accepted presenter/voice/reaction assets for real-media certification"],
-      "codePaths": ["pilot/v2/dialogue.mjs", "pilot/v2/reactions.mjs", "pilot/v2/capabilities.mjs", "pilot/providers.mjs", "pilot/production.mjs", "pilot/store.mjs", "tests/broadcast-v2/dialogue.test.mjs"],
+      "dependsOn": [
+        "NR-01"
+      ],
+      "relatedIssues": [
+        8,
+        9,
+        10
+      ],
+      "externalDependencies": [
+        "Accepted presenter/voice/reaction assets for real-media certification"
+      ],
+      "codePaths": [
+        "pilot/v2/dialogue.mjs",
+        "pilot/v2/reactions.mjs",
+        "pilot/v2/capabilities.mjs",
+        "pilot/providers.mjs",
+        "pilot/production.mjs",
+        "pilot/store.mjs",
+        "tests/broadcast-v2/dialogue.test.mjs"
+      ],
       "scope": [
         "Use one director-controlled turn state machine for arbitrary presenter IDs; default to one active voice with intentional pauses.",
         "Choose appropriate listening footage by identity/look/duration, record provenance and avoid repeated short loops or freeze padding.",
@@ -151,21 +251,47 @@
         "Changing a graphic reuses presenter footage; retaking a turn preserves unrelated assets and invalidates dependent approval.",
         "Fixture and real performance evidence remain distinguishable."
       ],
-      "evidence": ["Turn/camera/reaction timeline", "Job recovery and budget tests", "Media provenance/capability records"],
-      "excluded": ["Open-ended agents talking to each other", "Automatic procurement", "A paid session per viewer"]
+      "evidence": [
+        "Turn/camera/reaction timeline",
+        "Job recovery and budget tests",
+        "Media provenance/capability records"
+      ],
+      "excluded": [
+        "Open-ended agents talking to each other",
+        "Automatic procurement",
+        "A paid session per viewer"
+      ]
     },
     {
       "id": "NR-06",
       "title": "Shared speech clock, alpha composition and animated scene export",
       "priority": "P0",
       "release": "R2",
-      "status": "planned",
+      "status": "implemented-synthetic-media-verified",
       "issueNumber": 23,
       "ownerRole": "Rendering / media",
-      "dependsOn": ["NR-02", "NR-03", "NR-05"],
-      "relatedIssues": [10, 11, 12],
-      "externalDependencies": ["Matting-compatible source footage to certify real standing composition; synthetic alpha fixtures support development"],
-      "codePaths": ["pilot/v2/timeline.mjs", "pilot/v2/render.mjs", "pilot/v2/assets.mjs", "pilot/compositor.mjs", "pilot/media.mjs", "src/broadcast/scene-state.js", "tests/broadcast-v2/render.test.mjs"],
+      "dependsOn": [
+        "NR-02",
+        "NR-03",
+        "NR-05"
+      ],
+      "relatedIssues": [
+        10,
+        11,
+        12
+      ],
+      "externalDependencies": [
+        "Matting-compatible source footage to certify real standing composition; synthetic alpha fixtures support development"
+      ],
+      "codePaths": [
+        "pilot/v2/timeline.mjs",
+        "pilot/v2/render.mjs",
+        "pilot/v2/assets.mjs",
+        "pilot/compositor.mjs",
+        "pilot/media.mjs",
+        "src/broadcast/scene-state.js",
+        "tests/broadcast-v2/render.test.mjs"
+      ],
       "scope": [
         "Compile speech token alignment plus measured avatar offset into a frame/sample-based programme clock shared by layout/chart/headline/camera cues.",
         "Resolve repeated phrases and pronunciation aliases unambiguously; make seeking reconstruct all active layers.",
@@ -181,21 +307,45 @@
         "Two pinned replays have identical event/value state and pass defined toleranced visual checkpoints.",
         "The existing 300-second V1 media path remains valid; 45-second samples do not weaken the pilot gate."
       ],
-      "evidence": ["45-second synthetic MP4", "Frame/cue comparison report", "Alpha and audio-track QA", "V1 regression result"],
-      "excluded": ["Certification of natural lip sync from A/V container timestamps alone", "Claiming synthetic output proves realism"]
+      "evidence": [
+        "45-second synthetic MP4",
+        "Frame/cue comparison report",
+        "Alpha and audio-track QA",
+        "V1 regression result"
+      ],
+      "excluded": [
+        "Certification of natural lip sync from A/V container timestamps alone",
+        "Claiming synthetic output proves realism"
+      ]
     },
     {
       "id": "NR-07",
       "title": "45-second real anchor-and-standing-analyst conversation trial",
       "priority": "P0",
       "release": "R2",
-      "status": "planned",
+      "status": "blocked-on-compatible-real-media",
       "issueNumber": 24,
       "ownerRole": "Production / creative review",
-      "dependsOn": ["NR-04", "NR-05", "NR-06"],
-      "relatedIssues": [8, 10, 11],
-      "externalDependencies": ["Two auditioned identities and voices under #8", "Provider access and bounded spend or supplied rendered clips", "Approved listening/standing footage"],
-      "codePaths": ["pilot/v2/experiments/conversation/", "pilot/v2/qa.mjs", "PILOT_VERIFICATION.md"],
+      "dependsOn": [
+        "NR-04",
+        "NR-05",
+        "NR-06"
+      ],
+      "relatedIssues": [
+        8,
+        10,
+        11
+      ],
+      "externalDependencies": [
+        "Two auditioned identities and voices under #8",
+        "Provider access and bounded spend or supplied rendered clips",
+        "Approved listening/standing footage"
+      ],
+      "codePaths": [
+        "pilot/v2/experiments/conversation/",
+        "pilot/v2/qa.mjs",
+        "PILOT_VERIFICATION.md"
+      ],
       "scope": [
         "Produce the same 45-second scene across the selected route: intro/question, analyst response with chart highlight, anchor follow-up and clean ending.",
         "Use the unequal anchor/analyst-wall layout, then cut to full-screen chart and return to discussion.",
@@ -210,21 +360,42 @@
         "A reviewer checks mouth/eyes/hands, voice, handovers, chart timing and reading comfort; mocks cannot close this issue.",
         "Report actual billing only if evidence exists; estimated reservations are labelled separately."
       ],
-      "evidence": ["Private real-media sample reference and hash", "Timestamped quality scorecard", "Provider/config/usage/timing record", "Creative decision"],
-      "excluded": ["Full five-minute master acceptance", "Guaranteed human indistinguishability", "A live generation claim"]
+      "evidence": [
+        "Private real-media sample reference and hash",
+        "Timestamped quality scorecard",
+        "Provider/config/usage/timing record",
+        "Creative decision"
+      ],
+      "excluded": [
+        "Full five-minute master acceptance",
+        "Guaranteed human indistinguishability",
+        "A live generation claim"
+      ]
     },
     {
       "id": "NR-08",
       "title": "R&D: controlled walking, gaze and exact chart pointing",
       "priority": "R&D",
       "release": "movement-experiment",
-      "status": "planned",
+      "status": "experiment-prepared-execution-pending",
       "issueNumber": 25,
       "ownerRole": "Animation / technical art",
-      "dependsOn": ["NR-03", "NR-06"],
-      "relatedIssues": [8, 11],
-      "externalDependencies": ["Compatible generated-motion account/assets for that route", "Unreal/MetaHuman assets, suitable GPU and rig/animation access for controlled 3D route"],
-      "codePaths": ["pilot/v2/experiments/movement/", "pilot/v2/capabilities.mjs"],
+      "dependsOn": [
+        "NR-03",
+        "NR-06"
+      ],
+      "relatedIssues": [
+        8,
+        11
+      ],
+      "externalDependencies": [
+        "Compatible generated-motion account/assets for that route",
+        "Unreal/MetaHuman assets, suitable GPU and rig/animation access for controlled 3D route"
+      ],
+      "codePaths": [
+        "pilot/v2/experiments/movement/",
+        "pilot/v2/capabilities.mjs"
+      ],
       "scope": [
         "Compare accepted standing composite, a short cinematic movement and a controlled 3D walk/look/point shot using the same target chart event.",
         "Define data-to-screen-to-world mapping, reachability, gaze and hand targets; keep chart pixels/data deterministic.",
@@ -238,21 +409,44 @@
         "No chart values are fabricated by the video model; any composited replacement stays registered and correctly occluded.",
         "A written decision states whether the route belongs in the pilot, later production or neither."
       ],
-      "evidence": ["Comparable private test clips", "Target/error/timing annotations", "Route decision with limitations"],
-      "excluded": ["Full autonomous 3D newsroom before pilot approval", "Passing an untested route", "Treating motion prompts as deterministic skeletal controls"]
+      "evidence": [
+        "Comparable private test clips",
+        "Target/error/timing annotations",
+        "Route decision with limitations"
+      ],
+      "excluded": [
+        "Full autonomous 3D newsroom before pilot approval",
+        "Passing an untested route",
+        "Treating motion prompts as deterministic skeletal controls"
+      ]
     },
     {
       "id": "NR-09",
       "title": "Post-approval buffered playout and fresh audience-Q&A trial",
       "priority": "P1",
       "release": "R4",
-      "status": "planned",
+      "status": "queue-foundation-tested-hosted-trial-pending",
       "issueNumber": 27,
       "ownerRole": "Media platform / operations",
-      "dependsOn": ["NR-10"],
-      "relatedIssues": [6, 14],
-      "externalDependencies": ["Actual film approval under #6", "Persistent media host and applicable streaming connectivity", "Provider budgets and source display rights"],
-      "codePaths": ["pilot/v2/playout/", "pilot/v2/experiments/latency/", "pilot/store.mjs", "src/desk-answer.js", "src/main.js"],
+      "dependsOn": [
+        "NR-10"
+      ],
+      "relatedIssues": [
+        6,
+        14
+      ],
+      "externalDependencies": [
+        "Actual film approval under #6",
+        "Persistent media host and applicable streaming connectivity",
+        "Provider budgets and source display rights"
+      ],
+      "codePaths": [
+        "pilot/v2/playout/",
+        "pilot/v2/experiments/latency/",
+        "pilot/store.mjs",
+        "src/desk-answer.js",
+        "src/main.js"
+      ],
       "scope": [
         "Run independent analysis/media/graphics production behind a readiness queue with expiry/deadlines and immutable sequence IDs.",
         "Maintain one shared programme and persistent encoder; choose HLS/RTMP/WebRTC based on measured delivery needs.",
@@ -264,25 +458,53 @@
       "acceptance": [
         "A 30-minute shared-output trial includes at least 20 eligible update/question measurements on declared hardware and concurrency.",
         "Delayed jobs, worker restart, stale source, rejected render and duplicate delivery do not cause double-air or missing required A/V; fallback periods are recorded.",
-        "Target production ratio >=1.2 and eligible-update freshness 60–120 seconds are measured; failures result in changed scope/architecture, not a false pass.",
+        "Target production ratio >=1.2 and eligible-update freshness 60\u2013120 seconds are measured; failures result in changed scope/architecture, not a false pass.",
         "A separately submitted unplanned question produces a source-grounded answer with full timestamp trace.",
         "Evidence states that the trial is not one-hour/24-hour or public production certification; #14 stays responsible for that expansion."
       ],
-      "evidence": ["Continuous recording/stream evidence", "Latency and throughput report", "Failure/recovery logs", "Fresh-question trace"],
-      "excluded": ["Making 24/7 readiness a dependency of the five-minute demo", "A paid session per viewer", "Guaranteed latency before measurement"]
+      "evidence": [
+        "Continuous recording/stream evidence",
+        "Latency and throughput report",
+        "Failure/recovery logs",
+        "Fresh-question trace"
+      ],
+      "excluded": [
+        "Making 24/7 readiness a dependency of the five-minute demo",
+        "A paid session per viewer",
+        "Guaranteed latency before measurement"
+      ]
     },
     {
       "id": "NR-10",
       "title": "V2 five-minute pipeline, review integration and regression gates",
       "priority": "P0",
       "release": "R3",
-      "status": "planned",
+      "status": "pipeline-implemented-real-film-acceptance-pending",
       "issueNumber": 26,
       "ownerRole": "Integration / QA",
-      "dependsOn": ["NR-07"],
-      "relatedIssues": [6, 7, 12, 13],
-      "externalDependencies": ["Accepted real scene and final content/assets for the complete film run"],
-      "codePaths": ["pilot/cli.mjs", "pilot/server.mjs", "src/pilot.js", "pilot/v2/qa.mjs", "pilot/episodes/", "tests/broadcast-v2/", ".github/workflows/pilot.yml", "PILOT_RUNBOOK.md", "PILOT_VERIFICATION.md"],
+      "dependsOn": [
+        "NR-07"
+      ],
+      "relatedIssues": [
+        6,
+        7,
+        12,
+        13
+      ],
+      "externalDependencies": [
+        "Accepted real scene and final content/assets for the complete film run"
+      ],
+      "codePaths": [
+        "pilot/cli.mjs",
+        "pilot/server.mjs",
+        "src/pilot.js",
+        "pilot/v2/qa.mjs",
+        "pilot/episodes/",
+        "tests/broadcast-v2/",
+        ".github/workflows/pilot.yml",
+        "PILOT_RUNBOOK.md",
+        "PILOT_VERIFICATION.md"
+      ],
       "scope": [
         "Route V2 validate/plan/produce/render/resume/review explicitly through the existing worker; preserve V1 behavior.",
         "Build the five-minute rundown using accepted V2 layouts, grounded dialogue, compiled cues and measured speech durations.",
@@ -298,8 +520,19 @@
         "Real five-minute production is tracked distinctly from technical fixture success and handed to #12/#13 with exact missing steps named.",
         "Runbook, verification, README and issue statuses reflect the actual tested state."
       ],
-      "evidence": ["V1/V2 regression and media reports", "Five-minute fixture metadata", "Private review walkthrough", "Final-production handoff to #12/#13"],
-      "excluded": ["Closing #6 from automated tests", "Self-approving human realism", "Deploying a public unauthenticated worker"]
+      "evidence": [
+        "V1/V2 regression and media reports",
+        "Five-minute fixture metadata",
+        "Private review walkthrough",
+        "Final-production handoff to #12/#13"
+      ],
+      "excluded": [
+        "Closing #6 from automated tests",
+        "Self-approving human realism",
+        "Deploying a public unauthenticated worker"
+      ]
     }
-  ]
+  ],
+  "implementationEvidence": "docs/BROADCAST_V2_VERIFICATION.md",
+  "runbook": "docs/BROADCAST_V2_RUNBOOK.md"
 }

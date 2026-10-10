@@ -1,3 +1,4 @@
+import {loadV2,approveV2,defectV2} from './v2/workflow.mjs';
 import http from 'node:http';
 import {randomBytes,timingSafeEqual} from 'node:crypto';
 import path from 'node:path';
@@ -45,17 +46,21 @@ export function createReviewServer({token,dist=path.resolve('dist')}={}) {
           for(const name of entries){try{const run=await loadRun(name);runs.push({name,title:run.episode.title,fixture:run.manifest.fixture,state:run.manifest.state});}catch{}}
           return json(200,runs);
         }
+        if(p==='/api/pilot/v2/runs'&&req.method==='GET'){const runs=[];for(const name of await readdir(runBase()).catch(()=>[])){try{const r=await loadV2(name);runs.push({name,title:r.episode.title,fixture:r.manifest.fixture,state:r.manifest.state});}catch{}}return json(200,runs);}
+        const v2=/^\/api\/pilot\/v2\/runs\/([\w-]+)(\/approve|\/defects)?$/.exec(p);
+        if(v2){const run=await loadV2(v2[1]);if(v2[2]==='/approve'&&req.method==='POST')return json(200,await approveV2(run,await body(req)));if(v2[2]==='/defects'&&req.method==='POST')return json(200,await defectV2(run,await body(req)));if(!v2[2]&&req.method==='GET')return json(200,{episode:run.episode,manifest:run.manifest,qa:await readJSON(path.join(run.root,'output/qa.json')).catch(()=>null),approval:await readJSON(path.join(run.root,'approval.json')).catch(()=>null),defects:await readJSON(path.join(run.root,'defects.json')).catch(()=>[])});}
         const m=/^\/api\/pilot\/runs\/([\w-]+)(\/approve)?$/.exec(p);
         if(m){const run=await loadRun(m[1]);
           if(m[2]&&req.method==='POST')return json(200,await approve(run,await body(req)));
           if(!m[2]&&req.method==='GET')return json(200,{episode:run.episode,manifest:run.manifest,qa:await readJSON(path.join(run.root,'output/qa.json')).catch(()=>null),approval:await readJSON(path.join(run.root,'approval.json')).catch(()=>null),editorial:await readJSON(path.join(run.root,'editorial.json')).catch(()=>null)});
         }
         const media=/^\/media\/([\w-]+)\/(master\.mp4|captions\.vtt|[\w-]+\.png)$/.exec(p);
-        if(media&&['GET','HEAD'].includes(req.method)){const run=await loadRun(media[1]);return await sendFile(req,res,path.join(run.root,'output',media[2]),{privateFile:true});}
+        if(media&&['GET','HEAD'].includes(req.method)){const info=await readJSON(path.join(runBase(),media[1],'manifest.json'));const run=await (info.version===2?loadV2:loadRun)(media[1]);return await sendFile(req,res,path.join(run.root,'output',media[2]),{privateFile:true});}
         return json(404,{error:'Not found'});
       }
       if(!['GET','HEAD'].includes(req.method))return json(405,{error:'Method not allowed'});
       // Serve only compiled review assets; never serve worker data, keys or source files.
+      if(p==='/broadcast-preview.html')return await sendFile(req,res,path.join(dist,'broadcast-preview.html'));
       if(p==='/'||p==='/pilot'||p==='/pilot.html')return await sendFile(req,res,path.join(dist,'pilot.html'));
       if(/^\/assets\/[\w.-]+\.(js|css|png|svg)$/.test(p))return await sendFile(req,res,path.join(dist,p.slice(1)));
       if(p==='/favicon.svg')return await sendFile(req,res,path.join(dist,'favicon.svg'));

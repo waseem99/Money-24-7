@@ -15,7 +15,7 @@ export class Providers {
       method:'POST',headers:{'xi-api-key':required(this.env,'ELEVENLABS_API_KEY'),'Content-Type':'application/json'},
       body:JSON.stringify({text,model_id:required(this.env,'ELEVENLABS_MODEL_ID'),voice_settings:{stability:0.5,similarity_boost:0.75}})
     });
-    const alignment=result.normalized_alignment || result.alignment;
+    const alignment=result.alignment || result.normalized_alignment;
     if(!result.audio_base64)throw new Error('Missing voice response');validateAlignment(alignment);
     await writeFile(file,Buffer.from(result.audio_base64,'base64'),{mode:0o600});
     return {alignment,provider:'elevenlabs',voiceId:voice};
@@ -26,10 +26,10 @@ export class Providers {
     const r=await this.json('https://api.heygen.com/v3/assets',{method:'POST',headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY')},body:form});
     if(!r.data?.id) throw new Error('Missing uploaded asset ID');return {assetId:r.data.id};
   }
-  async avatar(assetId,speaker,callbackId) {
+  async avatar(assetId,speaker,callbackId,{alpha=false}={}) {
     const r=await this.json('https://api.heygen.com/v3/videos',{method:'POST',headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY'),'Content-Type':'application/json'},body:JSON.stringify({
       type:'avatar',avatar_id:required(this.env,`HEYGEN_${speaker.toUpperCase()}_AVATAR_ID`),audio_asset_id:assetId,
-      aspect_ratio:'16:9',resolution:'1080p',background:{type:'color',value:'#101c2d'},title:`Signal ${callbackId}`,callback_id:callbackId
+      aspect_ratio:alpha?'9:16':'16:9',resolution:'1080p',...(alpha?{output_format:'webm',fit:'contain'}:{background:{type:'color',value:'#101c2d'}}),title:`Signal ${callbackId}`,callback_id:callbackId
     })});
     if(!r.data?.video_id) throw new Error('Missing provider video ID');return {videoId:r.data.video_id};
   }
