@@ -16,6 +16,10 @@ const look=(id)=>{
     default_voice_id:p.defaultVoiceId,supported_api_engines:['avatar_iii','avatar_iv']};
 };
 
+const voiceCatalog=({gender})=>Object.values(proposedPresenters)
+  .filter(p=>(p.id==='araj'?'female':'male')===gender)
+  .map(p=>({voice_id:p.auditionVoiceId,name:p.auditionVoiceName,language:'English',gender}));
+
 test('Araj/Kevin/Araj identities, voices, portrait framing and conservative budget are immutable',()=>{
   const a=auditNativePlan();
   assert.equal(a.safeDryRun,true);
@@ -70,18 +74,22 @@ test('read-only look check stores a same-account preflight; mismatched voice blo
   try{
     const run=await initNative();
     let calls=0;
-    const provider={async avatarLook(id){calls++;return look(id);}};
+    const provider={async avatarLook(id){calls++;return look(id);},async listVoices(args){return voiceCatalog(args);}};
     const result=await lookCheckNative(run,{env:testEnv,provider});
     assert.equal(calls,2);
     assert.equal(result.billedRenderRequests,0);
     assert.equal(result.apiWalletUnverified,true);
-    assert.equal(result.voiceListedAsLookDefault,true);
+    assert.equal(result.chosenVoiceVerifiedInStarfishCatalog,true);
+    assert.equal(result.checks[0].voiceId,proposedPresenters.ANCHOR.auditionVoiceId);
+    assert.notEqual(result.checks[0].voiceId,proposedPresenters.ANCHOR.defaultVoiceId);
     assert.equal(result.checks.length,2);
     const again=await loadNative(run.name);
     assert.equal(again.manifest.lookCheck.planHash,run.manifest.planHash);
     assert.equal(again.manifest.lookCheck.checks.length,2);
     const bad={async avatarLook(id){return {...look(id),default_voice_id:'unapproved'};}};
     await assert.rejects(lookCheckNative(run,{env:testEnv,provider:bad}),/not confirmed/);
+    const unavailable={async avatarLook(id){return look(id);},async listVoices(){return [];}};
+    await assert.rejects(lookCheckNative(run,{env:testEnv,provider:unavailable}),/not independently listed/);
   }finally{
     if(old===undefined)delete process.env.PILOT_DATA_DIR;else process.env.PILOT_DATA_DIR=old;
     await rm(dir,{recursive:true,force:true});
@@ -102,7 +110,7 @@ test('paid audition fails closed without same-key preflight and can only submit 
         assert.equal(options.fit,'contain');
         assert.equal(text,nativeAuditionPlan.turns[0].text);
         assert.equal(id,proposedPresenters.ANCHOR.lookId);
-        assert.equal(voice,proposedPresenters.ANCHOR.defaultVoiceId);
+        assert.equal(voice,proposedPresenters.ANCHOR.auditionVoiceId);
         return {videoId:'mock-provider-job'};
       },
       async status(){polls++;return {status:'processing'};},
@@ -111,7 +119,7 @@ test('paid audition fails closed without same-key preflight and can only submit 
     const env={...testEnv,PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash};
     await assert.rejects(produceNativeTurn(run,'araj-open',{env,provider}),/explicit --paid/);
     await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env,provider}),/same-key read-only/);
-    await lookCheckNative(run,{env,provider:{avatarLook:async id=>look(id)}});
+    await lookCheckNative(run,{env,provider:{avatarLook:async id=>look(id),listVoices:async args=>voiceCatalog(args)}});
     await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,HEYGEN_API_KEY:'other-valid-key'},provider}),/same-key read-only/);
     await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_EPISODE_HASH:'wrong'},provider}),/locked/);
     await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_MAX_USD:'0.50'},provider}),/locked/);
