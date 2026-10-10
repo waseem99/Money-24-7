@@ -1,0 +1,71 @@
+name: HeyGen voice failure diagnosis (read-only)
+
+on:
+  push:
+    branches:
+      - ops/heygen-araj-first-once-20261010
+    paths:
+      - .github/workflows/heygen-voice-readonly-diagnose.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose-voice:
+    if: github.ref == 'refs/heads/ops/heygen-araj-first-once-20261010'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Read failed video details and accessible English female Starfish voice catalog
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12)throw new Error('HeyGen API secret missing');
+          async function get(path){
+            const r=await fetch('https://api.heygen.com'+path,{
+              method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!r.ok)throw new Error('Read-only HeyGen GET failed, HTTP '+r.status+' (no generation)');
+            const result=await r.json();
+            if(result?.error)throw new Error('Provider GET returned error (details redacted)');
+            return result?.data??result;
+          }
+          const vid='33f132ced33b48d9083b6d7d1c70af50';
+          const prior=await get('/v3/videos/'+vid);
+          console.log('Failed Araj clip status: '+prior.status);
+          console.log('Failure code: '+(prior.failure_code||prior.error_code||prior.failureCode||'unspecified'));
+          const msg=String(prior.failure_message||prior.error_message||prior.failureMessage||'no human-readable reason').slice(0,180);
+          console.log('Failure reason: '+msg);
+          console.log('Billing metadata present: '+Boolean(prior.usage||prior.billing||prior.actual_billed_usd));
+          const catalog=await get('/v3/voices?engine=starfish&type=public&language=English&gender=female&limit=100');
+          const records=Array.isArray(catalog)?catalog:
+            Array.isArray(catalog.voices)?catalog.voices:
+            Array.isArray(catalog.items)?catalog.items:[];
+          console.log('Public English female Starfish catalog size returned: '+records.length);
+          const candidates=['330290724a1b470fb63153f34d4c0183','0989cd9eec9e485da0d7945fe142dfb9',
+            '1f8f917ed78a45afb056e686b7ee2963','16cae89929d94c25bc28b5af6f04822a'];
+          const matches=records.filter(v=>candidates.includes(v.voice_id));
+          for(const v of matches){
+            const label=String(v.name||'Unknown').slice(0,100).replace(/[\r\n]/g,' ');
+            console.log('Verified accessible candidate: '+v.voice_id+' / '+label+' / '+v.language+' / '+v.gender);
+            if(v.preview_audio_url&&String(v.preview_audio_url).startsWith('https://'))
+              console.log('Public audio preview: '+v.preview_audio_url);
+          }
+          if(matches.length===0) {
+            for(const v of records.slice(0,8)){
+              console.log('Other English female Starfish voice: '+v.voice_id+' / '+String(v.name||'Unknown').slice(0,90));
+            }
+          }
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## Read-only Araj voice diagnosis\n\n'+
+            '- Failed video: '+vid+' ('+prior.status+')\n'+
+            '- Failure reason: '+msg+'\n'+
+            '- Accessible candidate voices found: '+matches.length+'\n'+
+            '- Paid submissions: **zero**\n'+
+            '- Further generation remains **blocked** pending specific voice approval and budget review.\n');
+          NODE
