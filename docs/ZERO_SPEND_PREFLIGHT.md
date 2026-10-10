@@ -1,3 +1,9 @@
+# Superseded casting notes
+
+**Current approved audition casting: Araj (female lead anchor) + Kevin (male market analyst), with Avatar III and payment blocked.** The historical options below are retained for comparison only. See [Final casting and audition plan](FINAL_CASTING_AUDITION.md) for the authoritative identities, script, cost and one-clip-at-a-time release requirements.
+
+---
+
 # Jazz / Signal — zero-spend prepayment gate
 
 **Status (10 October 2026): NO-GO for paid generation.** This is an engineering/preproduction checkpoint, not approval to purchase HeyGen credits or produce footage. The connected HeyGen account is on the free web plan; API wallet balance has not been verified. OAuth/ChatGPT web credits and direct API wallet credits are separate.
