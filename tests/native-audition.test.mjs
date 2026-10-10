@@ -29,6 +29,8 @@ test('Araj/Kevin/Araj identities, voices, portrait framing and conservative budg
   assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.aspectRatio),['9:16','16:9','9:16']);
   assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.fit),['contain','cover','contain']);
   assert.equal(a.maximumReservedEstimateUSD,1.02);
+  assert.equal(proposedPresenters.ANCHOR.auditionVoiceId,'596d780fd5874d7983847b6a0e0c49e6');
+  assert.equal(proposedPresenters.ANALYST.auditionVoiceId,'00e3d285aba44b27a83c47c02c9c2d9c');
   assert.equal(a.turns.every(t=>t.words<=38),true);
   const change=structuredClone(nativeAuditionPlan);
   change.turns[1].voiceId='unapproved';
@@ -80,8 +82,26 @@ test('HeyGen provider voice catalog GET does not create any billable audio/video
   assert.ok(urlSeen.startsWith('https://api.heygen.com/v3/voices?'));
   assert.ok(urlSeen.includes('engine=starfish'));
   assert.ok(urlSeen.includes('gender=female'));
-  assert.equal(methodSeen,undefined); // fetch default method is GET; no paid POST
+  assert.ok(!urlSeen.includes('POST'));
+  assert.equal(methodSeen,'GET'); // explicitly read-only; no paid POST
   assert.equal(voices[0].voice_id,proposedPresenters.ANCHOR.auditionVoiceId);
+});
+
+test('Starfish read-only catalog handles paginated exact voice verification',async()=>{
+  const calls=[];
+  const provider=new Providers({HEYGEN_API_KEY:'offline-test-key'},async(url,options)=>{
+    const u=new URL(url);calls.push({url:u,method:options.method});
+    const next=u.searchParams.get('token');
+    return {ok:true,json:async()=>({data:next?
+      {items:[{voice_id:'596d780fd5874d7983847b6a0e0c49e6',name:'Georgia - Lifelike - Broadcaster',language:'English',gender:'female'}],next_token:null}:
+      {items:[{voice_id:'some-other-voice',name:'Another Voice',language:'English',gender:'female'}],next_token:'page2'}})};
+  });
+  const voices=await provider.listVoices({gender:'female',searchQuery:'Georgia',maxPages:3});
+  assert.equal(calls.length,2);
+  assert.equal(calls.every(x=>x.method==='GET'),true);
+  assert.equal(calls[0].url.searchParams.get('search_query'),'Georgia');
+  assert.equal(calls[1].url.searchParams.get('token'),'page2');
+  assert.equal(voices.some(x=>x.voice_id===proposedPresenters.ANCHOR.auditionVoiceId),true);
 });
 
 test('read-only look check stores a same-account preflight; mismatched voice blocks it',async()=>{
