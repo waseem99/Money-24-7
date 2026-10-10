@@ -14,10 +14,11 @@ The connected HeyGen public library contains **28 Liza** looks and **23 Lasse** 
 | --- | --- | --- | --- | --- | --- |
 | **A: Keep approved public faces** | [Liza Office 1 preview](https://resource2.heygen.ai/public-avatars/Liza/image_videos/office80_p2_a1.mp4) | [Lasse Office 3 preview](https://resource2.heygen.ai/public-avatars/Lasse/image_videos/office120_p3_a1.mp4) | Photo Avatar IV | **$3 per rendered minute** | Familiar faces, but generated photo motion remains a realism limitation |
 | **B: Recast to filmed studio looks — proposed** | [Daphne in Grey blazer preview](https://files2.heygen.ai/avatar/v3/180f7fceee0f4548acead17f466c267c_63120/preview_video_target.mp4) | [Bryce in Blue blazer preview](https://files2.heygen.ai/avatar/v3/61b1f2295f114bcf9a467a28854ae7f5_63020/preview_video_target.mp4) | Studio Avatar III (both selected looks advertise III only) | **$1 per rendered minute** | Motion derived from a recorded video look; different actual faces and voices, must be approved |
+| **C: Recast to video-trained digital twins — stronger realism candidate** | [Veronica recorded preview](https://files2.heygen.ai/avatar/v3/5d7b598f4a564ea2b072b2440b249648/full/2.2/preview_video_target.mp4) | [Kevin recorded preview](https://resource2.heygen.ai/avatar/v3/c8f428c549ea448488fdb2214dbcad57/half/2.2/preview_video_target.mp4) | Avatar V (also supports Avatar III for cheaper test) | **$4/min on V; $1/min on III** | Both have **1280×720 landscape recorded references** and advertise Avatar V. More promising for human motion, but faces change and output quality is untested |
 
 *Rates:* HeyGen's published 1080p API pricing table, https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained, as checked 2026-10-10. Examples for speaking-avatar footage only: 45 seconds is $2.25 (A) or $0.75 (B), and five minutes is $15 (A) or $5 (B). These are estimates based on billable generated seconds, **not** all-in finished-programme quotes. Extra listener takes, matting/standing, retakes, narration outside the avatar, market-data rights and hosted streaming are excluded. No minimum spend is claimed beyond provider's pay-as-you-go wallet terms.
 
-**Editorial recommendation:** Prefer a **recorded studio look** if free previews demonstrate better natural motion; it is both lower-cost and less dependent on inventing head/eye/hand behavior from a single photograph. This does not automatically make the avatar indistinguishable from real video. If faces **must** remain Liza/Lasse, use route A and accept that there is a motion fidelity ceiling until licensed consented footage of those exact people becomes available. Stock public looks are not exclusive proprietary identities.
+**Editorial recommendation:** For a higher-realism goal, inspect **route C: Veronica and Kevin**, because both identities have landscape video-trained looks compatible with Avatar V. Keep **route B (Daphne/Bryce, Studio III)** as the lowest-cost filmed alternative. Do not assume C is objectively more lifelike without watching preview footage and a short paid test. Route C footage estimates are $3 for 45 seconds / $20 for five minutes on Avatar V, while its Avatar III budget fallback is $0.75 / $5 respectively. Pricing is based on HeyGen's October 2026 Avatar V API rate reported at https://www.heygen.com/blog/best-ai-avatar-talking-head-apis (approximately $4/min). Neither route is exclusive to Signal. If faces **must** remain Liza/Lasse, use route A and accept that its photo-generated-motion realism has a ceiling unless consented reference footage of the same individuals becomes available.
 
 ## Distinct character treatment (applies to either route)
 
@@ -52,9 +53,9 @@ The connected HeyGen public library contains **28 Liza** looks and **23 Lasse** 
 ## Exact zero-spend release gates
 
 - [x] Existing photo faces and voices catalogued.
-- [x] Two public studio/video-look alternatives catalogued and freely previewable.
+- [x] Public filmed studio and video-trained digital-twin alternatives catalogued and freely previewable.
 - [x] Deterministic route/cost comparison in `pilot/v2/realism-casting.mjs`, with tests; **not a production cast switch**.
-- [ ] Stakeholder decides whether to keep Liza/Lasse's exact faces or accept changing faces to Daphne/Bryce.
+- [ ] Stakeholder decides whether to keep Liza/Lasse's exact faces or approve recasting to filmed identities (Veronica/Kevin preferred preview; Daphne/Bryce budget alternate).
 - [ ] Stakeholder approves the selected *free video previews* for overall body/facial realism and accent.
 - [ ] Direct HeyGen account's read-only look/voice/engine eligibility verified using the private API key (when available).
 - [ ] The final selected route is implemented in the paid-audition adapter with exact IDs, engine and framing. Current `native-audition.mjs` stays pinned to Liza/Lasse until approval.
