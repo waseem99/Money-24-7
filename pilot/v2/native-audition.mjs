@@ -71,26 +71,38 @@ function paidGate(run,env){
   const min=auditNativePlan(run.plan).maximumReservedEstimateUSD;
   if(!Number.isFinite(approved)||approved<=0||!Number.isFinite(reserved)||reserved<min||reserved>approved)
     throw new Error('Paid audition locked: explicit release and sufficient bounded internal estimate required');
-  required(env,'HEYGEN_API_KEY');
+  const key=required(env,'HEYGEN_API_KEY'),proof=run.manifest.lookCheck;
+  if(!proof||proof.planHash!==run.manifest.planHash||proof.keyHash!==hash(key)||
+     !Number.isFinite(Date.parse(proof.checkedAt))||Date.now()-Date.parse(proof.checkedAt)>24*60*60*1000||
+     !Array.isArray(proof.checks)||proof.checks.length!==2)
+    throw new Error('Paid audition locked: a successful same-key read-only look/voice/engine account check within 24 hours is required');
   return {cap:reserved,perClip:usd(run.plan.maxEstimatedClipSeconds*rateFor(run.plan.engine)/60)};
 }
 // Non-billable read of the exact looks with the private API credential.
 // A successful catalog read does not imply that the API wallet has spendable funds.
 export async function lookCheckNative(run,{env=process.env,provider=new Providers(env)}={}){
-  const checks=[];
+  if(run.manifest.fixture)throw new Error('Fixture cannot establish account readiness');
+  const token=required(env,'HEYGEN_API_KEY'),checks=[];
   for(const role of ['ANCHOR','ANALYST']){
     const p=proposedPresenters[role],look=await provider.avatarLook(p.lookId);
-    if(look.id!==p.lookId||look.status!=='completed'||look.default_voice_id!==p.defaultVoiceId||!look.supported_api_engines?.includes(run.plan.engine))
-      throw new Error('Selected '+p.name+' look/voice/engine is not compatible with this direct API account');
-    const voice=await provider.voiceInfo(p.defaultVoiceId);
-    if(voice.voice_id!==p.defaultVoiceId||!voice.language)throw new Error('Selected '+p.name+' voice is unavailable to this direct API account');
-    checks.push({presenter:p.name,lookId:look.id,voiceId:voice.voice_id,voiceLanguage:voice.language,voiceName:voice.name,engine:run.plan.engine,status:look.status});
+    if(look.id!==p.lookId||look.avatar_type!=='digital_twin'||look.status!=='completed'||
+       look.group_id!==p.groupId||look.default_voice_id!==p.defaultVoiceId||
+       !look.supported_api_engines?.includes(run.plan.engine))
+      throw new Error('Selected '+p.name+' look, default voice or engine is not confirmed for this direct API account');
+    checks.push({presenter:p.name,lookId:look.id,voiceId:look.default_voice_id,voiceProvenance:'look default',engine:run.plan.engine,status:look.status});
   }
-  return {checks,billedRenderRequests:0,apiWalletUnverified:true,spokenAccentUnverified:true};
+  const checkedAt=new Date().toISOString();
+  return withLock(run.root,async()=>{
+    Object.assign(run,await loadNative(run.name));
+    run.manifest.lookCheck={planHash:run.manifest.planHash,keyHash:hash(token),checkedAt,checks};
+    await atomicJSON(path.join(run.root,'manifest.json'),run.manifest);
+    return {checks,checkedAt,planHash:run.manifest.planHash,billedRenderRequests:0,
+      apiWalletUnverified:true,voiceAccentUnverified:true,voiceListedAsLookDefault:true};
+  });
 }
 export async function nativeStatus(run){
   const db=new Store(run.root);
-  try{return {name:run.name,planHash:run.manifest.planHash,assets:Object.keys(run.manifest.assets),jobs:db.summary(),providerStatus:run.manifest.providerStatus};}
+  try{return {name:run.name,planHash:run.manifest.planHash,assets:Object.keys(run.manifest.assets),lookCheck:run.manifest.lookCheck?{checkedAt:run.manifest.lookCheck.checkedAt,checks:run.manifest.lookCheck.checks}:null,jobs:db.summary(),providerStatus:run.manifest.providerStatus};}
   finally{db.close();}
 }
 export async function produceNativeTurn(run,turnId,{paid=false,env=process.env,provider=new Providers(env)}={}){
@@ -117,7 +129,7 @@ export async function produceNativeTurn(run,turnId,{paid=false,env=process.env,p
       const file=path.join(run.root,'assets',turnId+'.mp4');
       await provider.download(status.video_url,file);
       const record=await mediaRecord(file);
-      if(!record.video||record.video.width<1280||record.video.height<720||!record.audio||record.duration<6||record.duration>run.plan.maxEstimatedClipSeconds)
+      if(!record.video||Math.min(record.video.width,record.video.height)<720||Math.max(record.video.width,record.video.height)<1280||!record.audio||record.duration<6||record.duration>run.plan.maxEstimatedClipSeconds)
         throw new Error('Audition output outside 6–20s video/audio window; inspect provider job before any retake');
       if(Math.abs(record.audio.start-record.video.start)>.12||Math.abs(record.audio.duration-record.video.duration)>.15)
         throw new Error('Audition A/V timing mismatch');
