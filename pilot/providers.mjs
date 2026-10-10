@@ -33,6 +33,31 @@ export class Providers {
     })});
     if(!r.data?.video_id) throw new Error('Missing provider video ID');return {videoId:r.data.video_id};
   }
+  // HeyGen-native text+voice path: no ElevenLabs, uploaded audio, custom voice, or motion.
+  // This is a PAID POST and must only be invoked by a separately gated, one-turn operator run.
+  async avatarScript(text,avatarId,voiceId,callbackId,{engine='avatar_iv'}={}) {
+    if(typeof text!=='string'||!text.trim()||text.length>5000)throw new Error('Valid bounded spoken script required');
+    if(!/^[a-zA-Z0-9_-]{8,128}$/.test(avatarId)||!/^[a-zA-Z0-9_-]{8,128}$/.test(voiceId))throw new Error('Exact approved public avatar look and voice required');
+    if(!['avatar_iv','avatar_iii'].includes(engine))throw new Error('Only audited Avatar III/IV permitted for native audition');
+    const payload={type:'avatar',avatar_id:avatarId,script:text,voice_id:voiceId,engine:{type:engine},
+      aspect_ratio:'16:9',resolution:'1080p',fit:'cover',
+      background:{type:'color',value:'#102944'},output_format:'mp4',
+      caption:{file_format:'srt'},title:`Signal native audition ${callbackId}`,callback_id:callbackId};
+    const r=await this.json('https://api.heygen.com/v3/videos',{
+      method:'POST',headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY'),'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(!r.data?.video_id)throw new Error('Missing provider video ID');
+    return {videoId:r.data.video_id};
+  }
+  // Read-only account/asset verification. This must not generate footage or spend credits.
+  async avatarLook(lookId) {
+    if(!/^[a-zA-Z0-9_-]{8,128}$/.test(lookId))throw new Error('Invalid look ID');
+    const r=await this.json(`https://api.heygen.com/v3/avatars/looks/${encodeURIComponent(lookId)}`,{
+      headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY')}
+    });
+    if(!r.data?.id)throw new Error('Look lookup unavailable');return r.data;
+  }
   async status(videoId) {
     const r=await this.json(`https://api.heygen.com/v3/videos/${encodeURIComponent(videoId)}`,{headers:{'x-api-key':required(this.env,'HEYGEN_API_KEY')}});
     if(!r.data?.status) throw new Error('Missing video status');return r.data;
