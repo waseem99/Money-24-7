@@ -1,0 +1,44 @@
+name: HeyGen male voice availability (read-only)
+
+on:
+  push:
+    branches:
+      - ops/heygen-araj-first-once-20261010
+    paths:
+      - .github/workflows/heygen-male-voice-readonly.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  confirm-male:
+    if: github.ref == 'refs/heads/ops/heygen-araj-first-once-20261010'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Check access to English male public Starfish voices without generating speech
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12)throw new Error('Secret unavailable');
+          const url='https://api.heygen.com/v3/voices?engine=starfish&type=public&language=English&gender=male&limit=100';
+          const response=await fetch(url,{method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+            redirect:'error',signal:AbortSignal.timeout(25000)});
+          if(!response.ok)throw new Error('Read-only male voice GET returned HTTP '+response.status);
+          const body=await response.json();
+          if(body.error)throw new Error('Provider voice read error');
+          const value=body.data??body;
+          const list=Array.isArray(value)?value:Array.isArray(value.voices)?value.voices:Array.isArray(value.items)?value.items:[];
+          const preferred=['00e3d285aba44b27a83c47c02c9c2d9c','0fadce1e82af494a93873aa38ea8d106','0be4826fa6fa4a0ca4f410c9d6f6e589'];
+          console.log('Public English male Starfish voices accessible: '+list.length);
+          for(const v of list.filter(v=>preferred.includes(v.voice_id))){
+            console.log('Verified voice: '+v.voice_id+' / '+String(v.name).slice(0,100)+' / '+v.language+' / '+v.gender);
+            if(v.preview_audio_url&&String(v.preview_audio_url).startsWith('https://'))
+              console.log('Preview: '+v.preview_audio_url);
+          }
+          console.log('All requests were read-only GET. No video or speech synthesis submitted.');
+          NODE
