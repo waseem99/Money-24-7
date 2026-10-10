@@ -14,7 +14,7 @@ A Vercel-ready financial broadcast prototype. Original Signal branding and an AI
 
 ## What is not complete
 
-The default deployment is a channel prototype, not a shared 24/7 television stream. No presenter credentials are configured, so a speaking avatar has not been verified. No licensed stock or business-news feed, LLM analysis engine, render worker, editorial approval dashboard, or YouTube RTMP broadcast is running. Scripts currently use deterministic factual templates, not LLM generation. Generated imagery does not create or license a custom LiveAvatar digital twin automatically.
+The default deployment is a channel prototype, not a shared 24/7 television stream. The operator LiveAvatar preview has account/session history in issues #2–#4; configuration presence does not certify professional footage or lip sync. The separate prepared-pilot worker implements AI-assisted script revision, timed speech/avatar adapters, FFmpeg composition and private review, as documented below. The actual premium five-minute film and real-provider certification remain pending. No continuous shared broadcast, hosted persistent production worker or live-feed redistribution entitlement is certified. Generated imagery does not create or license a custom LiveAvatar digital twin automatically.
 
 ## Local development
 
@@ -26,7 +26,7 @@ Source repository: https://github.com/waseem99/Money-24-7 (main branch).
 
 The prototype is already deployed in the Cod 3 Vercel project `signal-financial-network`. Framework: Vite. Build: `npm run build`. Output: `dist`. The `api/` functions deploy separately through Vercel. Never commit real `.env` files or add API keys to VITE-prefixed variables.
 
-The initial deployment used direct source upload. Git-linked automatic deployments must be connected and verified separately. Confirm the commit author has Cod 3 access before relying on automatic deployments.
+Git-linked automatic deployments were verified through PR #16 and production commit `da9758bfa025b7e59256c0c9ed65892728e2206c`. Preserve the existing Cod 3 project, domains and private environment settings.
 
 ## Activate the realistic presenter
 
@@ -78,3 +78,7 @@ The project stores the image at `public/anchor-studio.png`.
 # Five-minute production pilot
 
 The prepared two-presenter pilot worker and private review studio are documented in [PILOT_RUNBOOK.md](PILOT_RUNBOOK.md). Start with `npm run pilot -- doctor`, then `npm run pilot -- init --fixture`. `/pilot.html` previews the production rundown. Fixture output is explicitly not the final realistic recording; actual provider footage and human quality review are still required.
+
+## Next execution plan: animated multi-presenter broadcast
+
+The [AI-first V2 plan](docs/AI_FIRST_BROADCAST_V2_PLAN.md) and [linked execution backlog](docs/BROADCAST_V2_BACKLOG.json) specify six animated layouts, financial charts, a seated-anchor/standing-analyst scene, coordinated dialogue/listening reactions, a 45-second real-media gate, and the five-minute approval film. Precise movement is a separate experiment; buffered shared output follows film approval. These V2 capabilities are planned, not implemented. Begin with NR-01, then the no-paid-API graphics prototype.
