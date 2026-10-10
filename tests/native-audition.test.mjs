@@ -7,13 +7,13 @@ import {Providers} from '../pilot/providers.mjs';
 import {nativeAuditionPlan,auditNativePlan,initNative,loadNative,nativeStatus,
   lookCheckNative,produceNativeTurn} from '../pilot/v2/native-audition.mjs';
 
-test('Liza/Lasse/Liza script and maximum estimated exposure are pinned, no account needed',()=>{
+test('Araj/Kevin/Araj script and maximum estimated exposure are pinned, no account needed',()=>{
   const result=auditNativePlan();
   assert.equal(result.safeDryRun,true);
   assert.equal(result.paidRelease,'BLOCKED');
-  assert.equal(result.engine,'avatar_iv');
-  assert.deepEqual(result.turns.map(t=>t.presenter),['Liza','Lasse','Liza']);
-  assert.equal(result.maximumReservedEstimateUSD,3);
+  assert.equal(result.engine,'avatar_iii');
+  assert.deepEqual(result.turns.map(t=>t.presenter),['Araj','Kevin','Araj']);
+  assert.equal(result.maximumReservedEstimateUSD,1.02);
   assert.equal(result.turns.length,3);
   assert.equal(result.turns.every(t=>t.words<=38),true);
   const changed=structuredClone(nativeAuditionPlan);
@@ -45,16 +45,18 @@ test('HeyGen direct native-script payload has the exact selected voice, explicit
   await assert.rejects(provider.avatarScript('text','bad','bad','job-001',{engine:'avatar_v'}),/approved public avatar/);
 });
 
-test('video-trained public digital twin can be expressed as Avatar V request without invoking any paid provider',async()=>{
+test('native pay-as-you-go provider allows Avatar IV but blocks unpriced Avatar V API requests',async()=>{
   const calls=[];
   const p=new Providers({HEYGEN_API_KEY:'local-test-key'},async(url,opts)=>{
     calls.push({url,method:opts.method,payload:JSON.parse(opts.body)});
     return {ok:true,json:async()=>({data:{video_id:'mock-v'}})};
   });
-  const r=await p.avatarScript('A grounded analyst opening.','c8f428c549ea448488fdb2214dbcad57','5141743c956d4a1298b7126c9639d416','mock-v',{engine:'avatar_v'});
+  const r=await p.avatarScript('A grounded analyst opening.','c8f428c549ea448488fdb2214dbcad57','5141743c956d4a1298b7126c9639d416','mock-v',{engine:'avatar_iv'});
   assert.equal(r.videoId,'mock-v');
   assert.equal(calls.length,1);
-  assert.deepEqual(calls[0].payload.engine,{type:'avatar_v'});
+  assert.deepEqual(calls[0].payload.engine,{type:'avatar_iv'});
+  await assert.rejects(p.avatarScript('A script','c8f428c549ea448488fdb2214dbcad57','5141743c956d4a1298b7126c9639d416','bad',{engine:'avatar_v'}),/restricted to published pay-as-you-go/);
+  assert.equal(calls.length,1);
   assert.equal(calls[0].payload.voice_id,'5141743c956d4a1298b7126c9639d416');
   // Because this is a mocked fetch, no provider API, render or billing is triggered.
 });
@@ -65,7 +67,7 @@ test('separate free look+voice queries require both IDs to exist in API account'
   try{
     const run=await initNative();let looks=0,voices=0;
     const provider={
-      async avatarLook(id){looks++;const t=nativeAuditionPlan.turns.find(x=>x.avatarId===id);return {id,status:'completed',default_voice_id:t.voiceId,supported_api_engines:['avatar_iv']};},
+      async avatarLook(id){looks++;const t=nativeAuditionPlan.turns.find(x=>x.avatarId===id);return {id,status:'completed',default_voice_id:t.voiceId,supported_api_engines:['avatar_iii','avatar_iv']};},
       async voiceInfo(id){voices++;return {voice_id:id,language:'en',name:'Default voice'};}
     };
     const a=await lookCheckNative(run,{provider});
@@ -89,7 +91,7 @@ test('paid native audition defaults to locked, runs one turn only, resumes witho
     const provider={
       async avatarScript(text,id,voice,job,options){
         submissions++;
-        assert.equal(options.engine,'avatar_iv');
+        assert.equal(options.engine,'avatar_iii');
         assert.equal(text,nativeAuditionPlan.turns[0].text);
         return {videoId:'video-mock-one'};
       },
@@ -98,17 +100,17 @@ test('paid native audition defaults to locked, runs one turn only, resumes witho
     };
     const env={HEYGEN_API_KEY:'offline-test-key',PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash,
       PILOT_MAX_ESTIMATED_USD:'3',PILOT_PAID_RELEASE_MAX_USD:'3'};
-    await assert.rejects(produceNativeTurn(run,'liza-open',{env,provider}),/explicit --paid/);
-    await assert.rejects(produceNativeTurn(run,'liza-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_EPISODE_HASH:'wrong'},provider}),/locked/);
-    await assert.rejects(produceNativeTurn(run,'liza-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_MAX_USD:'1'},provider}),/locked/);
+    await assert.rejects(produceNativeTurn(run,'araj-open',{env,provider}),/explicit --paid/);
+    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_EPISODE_HASH:'wrong'},provider}),/locked/);
+    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_MAX_USD:'1'},provider}),/locked/);
     await assert.rejects(produceNativeTurn(run,'invalid',{paid:true,env,provider}),/one approved --turn/);
     assert.equal(submissions,0);
-    const one=await produceNativeTurn(run,'liza-open',{paid:true,env,provider});
-    const two=await produceNativeTurn(run,'liza-open',{paid:true,env,provider});
+    const one=await produceNativeTurn(run,'araj-open',{paid:true,env,provider});
+    const two=await produceNativeTurn(run,'araj-open',{paid:true,env,provider});
     assert.equal(one.state,'pending');assert.equal(two.state,'pending');
     assert.equal(submissions,1);assert.equal(statusReads,2);
     const status=await nativeStatus(run);
-    assert.equal(status.jobs.reservedEstimateUSD,1);
+    assert.equal(status.jobs.reservedEstimateUSD,0.34);
     assert.equal(status.jobs.jobs.filter(j=>j.state==='complete').length,1);
   }finally{
     if(old===undefined)delete process.env.PILOT_DATA_DIR;else process.env.PILOT_DATA_DIR=old;
