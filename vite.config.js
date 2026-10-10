@@ -1,3 +1,3 @@
 import {defineConfig} from 'vite';
 import {resolve} from 'node:path';
-export default defineConfig({build:{rollupOptions:{input:{main:resolve('index.html'),pilot:resolve('pilot.html')}}}});
+export default defineConfig({build:{rollupOptions:{input:{main:resolve('index.html'),pilot:resolve('pilot.html'),broadcast:resolve('broadcast-preview.html')}}}});

@@ -10,7 +10,9 @@
     "pilot": "node pilot/cli.mjs",
     "pilot:review": "node pilot/cli.mjs serve",
     "test:pilot": "node --test tests/pilot*.test.mjs",
-    "verify:media": "node pilot/verify-media.mjs"
+    "verify:media": "node pilot/verify-media.mjs",
+    "broadcast": "node pilot/v2/cli.mjs",
+    "verify:broadcast": "node pilot/v2/verify.mjs"
   },
   "dependencies": {
     "@heygen/liveavatar-web-sdk": "0.0.19",

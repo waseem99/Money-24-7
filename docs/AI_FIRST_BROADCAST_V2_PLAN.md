@@ -1,10 +1,12 @@
 # AI-first broadcast execution plan — V2
 
-Status: **planned; implementation has not started**. Updated 10 October 2026.
+Status: **core implementation and synthetic verification completed; real-media and later live-channel gates remain open**. Updated 10 October 2026.
+
+Implementation evidence and exact limits: [BROADCAST_V2_VERIFICATION.md](BROADCAST_V2_VERIFICATION.md). Operator commands: [BROADCAST_V2_RUNBOOK.md](BROADCAST_V2_RUNBOOK.md). This document remains the broader acceptance specification; proposed paths below map to the consolidated shared modules documented in those files.
 
 Repository: `waseem99/Money-24-7`. Audited main: `da9758bfa025b7e59256c0c9ed65892728e2206c` (PR #16).
 
-This extends [the five-minute approval plan](../FIVE_MINUTE_NEWSROOM_PLAN.md). The immediate deliverable remains a convincing five-minute recording for Umar bhai. Animated broadcast layouts, an unequal two-presenter view and programmatic financial charts are now explicit pilot requirements. Exact walking/pointing is an experimental branch; shared continuous playout follows film approval. This plan does not assert that any new capability has been implemented.
+This extends [the five-minute approval plan](../FIVE_MINUTE_NEWSROOM_PLAN.md). The immediate deliverable remains a convincing five-minute recording for Umar bhai. Animated broadcast layouts, an unequal two-presenter view and programmatic financial charts are now explicit pilot requirements. Exact walking/pointing is an experimental branch; shared continuous playout follows film approval. Use the linked implementation evidence to distinguish delivered code from the broader acceptance targets below.
 
 Execution tasks and issue links: [BROADCAST_V2_BACKLOG.json](BROADCAST_V2_BACKLOG.json). The parent film acceptance remains [#6](https://github.com/waseem99/Money-24-7/issues/6); existing #7–#14 retain their history and acceptance ownership.
 
