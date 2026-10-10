@@ -45,6 +45,20 @@ test('HeyGen direct native-script payload has the exact selected voice, explicit
   await assert.rejects(provider.avatarScript('text','bad','bad','job-001',{engine:'avatar_v'}),/approved public avatar/);
 });
 
+test('video-trained public digital twin can be expressed as Avatar V request without invoking any paid provider',async()=>{
+  const calls=[];
+  const p=new Providers({HEYGEN_API_KEY:'local-test-key'},async(url,opts)=>{
+    calls.push({url,method:opts.method,payload:JSON.parse(opts.body)});
+    return {ok:true,json:async()=>({data:{video_id:'mock-v'}})};
+  });
+  const r=await p.avatarScript('A grounded analyst opening.','c8f428c549ea448488fdb2214dbcad57','5141743c956d4a1298b7126c9639d416','mock-v',{engine:'avatar_v'});
+  assert.equal(r.videoId,'mock-v');
+  assert.equal(calls.length,1);
+  assert.deepEqual(calls[0].payload.engine,{type:'avatar_v'});
+  assert.equal(calls[0].payload.voice_id,'5141743c956d4a1298b7126c9639d416');
+  // Because this is a mocked fetch, no provider API, render or billing is triggered.
+});
+
 test('separate free look+voice queries require both IDs to exist in API account',async()=>{
   const dir=await mkdtemp(path.join(os.tmpdir(),'signal-native-read-')),old=process.env.PILOT_DATA_DIR;
   process.env.PILOT_DATA_DIR=dir;
