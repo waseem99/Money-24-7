@@ -26,16 +26,25 @@ Public voice names / audio samples do not establish an American accent or succes
 ## Engineering fix in draft PR #30
 
 1. Preserve the actual HeyGen look's `defaultVoiceId` as catalog metadata, separate from `auditionVoiceId` used for generation.
-2. Pin Araj's proposed audition voice to Yuki and Kevin's to Orson.
+2. The initial correction proposed Yuki and Orson. After the user's free-preview feedback, **Orson remains locked**, and the revised Araj proposal is **Georgia — Lifelike, Broadcaster**; Annie is the alternative.
 3. Replace the earlier, inadequate look-default-only readiness check. A read-only GET to `/v3/voices?engine=starfish&type=public&language=English&gender=...` must independently find the selected `auditionVoiceId` and language/gender; otherwise **fail closed before any paid render**.
 4. Maintain same-key and recent-account verification, conservative plan-hash spending reservations and single-turn mode.
 5. Change cost estimator to $1/min for Avatar III digital-twin footage and $4/min for Avatar IV digital twin, per the current HeyGen API pricing.
 6. CI includes a regression that an absent voice in the Starfish catalog blocks approval.
 7. Keep full V2 and production site unchanged; no automatic paid retry.
 
+## New voice-quality feedback and read-only alternative check — 10 October 2026
+
+The stakeholder accepted **Kevin + Orson** as natural. **Araj + Yuki was rejected as sounding AI-generated** without producing any second paid video. This rejection supersedes the earlier proposed Yuki selection above. The [read-only natural female voice search #38075930139](https://github.com/waseem99/Money-24-7/actions/runs/38075930139) confirmed both of the following IDs in the same authenticated API catalog, with zero provider generation requests:
+
+- **Georgia — Lifelike, Broadcaster** (preferred *provisional* option): `596d780fd5874d7983847b6a0e0c49e6`; [free listening sample](https://resource2.heygen.ai/text_to_speech/21e28514b7994f46b907b74914a3ca6e/596d780fd5874d7983847b6a0e0c49e6/id=c74ae0d6-5e5f-4594-a18d-8c3940cdb13a.wav).
+- **Annie — Lifelike** (alternative for a softer, less newsreader-sounding cadence): `330290724a1b470fb63153f34d4c0183`; [free listening sample](https://resource2.heygen.ai/text_to_speech/561ac7e163fa4d42a9115b5db9beeaf6/330290724a1b470fb63153f34d4c0183/id=8a40de08-a60e-4d1a-8d03-066c135ebb93&locale=en-US.wav).
+
+A catalog entry, including a label of "Lifelike", **does not guarantee that the user will perceive the generated voice as realistic** or that the script will render successfully. Have the stakeholder review free samples and confirm the choice before authorizing another video POST. Orson is unchanged. The test runner has been configured with Georgia provisionally; all payment gates remain blocked.
+
 ## Before a second paid attempt
 
-- Confirm user likes the accessible free Yuki voice preview for Araj.
+- Obtain stakeholder selection of the **Georgia vs Annie** free voice previews for Araj; neither is automatically accepted based on its description.
 - Check the HeyGen API billing/usage page for actual charge and remaining wallet, and auto-reload status; the read-only API did not expose enough billing metadata.
 - Complete CI tests on the corrected PR.
 - Re-run read-only account/voice checks with the same GitHub secret, from trusted code.
