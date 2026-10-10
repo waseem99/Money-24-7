@@ -45,27 +45,30 @@ export function compositionSegments(run,timeline){
   });
 }
 async function composeSegment(run,base,segment,file){
+  const staging=file+'.pending.mkv';
   const args=['-hide_banner','-loglevel','error','-y','-ss',String(segment.start),'-i',base],filters=[];let input=1,current='0:v';
   for(const layer of segment.layers){
-    if(layer.asset.alpha)args.push('-c:v','libvpx-vp9');args.push('-ss',String(layer.offset),'-i',path.join(run.root,'assets',layer.asset.file));
+    if(layer.asset.alpha)args.push('-c:v','libvpx-vp9');args.push('-i',path.join(run.root,'assets',layer.asset.file));
     const {x,y,h,kind}=layer.slot,w=2*Math.floor(layer.slot.w/2),hh=2*Math.floor((h-78)/2);
     const fit=layer.asset.alpha?`scale=${w}:${hh}:force_original_aspect_ratio=decrease:force_divisible_by=2,pad=${w}:${hh}:(ow-iw)/2:(oh-ih)/2:color=black@0`:`scale=${w}:${hh}:force_original_aspect_ratio=increase,crop=${w}:${hh}`;
-    filters.push(`[${input}:v]setpts=PTS-STARTPTS,fps=30,format=rgba,${fit},setsar=1[v${input}]`);
+    filters.push(`[${input}:v]trim=start=${layer.offset},setpts=PTS-STARTPTS,fps=30,format=rgba,${fit},setsar=1[v${input}]`);
     filters.push(`[${current}][v${input}]overlay=${x}:${y}:eof_action=pass:repeatlast=0[o${input}]`);current=`o${input}`;input++;
   }
-  if(segment.audio){args.push('-ss',String(segment.audio.offset),'-i',path.join(run.root,'assets',segment.audio.asset.file));filters.push(`[${input}:a]asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,apad,atrim=duration=${segment.duration}[audio]`);}
+  if(segment.audio){args.push('-i',path.join(run.root,'assets',segment.audio.asset.file));filters.push(`[${input}:a]atrim=start=${segment.audio.offset},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,apad,atrim=duration=${segment.duration}[audio]`);}
   else{args.push('-f','lavfi','-i','anullsrc=r=48000:cl=stereo');filters.push(`[${input}:a]atrim=duration=${segment.duration}[audio]`);}
   if(current==='0:v')filters.push('[0:v]null[video]');else filters.push(`[${current}]null[video]`);
-  args.push('-filter_complex_threads','1','-filter_complex',filters.join(';'),'-map','[video]','-map','[audio]','-t',String(segment.duration),'-frames:v',String(segment.frames),'-c:v','libx264','-preset','veryfast','-crf','18','-pix_fmt','yuv420p','-r','30','-threads','2','-c:a','pcm_s16le',file);
+  args.push('-filter_complex_threads','1','-filter_complex',filters.join(';'),'-map','[video]','-map','[audio]','-t',String(segment.duration),'-frames:v',String(segment.frames),'-c:v','libx264','-preset','veryfast','-crf','18','-pix_fmt','yuv420p','-r','30','-threads','2','-c:a','pcm_s16le',staging);
   await command('ffmpeg',args);
+  const segmentMedia=await mediaRecord(staging);if(!segmentMedia.video||Math.abs(segmentMedia.duration-segment.duration)>.05)throw new Error('Incomplete composition segment; refusing a truncated master');
+  await rename(staging,file);
 }
 async function captions(run,file){
   let result='WEBVTT\n\n';
   for(const t of run.episode.turns){const asset=run.manifest.assets[t.id];const words=t.text.trim().split(/\s+/);
-    for(let n=0;n<words.length;n+=10){let start,end;
-      if(run.manifest.fixture){start=t.startMs+n/words.length*t.durationMs;end=t.startMs+Math.min(words.length,n+10)/words.length*t.durationMs;}
-      else{const a=asset.alignment,startIndex=asset.tokenOffsets[n],endIndex=n+10<words.length?asset.tokenOffsets[n+10]-1:a.characters.length-1;start=t.startMs+(a.character_start_times_seconds[startIndex]*1000)+asset.offsetMs;end=t.startMs+(a.character_end_times_seconds[Math.max(startIndex,endIndex)]*1000)+asset.offsetMs;}
-      result+=`${vttTime(start/1000)} --> ${vttTime(end/1000)}\n${run.manifest.fixture?'[Unvoiced rehearsal] ':''}${words.slice(n,n+10).join(' ').replace(/[<>]/g,'')}\n\n`;
+    for(let n=0;n<words.length;){let start,end,stop=Math.min(words.length,n+10);if(asset)while(stop<words.length&&asset.tokenOffsets[stop]===asset.tokenOffsets[stop-1])stop++;
+      if(run.manifest.fixture){start=t.startMs+n/words.length*t.durationMs;end=t.startMs+stop/words.length*t.durationMs;}
+      else{const a=asset.alignment,startIndex=asset.tokenOffsets[n],endIndex=stop<words.length?asset.tokenOffsets[stop]-1:a.characters.length-1;start=t.startMs+(a.character_start_times_seconds[startIndex]*1000)+asset.offsetMs;end=t.startMs+(a.character_end_times_seconds[Math.max(startIndex,endIndex)]*1000)+asset.offsetMs;}
+      result+=`${vttTime(start/1000)} --> ${vttTime(end/1000)}\n${run.manifest.fixture?'[Unvoiced rehearsal] ':''}${words.slice(n,stop).join(' ').replace(/[<>]/g,'')}\n\n`;n=stop;
     }
   }await writeFile(file,result);
 }

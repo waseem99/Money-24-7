@@ -18,5 +18,7 @@ export function bindAlignment(text,rules,alignment){
   if(!alignment||alignment.characters?.join('')!==mapped.spokenText||alignment.characters.length!==alignment.character_start_times_seconds?.length||alignment.characters.length!==alignment.character_end_times_seconds?.length)throw new Error('Alignment must match the exact spoken text; normalized text cannot be guessed');
   let last=0;
   for(let i=0;i<alignment.characters.length;i++){const a=alignment.character_start_times_seconds[i],b=alignment.character_end_times_seconds[i];if(!Number.isFinite(a)||!Number.isFinite(b)||a<last||b<a)throw new Error('Invalid alignment timestamps');last=a;}
-  return {...mapped,alignment};
+  const characterIndices=new Map();let position=0;alignment.characters.forEach((character,index)=>{characterIndices.set(position,index);position+=character.length;});
+  const tokenOffsets=mapped.tokenOffsets.map(offset=>{if(!characterIndices.has(offset))throw new Error('Token does not begin on an alignment character boundary');return characterIndices.get(offset);});
+  return {...mapped,tokenOffsets,alignment};
 }

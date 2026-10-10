@@ -23,7 +23,7 @@ const copy=structuredClone;
 
 test('sample and pilot retain exact profiles; schema rejects overlapping dialogue and ambiguous cues',()=>{
   for(const profile of ['sample','pilot'])assert.equal(validateProgramme(exampleProgramme(profile)).durationMs,profile==='sample'?45000:300000);
-  for(const mutate of [p=>p.durationMs--,p=>p.turns[1].startMs=0,p=>p.scenes[1].startMs++,p=>p.cues[0].tokenStart=999,p=>p.cues[0].action='eval',p=>p.theme.accent='url(https://invalid)',p=>p.claims[0].subject='WRONG ENTITY',p=>p.claims[0].unit='percentage points',p=>p.claims[0].asOf='2020-01-01',p=>p.claims[0].value++]){const p=exampleProgramme();mutate(p);assert.throws(()=>validateProgramme(p));}
+  for(const mutate of [p=>p.durationMs--,p=>p.turns[1].startMs=0,p=>p.scenes[1].startMs++,p=>p.cues[0].tokenStart=999,p=>p.cues[0].action='eval',p=>p.cues[0].seriesId='unknown',p=>p.theme.accent='url(https://invalid)',p=>p.claims[0].subject='WRONG ENTITY',p=>p.claims[0].unit='percentage points',p=>p.claims[0].asOf='2020-01-01',p=>p.claims[0].value++]){const p=exampleProgramme();mutate(p);assert.throws(()=>validateProgramme(p));}
 });
 test('three presenter roster is supported across scenes without changing the two-person layout contract',()=>{const p=exampleProgramme();p.presenters.push({...p.presenters[1],id:'guest',name:'Guest',configRef:'GUEST'});p.scenes[2].presenterIds[1]='guest';p.turns[2].speakerId='guest';assert.equal(validateProgramme(p).presenters.length,3);p.scenes[1].presenterIds.push('guest');assert.throws(()=>validateProgramme(p),/Two-person/);});
 test('financial calculations preserve warm-up gaps and known reference values',()=>{
@@ -34,6 +34,7 @@ test('financial calculations preserve warm-up gaps and known reference values',(
 });
 test('real snapshots require source rights, consistent event time and explicit current expiry',()=>{const s=copy(exampleProgramme().snapshots[0]);s.kind='current';assert.throws(()=>validateSnapshot(s),/entitlement/);s.sourceUrl='https://data.example.test';s.entitlementRef='local-contract';assert.throws(()=>validateSnapshot(s),/expiry/);s.expiresAt='2026-01-01T07:30:00Z';assert.equal(validateSnapshot(s),s);s.asOf='2025-01-01';assert.throws(()=>validateSnapshot(s),/timestamps/);});
 test('pronunciation and repeated phrases bind exact token occurrences to measured character timing',()=>{
+  assert.equal(bindAlignment('📈 market rises',[],timing('📈 market rises')).tokenOffsets[1],2);
   const text='GDP rises and GDP rises again',rules=[{term:'GDP',say:'G D P'}],mapped=speechMap(text,rules);assert.equal(mapped.spokenText,'G D P rises and G D P rises again');assert.equal(mapped.tokenOffsets[3],16);assert.throws(()=>bindAlignment(text,rules,timing(text)),/exact spoken/);
   const p=exampleProgramme();p.turns[0].text=text;p.cues[0].tokenStart=3;p.cues[0].tokenEnd=4;const assets=Object.fromEntries(p.turns.map(t=>[t.id,bindAlignment(t.text,t.id==='turn-0'?rules:[],timing(t.id==='turn-0'?mapped.spokenText:t.text))]));const timeline=compileTimeline(p,assets);assert.equal(timeline.find(c=>c.id==='cue-0').atMs,570);assert.equal(timeline[0].timing,'measured');assert.throws(()=>compileTimeline(p,{}),/Measured/);
 });
