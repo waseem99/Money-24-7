@@ -10,14 +10,14 @@ const {values:o,positionals:[cmd,name]}=parseArgs({allowPositionals:true,options
   paid:{type:'boolean'},turn:{type:'string'},'video-id':{type:'string'}
 }});
 const help=[
-  'Signal native HeyGen-only audition (Liza / Lasse / Liza)',
+  'Signal native HeyGen-only audition (Araj / Kevin / Araj)',
   '  audit                            # free, pure, no account call',
   '  init                             # free, private immutable run',
   '  status RUN                       # free local job/budget report',
   '  look-check RUN                   # read-only direct API look + voice checks',
-  '  produce RUN --turn liza-open --paid   # PAID, requires exact hash/cap release',
-  '  produce RUN --turn lasse-analysis --paid',
-  '  produce RUN --turn liza-close --paid',
+  '  produce RUN --turn araj-open --paid   # PAID, requires exact hash/cap release',
+  '  produce RUN --turn kevin-analysis --paid',
+  '  produce RUN --turn araj-close --paid',
   '  reconcile RUN --turn ID --video-id ID # free, after manual provider verification',
   '  assemble RUN                     # local FFmpeg, after three real clips',
   '',
