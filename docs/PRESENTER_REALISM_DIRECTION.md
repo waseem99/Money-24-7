@@ -1,3 +1,9 @@
+# Superseded casting notes
+
+**Current approved audition casting: Araj (female lead anchor) + Kevin (male market analyst), with Avatar III and payment blocked.** The historical options below are retained for comparison only. See [Final casting and audition plan](FINAL_CASTING_AUDITION.md) for the authoritative identities, script, cost and one-clip-at-a-time release requirements.
+
+---
+
 # Natural presenter direction — Signal / Jazz AI Channel
 
 **Date:** 2026-10-10  
