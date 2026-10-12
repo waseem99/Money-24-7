@@ -77,6 +77,29 @@ export function allocateTimeline(plan,sources){
  return {targetSeconds:baseTarget,totalSeconds,frames:pos,entries:frames,fixedSeconds:fixed,spokenSeconds:spoken};
 }
 function sec(t){return Math.max(0,t).toFixed(3);}
+function makeAmbientBed(seconds,timeline){
+  // Entirely original, synthesized subtle instrumental bed; no stock licences or paid APIs.
+  // Quiet chord changes accompany animated charts without drowning the approved voices.
+  const rate=24000,total=Math.ceil(seconds*rate),pcm=Buffer.alloc(44+total*4);
+  pcm.write('RIFF',0);pcm.writeUInt32LE(pcm.length-8,4);pcm.write('WAVEfmt ',8);
+  pcm.writeUInt32LE(16,16);pcm.writeUInt16LE(1,20);pcm.writeUInt16LE(2,22);
+  pcm.writeUInt32LE(rate,24);pcm.writeUInt32LE(rate*4,28);pcm.writeUInt16LE(4,32);pcm.writeUInt16LE(16,34);
+  pcm.write('data',36);pcm.writeUInt32LE(total*4,40);
+  const changeAt=timeline.entries.filter(e=>['intro','interlude','outro'].includes(e.kind)).map(e=>e.startSeconds);
+  for(let i=0;i<total;i++){
+    const t=i/rate,phase=Math.floor(t/12)%3,mix=(t%12)/12;
+    const root=[130.81,146.83,110.0][phase],a=2*Math.PI*root*t,b=2*Math.PI*root*1.5*t;
+    const pad=.012*(Math.sin(a)+.53*Math.sin(b)+.36*Math.sin(a*2))*(.85+.15*Math.sin(t*.7));
+    const throb=.0024*Math.sin(2*Math.PI*196*t)*(.4+.6*Math.pow(Math.max(0,Math.sin(2*Math.PI*t/2.5)),2));
+    let sting=0;
+    for(const time of changeAt){const dt=t-time;if(dt>=0&&dt<1.7)sting+=.009*Math.sin(2*Math.PI*392*dt)*Math.exp(-3.5*dt);}
+    const fade=Math.min(1,t/1.7,(seconds-t)/2.6);
+    const val=Math.max(-1,Math.min(1,(pad+throb+sting)*Math.max(0,fade)));
+    pcm.writeInt16LE(Math.round(val*32760),44+i*4);
+    pcm.writeInt16LE(Math.round(val*.94*32760),46+i*4);
+  }
+  return pcm;
+}
 async function composeScene(scene,entry,source,{fpsGraphics=12,globalStart=0}={}){
  const id=scene.id,outDir=join(MEDIA_ROOT,'rendered');await mkdir(outDir,{recursive:true});
  const bg=join(outDir,id+'-background.mp4');
@@ -143,10 +166,17 @@ export async function assemble({workDir=MEDIA_ROOT,fixture=false,fpsGraphics=12,
  const lines=files.map(x=>"file '"+x.replace(/'/g,"'\\''")+"'").join('\n')+'\n';
  const concat=join(workDir,'rendered','concat.txt');await writeFile(concat,lines);
  const filename=fixture?'SIGNAL-TECHNICAL-NOT-APPROVED.mp4':'SIGNAL-Financial-News-3min-1080p-FINAL-DEMO.mp4';
- const master=join(workDir,filename);
+ const master=join(workDir,filename),preMaster=join(workDir,'signal-pre-master-visual.mp4');
  await command('ffmpeg',['-hide_banner','-v','error','-y','-f','concat','-safe','0','-i',concat,
     '-c:v','libx264','-preset','fast','-crf','19','-r','30','-pix_fmt','yuv420p',
-    '-c:a','aac','-b:a','192k','-ar','48000','-ac','2','-movflags','+faststart',master],{timeout:900000});
+    '-c:a','aac','-b:a','192k','-ar','48000','-ac','2','-movflags','+faststart',preMaster],{timeout:900000});
+ // Add quiet, self-composed broadcast music to prevent silence in editorial chart interludes.
+ // Keep presenter voices in front: local bed peaks at about -30dBFS and never uses paid content.
+ const scorePath=join(workDir,'signal-original-ambient-bed.wav');
+ await writeFile(scorePath,makeAmbientBed(timeline.totalSeconds,timeline));
+ await command('ffmpeg',['-hide_banner','-v','error','-y','-i',preMaster,'-i',scorePath,
+    '-filter_complex','[0:a]aresample=48000[a0];[1:a]aresample=48000,volume=0.55[a1];[a0][a1]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.94[aout]',
+    '-map','0:v:0','-map','[aout]','-c:v','copy','-c:a','aac','-b:a','192k','-ar','48000','-ac','2','-movflags','+faststart',master],{timeout:240000});
  const verified=await probe(master);
  if(!limitScenes && (Math.abs(verified.duration-timeline.totalSeconds)>.75||verified.duration<MIN-.75||verified.duration>MAX+.75))throw Error('Final runtime QA failed');
  if(verified.video.width!==1920||verified.video.height!==1080||verified.video.codec_name!=='h264'||verified.audio.codec_name!=='aac')throw Error('Final AV technical QA failed');
@@ -155,6 +185,7 @@ export async function assemble({workDir=MEDIA_ROOT,fixture=false,fpsGraphics=12,
  const report={status:fixture?'TECHNICAL_ONLY_NOT_FINAL':'RENDERED_REQUIRES_HUMAN_REVIEW',id:programme.programmeId,generatedAt:DATE,
    dimensions:'1920x1080',fps:30,codec:'H.264 + AAC',durationSeconds:verified.duration,
    captioning:'scene voice-duration proportional estimate; verify speech exact timing by human review',
+   soundtrack:'Original very low-level locally composed instrumental broadcast bed; no external music/licensing or additional AI credit usage',
    chartData:'DETERMINISTIC SIMULATED illustrative data only',liveMarketDataUsed:false,
    originalCasualPresentersUsed:false,actors:[identity.LIZA.name,identity.LASSE.name],voices:[identity.LIZA.voiceName,identity.LASSE.voiceName],
    fullHumanApproval:false,sceneTiming:timeline.entries};
