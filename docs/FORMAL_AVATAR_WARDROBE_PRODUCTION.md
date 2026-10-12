@@ -1,3 +1,13 @@
+## Direct wardrobe-generation attempt — provider blocked before creation
+
+On 12 October 2026, the connected HeyGen `create_prompt_avatar` operation was invoked with Rumi's exact existing public look ID `efa5d7cf738a4efd84b1dac501d9aef8`, asking only for a navy blazer/ivory blouse and studio background with strict face-preservation. **The provider returned HTTP 404 `resource_not_found`: “Avatar 74384d3dd9894ffb83cca47473eb6829 not found in this workspace.”** That is the public Rumi avatar group, not an editable avatar in this customer's workspace. No new look ID, photo or completed render was returned; no duplicate attempt was made.
+
+**Result:** Using the public Rumi reference via this authenticated create-look API is unsupported. Do not retry this request, replace Rumi, invent a new identity or silently pay for a Look Pack. The existing `$5` API-video wallet is separate from potential look-generation premium credit, and any charge from the failed request is not independently verified.
+
+The next viable technical dependency is a provider-approved way to obtain an editable formal variation of the exact licensed Rumi and Kevin public identities. If HeyGen cannot provide one, a suitably licensed real-formal-video source of the approved people or an explicit new casting decision would be necessary; no replacement cast is currently authorized.
+
+---
+
 # Jazz AI Channel — Formal Wardrobe Conversion & Provider Readiness
 
 ## Additional source inspection — verified, zero spend
