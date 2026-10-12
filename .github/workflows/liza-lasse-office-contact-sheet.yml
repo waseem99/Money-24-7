@@ -45,7 +45,7 @@ jobs:
            }
            const rows=Math.ceil(all.length/cols);
            const canvas=await sharp({create:{width:margin*2+cols*(cellW+margin)-margin,height:header+margin+rows*(cellH+margin),channels:3,background:'#07162a'}}).png().toBuffer();
-           const hd=Buffer.from('<svg width="1500" height="70"><text x="20" y="43" font-size="30" font-family="DejaVu Sans" font-weight="bold" fill="#f4f7fa">'+esc(person.toUpperCase()+' - existing HeyGen office looks | no generated credit used')+'</text></svg>');
+           const hd=Buffer.from('<svg width="1400" height="70"><text x="20" y="43" font-size="30" font-family="DejaVu Sans" font-weight="bold" fill="#f4f7fa">'+esc(person.toUpperCase()+' - existing HeyGen office looks | no generated credit used')+'</text></svg>');
            const p=await sharp(canvas).composite([{input:hd,left:0,top:0},...tiles]).png().toBuffer();
            await writeFile('look-review/'+person+'-office-contact-sheet.png',p);
           }
