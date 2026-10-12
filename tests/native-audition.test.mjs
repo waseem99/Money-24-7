@@ -68,7 +68,7 @@ test('native single-speaker HeyGen request is correct Photo Avatar III, correct 
     assert.deepEqual(data.engine,{type:'avatar_iii'});
   }
   assert.equal(count,2);
-  await assert.rejects(provider.avatarScript('x','id','voice','tag',{engine:'avatar_v'}),/restricted to published pay-as-you-go/);
+  await assert.rejects(provider.avatarScript('x',proposedPresenters.ANCHOR.lookId,proposedPresenters.ANCHOR.auditionVoiceId,'tag',{engine:'avatar_v'}),/restricted to published pay-as-you-go/);
   assert.equal(count,2);
 });
 
