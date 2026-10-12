@@ -1,3 +1,7 @@
+> **SUPERSEDED — 12 OCT 2026:** User has locked **Liza Office 6 + Annie** (female anchor) and **Lasse Office 3 + Orson** (male analyst), both already in formal blazers. Everything below about Rumi, Kevin and their inability to change outfits is retained only as historical project notes. **Authoritative current production plan:** [FINAL_LIZA_LASSE_PRODUCTION.md](FINAL_LIZA_LASSE_PRODUCTION.md). No old speaker/visual source is permitted in the new finished film.
+
+---
+
 # Final cast update — 12 October 2026
 
 **Current locked casting: Rumi + Annie (female lead) and Kevin + Orson (male analyst).** The Araj face was rejected, replaced with Rumi after the user approved Rumi's free recorded preview. [A real Rumi+Annie clip completed at 10.8408 seconds](https://app.heygen.com/videos/12186d2986911a13710d9298344c7ab5); human realism/lip-sync review is still pending. [See current 3-minute master plan](THREE_MINUTE_MASTER_EXECUTION.md). Everything about Araj below is retained as historical incident evidence and **must not** be used as current production direction. No further paid footage is authorized merely by this document.
