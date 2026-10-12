@@ -15,7 +15,7 @@ export const SOURCES=Object.freeze({
   YIELD:{label:'US 10-YEAR YIELD',value:'~5.24%',date:'REPORTED 9 OCT',status:'REPORTED SNAPSHOT',source:'REUTERS',url:'https://www.reuters.com/business/wall-st-week-ahead-bank-earnings-cpi-headline-busy-markets-week-sp-500-hovers-2026-10-09/'},
   CPI:{label:'SEPTEMBER US CPI',value:'WED 14 OCT',date:'8:30 AM ET',status:'UPCOMING RELEASE',source:'US BLS',url:'https://www.bls.gov/schedule/2026/10_sched_list.htm'},
   CPIFORECAST:{label:'HEADLINE CPI ESTIMATE',value:'3.7% Y/Y',date:'FORECAST — NOT RELEASED',status:'FORECAST ONLY',source:'REUTERS',url:'https://www.reuters.com/business/wall-st-week-ahead-bank-earnings-cpi-headline-busy-markets-week-sp-500-hovers-2026-10-09/'},
-  IMF:{label:'WORLD ECONOMIC OUTLOOK',value:'TUE 13 OCT',date:'UPCOMING PUBLICATION',status:'SCHEDULED',source:'IMF',url:'https://www.imf.org/en/publications/weo/issues/2026/10/13/world-economic-outlook-october-2026'}
+  IMF:{label:'WORLD ECONOMIC OUTLOOK',value:'TUE 13 OCT',date:'UPCOMING PUBLICATION',status:'SCHEDULED',source:'IMF',url:'https://data.imf.org/en/Release-Calendar'}
 });
 
 export const SHOW=Object.freeze({
