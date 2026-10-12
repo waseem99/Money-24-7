@@ -13,13 +13,13 @@ import {mediaRecord,verifyAudible,inspectMedia,command,vttTime} from '../media.m
 import {proposedPresenters} from './budget-preflight.mjs';
 
 const turns=[
-  {id:'araj-open',role:'ANCHOR',text:"Good evening, and welcome to Signal. I'm Araj. Markets can move quickly, but one headline rarely tells the whole story. Kevin, what should viewers check first?"},
+  {id:'rumi-open',role:'ANCHOR',text:"Good evening, and welcome to Signal. I'm Rumi. Markets can move quickly, but a headline never tells the whole story. Kevin, what should viewers look at first?"},
   {id:'kevin-analysis',role:'ANALYST',text:"I start with the timeframe and trading volume. A sharp move across one session can look very different over a week. It's important to check the source and avoid jumping to conclusions."},
-  {id:'araj-close',role:'ANCHOR',text:"Exactly. We'll show the chart and timestamp together, and explain what the numbers can and cannot tell us. This is an AI-presented demonstration using illustrative information. Thanks for watching Signal."}
+  {id:'rumi-close',role:'ANCHOR',text:"Exactly. We'll show the chart and its timeframe, and explain what the numbers can and cannot tell us. This is an AI-presented demonstration using illustrative information. Thanks for watching Signal."}
 ];
 
 export const nativeAuditionPlan=Object.freeze({
-  version:3,id:'signal-native-araj-kevin',kind:'short-presenter-audition',engine:'avatar_iii',
+  version:4,id:'signal-native-rumi-kevin',kind:'short-presenter-audition',engine:'avatar_iii',
   resolution:'1080p',targetSeconds:45,maxEstimatedClipSeconds:20,disclosure:'AI presenters; illustrative market discussion, not live quotes.',
   turns:turns.map(t=>({...t,avatarId:proposedPresenters[t.role].lookId,
     voiceId:proposedPresenters[t.role].auditionVoiceId,name:proposedPresenters[t.role].name,
@@ -29,8 +29,8 @@ export const nativeAuditionPlan=Object.freeze({
 const rateFor=engine=>engine==='avatar_iv'?4:engine==='avatar_iii'?1:NaN; // 1080p digital-twin API rates
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
-  if(plan.version!==3||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
-  if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Araj/Kevin/Araj turns required');
+  if(plan.version!==4||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
+  if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Rumi/Kevin/Rumi turns required');
   const ids=new Set;
   for(const t of plan.turns){
     if(ids.has(t.id)||!/^[-a-z0-9]+$/.test(t.id)||!t.text||t.text.length>5000||t.text.split(/\s+/).length>38)throw new Error('Invalid bounded audition turn');
@@ -42,12 +42,12 @@ export function auditNativePlan(plan=nativeAuditionPlan){
   if(plan.maxEstimatedClipSeconds<10||plan.maxEstimatedClipSeconds>20||plan.targetSeconds!==45)throw new Error('Bounded audition size changed');
   const rate=rateFor(plan.engine);
   const perClip=usd(plan.maxEstimatedClipSeconds*rate/60);
-  return {planHash:hash(plan),paidRelease:'BLOCKED_VISUAL_APPROVAL',safeDryRun:true,engine:plan.engine,
+  return {planHash:hash(plan),paidRelease:'BLOCKED',safeDryRun:true,engine:plan.engine,
     turns:plan.turns.map(t=>({id:t.id,presenter:t.name,lookId:t.avatarId,voiceId:t.voiceId,
       words:t.text.split(/\s+/).length,script:t.text,visualApprovalStatus:proposedPresenters[t.role].visualApprovalStatus,estimatedReservationUSD:perClip})),
     rateUSDPerVideoMinute:rate,maximumReservedEstimateUSD:usd(perClip*plan.turns.length),
     caveat:'Estimates are not actual charges; no retakes, listener footage, matting or provider-side wallet limit are included. User selected the cast, not spending.',
-    unresolved:['Araj LOOK REJECTED after real paid clip: male-presenting anchor on screen with female Annie voice; replace look after preview and explicit visual sign-off. No more paid submissions.', 'Prior Araj default voice failed TTS; selected replacement requires real lip-sync audit and separate payment approval','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
+    unresolved:['Rumi has been selected after viewing her free public preview, but actual generated appearance and Annie lip-sync still require human acceptance', 'A previous Araj/default-voice render failed TTS and Araj/Annie was visually rejected; those look IDs must not be reused','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
 }
 export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
@@ -66,13 +66,16 @@ export async function loadNative(name){
   return {name,root,plan,manifest};
 }
 function paidGate(run,env){
-  // Provider gender metadata is insufficient visual approval. Araj was
-  // rejected after a real paid clip showed a male-presenting on-screen face
-  // with Annie's approved female voice. This blocks ALL new paid jobs until
-  // a replacement look is visually approved and code-reviewed.
+  // Only an explicit human approval of the *actual public video preview* for
+  // each cast identity unlocks consideration of a separately authorized paid
+  // audition. Catalog gender alone does not satisfy this gate.
   const casting=Object.values(proposedPresenters);
-  if(casting.some(p=>p.visualApprovalStatus!=='approved'))
-    throw new Error('Paid audition locked: on-screen avatar casting is visually rejected or unapproved. Recast and get explicit visual sign-off before ANY paid render');
+  if(casting.some(p=>p.visualApprovalStatus!=='approved'||!p.visualApprovalSource))
+    throw new Error('Paid audition locked: full cast visual-identity preview approval is required before ANY paid render');
+  // The old male-presenting Araj avatar is permanently disallowed: it is
+  // not rescued by a new voice, provider metadata or available API credits.
+  if(casting.some(p=>p.lookId==='425825d6465b4ba4bd261d334d530430'))
+    throw new Error('Paid audition locked: rejected historical Araj look cannot be billed again');
   if(env.PILOT_PAID_RELEASE_EPISODE_HASH!==run.manifest.planHash)throw new Error('Paid audition locked: approve the exact plan hash first');
   const approved=Number(env.PILOT_PAID_RELEASE_MAX_USD),reserved=Number(env.PILOT_MAX_ESTIMATED_USD);
   const min=auditNativePlan(run.plan).maximumReservedEstimateUSD;
