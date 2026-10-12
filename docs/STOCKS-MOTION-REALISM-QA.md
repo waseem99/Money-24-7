@@ -45,3 +45,28 @@ B. **Approve replacement faces after free provider previews:** keep on-air *Nora
 - All existing video generation under PR #31 must remain STOPPED, irrespective of successful CI.
 - The user's reported $5 API top-up remains partially unverified because the HeyGen account connector exposes no direct API wallet read.
 - No paid motion preview, Studio Avatar job, III rerun, IV rerun, recast or 4:20 master has been requested in this corrective phase.
+
+
+## Update: eight-angle business-newsroom candidate assessment (read-only, 12 Oct 2026)
+
+An additional, more relevant provider catalogue search located **two public filmed Studio Avatar identities with matching looks for four camera angles per person**. The existing provider preview clips were fetched via **GET only**, sampled visually and combined into a side-by-side motion review. **No HeyGen video-generation API requests or credits were consumed.**
+
+| Persona | Sitting front | Sitting side | Standing front | Standing side | Shared group |
+| --- | --- | --- | --- | --- | --- |
+| Caroline (female) | `Caroline_Business_Sitting_Front_public` | `Caroline_Business_Sitting_Side_public` | `Caroline_Business_Standing_Front_public` | `Caroline_Business_Standing_Side_public` | `977b1ab85dba4eefb159a6072677effd` |
+| Brandon (male) | `Brandon_Business_Sitting_Front_public` | `Brandon_Business_Sitting_Side_public` | `Brandon_Business_Standing_Front_public` | `Brandon_Business_Standing_Side_public` | `d08c85e6cff84d78b6dc41d83a2eccce` |
+
+Each exact look was confirmed **completed**, of type `studio_avatar`, at native 1280x720 and supports provider engines `avatar_iii`, `avatar_iv`, and `avatar_v`. The public preview recordings are ~6.73s (Caroline) and ~6.13s (Brandon), with corresponding front/side/standing variants. They show a consistent person and wardrobe within each identity; the recorded motions in the free previews are more restrained than the rejected photo-avatar style, but **this does not establish actual new-script lip-sync quality**.
+
+**Wardrobe gap:** Caroline's matching business shots show a collared light blouse rather than a blazer; Brandon has a dark suit jacket and open-collar shirt. The user must approve these exact real wardrobe appearances before any casting change.
+
+**Set-composition gap:** These pre-existing looks have an office-window setting, not a purpose-shot Stocks newsroom. Composite/split-screen and camera transitions must be evaluated; studio previews cannot establish that either avatar will look convincingly seated behind a shared studio desk or looking at the other actor.
+
+**Source/evidence:** [Read-only preview workflow success](https://github.com/waseem99/Money-24-7/actions/runs/38281653881) and [eight-look preview artifact](https://github.com/waseem99/Money-24-7/actions/runs/38281653881/artifacts/11760833429), containing one eight-angle contact sheet, side-by-side existing filmed preview and JSON QA report (`billedHeyGenJobs=0`). [Stocks automated tests](https://github.com/waseem99/Money-24-7/actions/runs/38281653765) passed, including cast-lock and no-paid-release checks.
+
+### Release decision
+
+- **Still STOPPED:** original rejected Liza/Nora Avatar IV, further original Photo Avatar rerenders, Marcus generation, and the 4:20 programme.
+- Caroline/Brandon are **unapproved alternative faces**. This is not a silent recast of Liza/Lasse. On-air fictional names Nora/Marcus and selected Annie/Orson voices can be proposed for continuity, but compatibility and natural lip-sync must be tested only after casting approval.
+- If user approves replacing original faces with Caroline/Brandon (including Caroline's blouse), the next step is **one short, budget-capped speaking test** using one seated front look, then a second short test only if the first is acceptable. The provider account credit visibility and expected charges remain an explicit preflight requirement.
+- Existing eight-angle preview assets are non-billable and not broadcast footage; they are for casting approval only.
