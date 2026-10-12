@@ -1,0 +1,139 @@
+name: SIGNAL dated October 12 news insert — four single-use licensed presenter takes
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-news-oct12-four-single-use.yml]
+permissions:
+  contents: write
+concurrency:
+  group: signal-news-r2-20261012-one-time
+  cancel-in-progress: false
+jobs:
+  paid-four-editorial-inserts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN_ONCE: ${{ github.token }}
+    steps:
+      - name: Verify locked identities, record irreversible single-use tag for each, and submit bounded news clips
+        shell: bash
+        run: |
+          mkdir -p news-ledger
+          node --input-type=module <<'NODE'
+          import {mkdir,writeFile} from 'node:fs/promises';
+          import {createHash} from 'node:crypto';
+          import {setTimeout as wait} from 'node:timers/promises';
+          const key=process.env.HEYGEN_API_KEY,gh=process.env.GH_TOKEN_ONCE;
+          const repo='waseem99/Money-24-7';
+          if(!key||key.length<12||!gh||process.env.GITHUB_REPOSITORY!==repo||
+             process.env.GITHUB_REF!=='refs/heads/ops/jazz-formal-anchors-20261012')
+            throw Error('Secret or trusted repository context invalid; no billable calls');
+          const takes=[{"id":"news_open","role":"LIZA","look":"5ee67ac453c34ffebd71e8eedb47b2fe","group":"3727ecd034ef4248afea2a3443f7d2b7","voice":"330290724a1b470fb63153f34d4c0183","gender":"female","voiceName":"Annie","script":"Markets are facing a real test this week. Bank earnings are about to arrive, inflation data are due Wednesday, and oil is still above one hundred dollars a barrel. Technology shares have powered expectations higher. But can those profits withstand expensive money? Lasse, what is the tension investors need to understand?"},{"id":"rates","role":"LASSE","look":"de9f36c26bd841c891489a0c9d6174de","group":"46782f6d3de64ed98cec7f47d3d21ae7","voice":"00e3d285aba44b27a83c47c02c9c2d9c","gender":"male","voiceName":"Orson","script":"Two powerful forces are colliding. Big technology profits look promising. Yet borrowing is costly. In September the Federal Reserve raised its policy range to three and three quarters through four percent. Treasury yields have climbed to multi-decade highs. That's a serious valuation test, even for companies delivering good results."},{"id":"oil","role":"LIZA","look":"5ee67ac453c34ffebd71e8eedb47b2fe","group":"3727ecd034ef4248afea2a3443f7d2b7","voice":"330290724a1b470fb63153f34d4c0183","gender":"female","voiceName":"Annie","script":"And now energy is complicating the picture. Brent crude has been above one hundred dollars, according to Monday's market reports. That can raise shipping and manufacturing costs. If profits look strong but households and businesses face higher bills, where do you look for the warning signs?"},{"id":"cpi","role":"LASSE","look":"de9f36c26bd841c891489a0c9d6174de","group":"46782f6d3de64ed98cec7f47d3d21ae7","voice":"00e3d285aba44b27a83c47c02c9c2d9c","gender":"male","voiceName":"Orson","script":"Start with the major banks. Watch loan demand, credit losses, and what executives say about customers. Then Wednesday's consumer inflation report. A hotter reading could keep pressure on bond yields and highly valued shares. A cooler one could ease it. Neither outcome is certain. That's why this week matters."}];
+          const maxEstimatedUSD=1.76;let expected=0,results=[];
+          for(const t of takes){
+            const words=t.script.trim().split(/\s+/).length;
+            if(words<25||words>54||t.script.length>420||!t.script.includes(' '))throw Error('Script outside bounded news revision');
+            if(!['LIZA','LASSE'].includes(t.role))throw Error('Unapproved speaker role');
+            expected+=26/60;
+          }
+          if(expected>maxEstimatedUSD+1e-7)throw Error('Exposure bound exceeded');
+          async function get(path){
+            const u=new URL('https://api.heygen.com'+path);
+            const r=await fetch(u,{method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(30000)});
+            if(!r.ok)throw Error('Provider GET '+path.split('?')[0]+' HTTP '+r.status+' — generation stopped');
+            const x=await r.json();
+            if(x.error)throw Error('Provider read-only error — details redacted');
+            return x.data??x;
+          }
+          const account=await get('/v3/users/me');
+          if(!account||typeof account!=='object')throw Error('API account not authenticated');
+          if([account.wallet?.auto_reload,account.api_wallet?.auto_reload_enabled,account.billing?.auto_reload_enabled].some(x=>x===true))
+            throw Error('Detected automatic recharge: paid generation blocked');
+          for(const t of takes){
+            const look=await get('/v3/avatars/looks/'+t.look);
+            if(look.id!==t.look||look.group_id!==t.group||look.avatar_type!=='photo_avatar'||
+               look.status!=='completed'||!look.supported_api_engines?.includes('avatar_iii')||
+               !(look.image_width>look.image_height))
+              throw Error('Exact selected formal business Office Look unavailable: '+t.id);
+          }
+          for(const g of ['female','male']){
+            let found=false,token=null,needed=takes.find(t=>t.gender===g);
+            for(let page=0;page<4;page++){
+              const u=new URL('https://api.heygen.com/v3/voices');
+              for(const [k,v] of Object.entries({engine:'starfish',type:'public',gender:g,language:'English',limit:100,search_query:needed.voiceName}))
+                u.searchParams.set(k,String(v));
+              if(token)u.searchParams.set('token',token);
+              const raw=await get(u.pathname+u.search);
+              const a=Array.isArray(raw)?raw:Array.isArray(raw.items)?raw.items:Array.isArray(raw.voices)?raw.voices:[];
+              if(a.some(x=>x.voice_id===needed.voice&&x.gender===g&&x.language==='English')){found=true;break;}
+              if(!raw.next_token||raw.next_token===token)break;token=raw.next_token;
+            }
+            if(!found)throw Error('Chosen locked voice not found in API voice catalog: '+g);
+          }
+          console.log('PASS: both approved formal looks and Annie/Orson read-only verified');
+          console.log('Provider budget is estimated, not an account-level cap. No automatic retries, top-ups or purchase operations.');
+          const persist=()=>writeFile('news-ledger/ledger.json',JSON.stringify({day:'2026-10-12',estimatedMaxUSD:maxEstimatedUSD,results},null,2));
+          await persist();
+          for(const t of takes){
+            const digest=createHash('sha256').update(t.script).digest('hex').slice(0,12);
+            const tag='refs/tags/signal-news-r2-20261012-'+t.id+'-'+digest+'-once';
+            const lock=await fetch('https://api.github.com/repos/'+repo+'/git/refs',{
+              method:'POST',headers:{Authorization:'Bearer '+gh,Accept:'application/vnd.github+json',
+                'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+              body:JSON.stringify({ref:tag,sha:process.env.GITHUB_SHA}),redirect:'error',
+              signal:AbortSignal.timeout(25000)
+            });
+            if(lock.status===422){
+              results.push({id:t.id,role:t.role,status:'SKIPPED_EXISTING_TAG',tag});await persist();
+              console.log('BLOCKED REPEAT '+t.id+'; NO second HeyGen POST');continue;
+            }
+            if(lock.status!==201)throw Error('Cannot obtain paid-once marker for '+t.id+' HTTP '+lock.status+'. NO POST issued');
+            results.push({id:t.id,role:t.role,tag,status:'LOCK_CREATED_POST_OUTCOME_UNKNOWN',
+              scriptHash:digest});await persist();
+            const request={type:'avatar',avatar_id:t.look,voice_id:t.voice,script:t.script,
+              engine:{type:'avatar_iii'},aspect_ratio:'16:9',resolution:'1080p',fit:'cover',
+              title:'SIGNAL NEWS R2 '+t.id+' '+digest,
+              callback_id:'signal-news-r2-20261012-'+t.id+'-'+digest};
+            let resp;
+            try{resp=await fetch('https://api.heygen.com/v3/videos',{method:'POST',
+              headers:{'X-Api-Key':key,'Content-Type':'application/json',Accept:'application/json'},
+              body:JSON.stringify(request),redirect:'error',signal:AbortSignal.timeout(120000)});}
+            catch{await persist();throw Error('Provider POST outcome unknown for '+t.id+'; tag retained, NEVER retry');}
+            if(!resp.ok){await persist();throw Error('Provider POST HTTP '+resp.status+' for '+t.id+'; tag retained. NO retry or top-up.');}
+            let result;
+            try{result=await resp.json()}catch{throw Error('Provider response unreadable, job may be charged; NO retry')}
+            const videoId=result.data?.video_id??result.video_id;
+            if(typeof videoId!=='string'||!videoId.length)throw Error('No provider ID; submission outcome unknown. NO retry');
+            results.at(-1).videoId=videoId;results.at(-1).status='submitted';await persist();
+            console.log('ACCEPTED '+t.id+' videoId='+videoId);
+          }
+          for(const r of results){
+            if(!r.videoId)continue;
+            for(let attempt=0;attempt<40;attempt++){
+              await wait(14000);
+              let info;
+              try{info=await get('/v3/videos/'+encodeURIComponent(r.videoId))}
+              catch{continue;}
+              if(['completed','failed','error','cancelled','canceled'].includes(info.status)){
+                r.status=info.status;r.duration=Number(info.duration)||null;
+                r.errorCode=info.failure_code||info.error_code||undefined;
+                await persist();
+                console.log('RESULT '+r.id+' '+r.status+' '+r.duration+'s');
+                break;
+              }
+            }
+          }
+          if(results.some(x=>x.videoId&&x.status!=='completed'))
+            throw Error('At least one news clip remains unready. Source IDs in ledger preserved. NO paid retry.');
+          console.log('ALL FOUR NEWS TAKE SUBMISSIONS VERIFIED COMPLETE');
+          NODE
+      - name: Upload exact IDs even if partial failure, without exposing key
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-news-r2-four-new-take-ledger
+          path: news-ledger/
+          if-no-files-found: warn
+          retention-days: 30
