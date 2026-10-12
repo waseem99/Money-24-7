@@ -76,6 +76,10 @@ function paidGate(run,env){
   // not rescued by a new voice, provider metadata or available API credits.
   if(casting.some(p=>p.lookId==='425825d6465b4ba4bd261d334d530430'))
     throw new Error('Paid audition locked: rejected historical Araj look cannot be billed again');
+  // Future paid footage must use proven FORMAL looks, not the original public
+  // source outfits. Both Rumi and Kevin are currently informal on video.
+  if(casting.some(p=>p.wardrobeApprovalStatus!=='approved'))
+    throw new Error('Paid audition locked: business-formal presenter wardrobe not approved. Only free look research is permitted.');
   if(env.PILOT_PAID_RELEASE_EPISODE_HASH!==run.manifest.planHash)throw new Error('Paid audition locked: approve the exact plan hash first');
   const approved=Number(env.PILOT_PAID_RELEASE_MAX_USD),reserved=Number(env.PILOT_MAX_ESTIMATED_USD);
   const min=auditNativePlan(run.plan).maximumReservedEstimateUSD;
