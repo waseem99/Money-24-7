@@ -1,0 +1,148 @@
+name: SIGNAL demo — eight controlled paid speaking takes
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-final180-controlled-avatars.yml]
+permissions:
+  contents: write
+concurrency:
+  group: signal-180-approved-photo-voices-paidonce-20261012
+  cancel-in-progress: false
+jobs:
+  generate-eight-one-time:
+    runs-on: ubuntu-latest
+    timeout-minutes: 52
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_LOCK_TOKEN: ${{ github.token }}
+    steps:
+      - name: Generate only bounded user-approved scenes, fail closed without automatic retries
+        shell: bash
+        run: |
+          mkdir -p paid-ledger
+          node --input-type=module <<'NODE'
+          import {createHash} from 'node:crypto';
+          import {mkdir,writeFile} from 'node:fs/promises';
+          import {setTimeout as pause} from 'node:timers/promises';
+          const scenes=[{"id": "liza_board", "role": "LIZA", "script": "Let's use a deliberately simulated market board. Each instrument has a time, a comparison point, and a change. Without those labels, even a precise-looking percentage can mislead. Our role is to explain the evidence, not chase the biggest number."}, {"id": "lasse_candles", "role": "LASSE", "script": "Here's a candlestick chart. Each candle contains the open, high, low and close for one interval. The wick shows the extremes; the body shows the opening and closing prices. I look for patterns across many candles, never just one."}, {"id": "liza_question", "role": "LIZA", "script": "That's useful context. But a sharp price move can still be temporary. What would tell us whether a broader group of participants is involved? Let's put trading volume beside the price chart and examine the relationship."}, {"id": "lasse_volume", "role": "LASSE", "script": "Volume measures activity, not confidence. I compare it with previous periods, then add a moving average to understand the trend. A price rise on unusually thin trading may deserve a different explanation from a sustained move with broad participation."}, {"id": "lasse_momentum", "role": "LASSE", "script": "Momentum indicators add another lens. RSI summarizes recent gains and losses. MACD compares two moving averages and helps visualize changes in momentum. Neither predicts tomorrow. They are best read with the timeframe, the price series, and volume already on screen."}, {"id": "liza_evidence", "role": "LIZA", "script": "A strong headline can capture attention. A strong explanation also tells you the source, the comparison window, and what remains uncertain. Every market figure in this programme is illustrative, not a live quotation. We're demonstrating a method, not making a prediction."}, {"id": "lasse_takeaway", "role": "LASSE", "script": "So the discipline is simple: verify the source, define the timeframe, compare volume, and keep indicators in context. If the evidence is incomplete, say so. That makes the story more useful than a confident but unsupported claim."}, {"id": "liza_close", "role": "LIZA", "script": "That's the bigger picture. This has been Signal, a prepared financial-news demonstration with AI presenters and simulated market data. Thanks for watching."}];
+          const cast={"LIZA": {"name": "Liza", "role": "LEAD ANCHOR", "look": "5ee67ac453c34ffebd71e8eedb47b2fe", "group": "3727ecd034ef4248afea2a3443f7d2b7", "voice": "330290724a1b470fb63153f34d4c0183", "voiceName": "Annie — Lifelike", "source": "Liza Office 6 · business blazer", "gender": "female"}, "LASSE": {"name": "Lasse", "role": "MARKET ANALYST", "look": "de9f36c26bd841c891489a0c9d6174de", "group": "46782f6d3de64ed98cec7f47d3d21ae7", "voice": "00e3d285aba44b27a83c47c02c9c2d9c", "voiceName": "Orson — Firm & Measured", "source": "Lasse Office 3 · business blazer", "gender": "male"}};
+          const key=process.env.HEYGEN_API_KEY,githubToken=process.env.GH_LOCK_TOKEN;
+          const repo='waseem99/Money-24-7';
+          if(!key||key.length<12||!githubToken||process.env.GITHUB_REPOSITORY!==repo||
+             process.env.GITHUB_REF!=='refs/heads/ops/jazz-formal-anchors-20261012')
+            throw Error('Trusted private paid-production context is missing. NO provider POST.');
+          if(scenes.length!==8||new Set(scenes.map(s=>s.id)).size!==8)
+            throw Error('Exactly eight additional uniquely identified master takes required');
+          for(const scene of scenes){
+           const wordCount=scene.script.trim().split(/\s+/).length;
+           if(!cast[scene.role]||wordCount>53||wordCount<18||/real.market.quote|buy now|sell now/i.test(scene.script))
+             throw Error('Unapproved cast/script scope: '+scene.id);
+          }
+          const mask=x=>String(x||'').slice(0,180).replace(/[\r\n]/g,' ');
+          async function GET(path){
+           const r=await fetch('https://api.heygen.com'+path,{method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+             redirect:'error',signal:AbortSignal.timeout(25000)});
+           if(!r.ok)throw Error('HeyGen read-only GET HTTP '+r.status+' at '+path.split('?')[0]);
+           const response=await r.json();if(response?.error)throw Error('HeyGen read-only error (message redacted)');
+           return response?.data??response;
+          }
+          const profile=await GET('/v3/users/me');
+          if(!profile||typeof profile!=='object')throw Error('HeyGen API key authentication failed');
+          const reload=[profile?.wallet?.auto_reload,profile?.wallet?.auto_reload_enabled,
+           profile?.api_wallet?.auto_reload_enabled,profile?.billing?.auto_reload_enabled]
+           .filter(v=>typeof v==='boolean');
+          if(reload.includes(true))throw Error('Auto wallet recharge enabled; do not spend');
+          console.log('PASS authenticated prepaid API. Recharge true flag absent; this is not a provider-side hard cap.');
+          for(const [role,person] of Object.entries(cast)){
+           const look=await GET('/v3/avatars/looks/'+person.look);
+           if(look.id!==person.look||look.group_id!==person.group||look.avatar_type!=='photo_avatar'||
+              look.status!=='completed'||!look.supported_api_engines?.includes('avatar_iii')||
+              !(Number(look.image_width)>Number(look.image_height)))
+             throw Error('Wrong business formal public Photo Look for '+role);
+           const url=new URL('https://api.heygen.com/v3/voices');
+           for(const [k,v]of Object.entries({engine:'starfish',type:'public',language:'English',
+             gender:person.gender,search_query:role==='LIZA'?'Annie':'Orson',limit:100}))url.searchParams.set(k,String(v));
+           let available=false,cursor=null;
+           for(let page=0;page<4;page++){
+             if(cursor)url.searchParams.set('token',cursor);
+             const data=await GET(url.pathname+url.search);
+             const voices=Array.isArray(data)?data:Array.isArray(data?.items)?data.items:
+               Array.isArray(data?.voices)?data.voices:[];
+             if(voices.some(v=>v.voice_id===person.voice&&v.gender===person.gender&&v.language==='English')){available=true;break;}
+             if(!data?.next_token||data.next_token===cursor)break;
+             cursor=data.next_token;
+           }
+           if(!available)throw Error('Selected '+role+' voice is not independently available; refuse all paid requests');
+           console.log('PASS verified '+person.name+' Office Look and approved Starfish voice');
+          }
+          await mkdir('paid-ledger',{recursive:true});
+          const producerId='signal-best-demo-180-liza-lasse-20261012-v1';
+          const ledger={producerId,engine:'avatar_iii',rateEstimateUsdPerMinute:1,
+            chargeCapNotGuaranteed:true,paidClipMaxEstimatedSeconds:24,
+            internalNewBudgetUSD:3.20,records:[],existingVideos:[
+            {id:'liza_open',videoId:'9180a425a289d33d75c4ef82178ce9a8'},
+            {id:'lasse_open',videoId:'d69f9b79b86a04dec1dee7473e9cf9db'}]};
+          const save=async()=>writeFile('paid-ledger/scene-video-map.json',JSON.stringify(ledger,null,2));
+          await save();
+          for(const source of ledger.existingVideos){const info=await GET('/v3/videos/'+source.videoId);
+           if(info.status!=='completed')throw Error('Previously generated '+source.id+' sample no longer completed');}
+          let estimatedTotal=0;
+          for(let i=0;i<scenes.length;i++){
+           const s=scenes[i],p=cast[s.role];
+           if(estimatedTotal+.41>ledger.internalNewBudgetUSD+.0001)
+            throw Error('Internal budget guard reached; no more paid POSTs');
+           const scriptDigest=createHash('sha256').update(JSON.stringify({s,look:p.look,voice:p.voice,engine:'avatar_iii'})).digest('hex').slice(0,12);
+           const tag=`refs/tags/signal-demo180-${s.id}-paidonce-${scriptDigest}`;
+           const lock=await fetch('https://api.github.com/repos/'+repo+'/git/refs',{
+             method:'POST',headers:{Authorization:'Bearer '+githubToken,Accept:'application/vnd.github+json',
+              'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+             body:JSON.stringify({ref:tag,sha:process.env.GITHUB_SHA}),
+             redirect:'error',signal:AbortSignal.timeout(20000)});
+           if(lock.status===422)throw Error('Existing durable paid-attempt tag on '+s.id+'. DO NOT REGENERATE. Reconcile prior job manually.');
+           if(lock.status!==201)throw Error('Cannot create permanent paid-once tag (HTTP '+lock.status+'). NO HeyGen POST.');
+           console.log('PAID_ATTEMPT_LOCKED '+s.id+' digest '+scriptDigest+'; reruns cannot create a duplicate paid clip.');
+           const payload={type:'avatar',avatar_id:p.look,voice_id:p.voice,script:s.script,
+             engine:{type:'avatar_iii'},aspect_ratio:'16:9',resolution:'1080p',fit:'cover',
+             title:'SIGNAL DEMO180 '+s.id+' '+scriptDigest,
+             callback_id:'signal-demo180-'+s.id+'-'+scriptDigest};
+           let result;
+           try{
+            const r=await fetch('https://api.heygen.com/v3/videos',{method:'POST',headers:{'X-Api-Key':key,
+              'Content-Type':'application/json',Accept:'application/json'},
+              body:JSON.stringify(payload),redirect:'error',signal:AbortSignal.timeout(120000)});
+            if(!r.ok)throw Error('HeyGen create-video returned HTTP '+r.status+' — uncertain charge, no auto retry');
+            result=await r.json();
+           }catch(e){throw Error('PAID ATTEMPT OUTCOME UNKNOWN for '+s.id+'. Tag retained. '+mask(e.message));}
+           const videoId=result?.data?.video_id??result?.video_id;
+           if(!/^[A-Za-z0-9_-]{8,128}$/.test(videoId||''))throw Error('Paid submit accepted but ID missing '+s.id+' — do not retry');
+           const rec={id:s.id,role:s.role,look:p.look,voice:p.voice,scriptHash:scriptDigest,tag,videoId,status:'processing'};
+           ledger.records.push(rec);await save();
+           console.log('SUBMITTED video='+videoId+' scene='+s.id+' (one and only one paid POST)');
+           let final;
+           for(let step=0;step<70;step++){
+             await pause(9000);
+             try{final=await GET('/v3/videos/'+videoId)}catch(e){console.log('Transient status GET error; never duplicate video.');continue;}
+             if(['completed','failed','error','cancelled','canceled'].includes(final.status))break;
+           }
+           if(!final||final.status!=='completed'){
+             rec.status=final?.status||'unknown';rec.failure_code=mask(final?.failure_code||final?.error_code);
+             await save();throw Error('HeyGen scene '+s.id+' status '+rec.status+' after one paid POST. Stop batch, no retries.');
+           }
+           const duration=Number(final.duration);
+           if(!Number.isFinite(duration)||duration<5||duration>33){rec.status='qa_failed_duration';await save();throw Error('Unexpected duration '+duration+' for '+s.id+', stop paid sequence');}
+           rec.status='completed';rec.durationSeconds=duration;rec.estimatedCostUSD=Math.ceil(duration/60*100)/100;
+           estimatedTotal=Math.round((estimatedTotal+rec.estimatedCostUSD)*100)/100;
+           await save();
+           console.log('SUCCESS '+s.id+' video='+videoId+' duration='+duration.toFixed(2)+'s cumulativeNominal=$'+estimatedTotal.toFixed(2));
+          }
+          if(ledger.records.length!==8||ledger.records.some(r=>r.status!=='completed'))throw Error('Incomplete scene video index');
+          console.log('PAID PRODUCTION COMPLETED: eight exact approved source videos. Nominal total new Avatar III spend $'+estimatedTotal.toFixed(2)+'; provider wallet is authoritative.');
+          NODE
+      - name: Retain accepted video IDs even if any provider job later fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-180-paid-scene-ledger
+          path: paid-ledger/scene-video-map.json
+          if-no-files-found: warn
+          retention-days: 14
