@@ -23,7 +23,9 @@ const voiceCatalog=({gender})=>Object.values(proposedPresenters)
 test('Araj/Kevin/Araj identities, voices, portrait framing and conservative budget are immutable',()=>{
   const a=auditNativePlan();
   assert.equal(a.safeDryRun,true);
-  assert.equal(a.paidRelease,'BLOCKED');
+  assert.equal(a.paidRelease,'BLOCKED_VISUAL_APPROVAL');
+  assert.equal(proposedPresenters.ANCHOR.visualApprovalStatus,'rejected');
+  assert.equal(proposedPresenters.ANALYST.visualApprovalStatus,'pending');
   assert.equal(a.engine,'avatar_iii');
   assert.deepEqual(a.turns.map(t=>t.presenter),['Araj','Kevin','Araj']);
   assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.aspectRatio),['9:16','16:9','9:16']);
@@ -134,42 +136,30 @@ test('read-only look check stores a same-account preflight; mismatched voice blo
   }
 });
 
-test('paid audition fails closed without same-key preflight and can only submit one charged job per turn',async()=>{
-  const dir=await mkdtemp(path.join(os.tmpdir(),'signal-native-mock-'));
+test('user-rejected Araj look blocks paid generation even with valid hash, budget, key and free catalog check',async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'signal-native-visual-hold-'));
   const old=process.env.PILOT_DATA_DIR;process.env.PILOT_DATA_DIR=dir;
   try{
     const run=await initNative();
-    let submissions=0,polls=0;
+    let paidSubmissions=0;
     const provider={
-      async avatarScript(text,id,voice,key,options){
-        submissions++;
-        assert.equal(options.engine,'avatar_iii');
-        assert.equal(options.aspectRatio,'9:16');
-        assert.equal(options.fit,'contain');
-        assert.equal(text,nativeAuditionPlan.turns[0].text);
-        assert.equal(id,proposedPresenters.ANCHOR.lookId);
-        assert.equal(voice,proposedPresenters.ANCHOR.auditionVoiceId);
-        return {videoId:'mock-provider-job'};
-      },
-      async status(){polls++;return {status:'processing'};},
-      async download(){throw new Error('No media download while processing');}
+      async avatarLook(id){return look(id);},
+      async listVoices(args){return voiceCatalog(args);},
+      async avatarScript(){paidSubmissions++;throw new Error('BILLABLE POST MUST NEVER RUN');},
+      async status(){throw new Error('Provider status must not be called');},
+      async download(){throw new Error('Media download must not be called');}
     };
     const env={...testEnv,PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash};
+    const result=await lookCheckNative(run,{env,provider});
+    assert.equal(result.billedRenderRequests,0);
+    assert.equal(result.chosenVoiceVerifiedInStarfishCatalog,true);
     await assert.rejects(produceNativeTurn(run,'araj-open',{env,provider}),/explicit --paid/);
-    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env,provider}),/same-key read-only/);
-    await lookCheckNative(run,{env,provider:{avatarLook:async id=>look(id),listVoices:async args=>voiceCatalog(args)}});
-    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,HEYGEN_API_KEY:'other-valid-key'},provider}),/same-key read-only/);
-    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_EPISODE_HASH:'wrong'},provider}),/locked/);
-    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env:{...env,PILOT_PAID_RELEASE_MAX_USD:'0.50'},provider}),/locked/);
-    await assert.rejects(produceNativeTurn(run,'not-a-real-turn',{paid:true,env,provider}),/one approved --turn/);
-    assert.equal(submissions,0);
-    const one=await produceNativeTurn(run,'araj-open',{paid:true,env,provider});
-    const two=await produceNativeTurn(run,'araj-open',{paid:true,env,provider});
-    assert.equal(one.state,'pending');assert.equal(two.state,'pending');
-    assert.equal(submissions,1);assert.equal(polls,2);
+    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env,provider}),/visually rejected or unapproved/);
+    await assert.rejects(produceNativeTurn(run,'kevin-analysis',{paid:true,env,provider}),/visually rejected or unapproved/);
+    assert.equal(paidSubmissions,0);
     const status=await nativeStatus(run);
-    assert.equal(status.jobs.reservedEstimateUSD,.34);
-    assert.equal(status.jobs.jobs.filter(j=>j.state==='complete').length,1);
+    assert.equal(status.jobs.reservedEstimateUSD,0);
+    assert.equal(status.jobs.jobs.length,0);
   }finally{
     if(old===undefined)delete process.env.PILOT_DATA_DIR;else process.env.PILOT_DATA_DIR=old;
     await rm(dir,{recursive:true,force:true});
