@@ -59,3 +59,12 @@ test('final broadcast graphics exclude demo and AI-presented labels while markin
   }
   assert.ok(renderFrame(programme.scenes.find(s=>s.id==='liza_board'),5,18,{globalSeconds:93,audioDuration:14}).includes('ILLUSTRATIVE INDEX SERIES'));
 });
+
+test('closing credit captions never burn the excluded AI-presenter wording into the image',()=>{
+  const sc=programme.scenes.find(s=>s.id==='liza_close');
+  for(let seconds=0;seconds<9;seconds+=.5){
+    const html=renderFrame(sc,seconds,9,{globalSeconds:175+seconds,audioDuration:8.8});
+    assert.equal(html.includes('AI presenters'),false,'Forbidden credit text at '+seconds+'s');
+    assert.equal(html.includes('AI-PRESENTED'),false);
+  }
+});
