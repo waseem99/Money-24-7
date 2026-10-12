@@ -1,3 +1,7 @@
+> **SUPERSEDED — 12 OCT 2026:** User has locked **Liza Office 6 + Annie** (female anchor) and **Lasse Office 3 + Orson** (male analyst), both already in formal blazers. Everything below about Rumi, Kevin and their inability to change outfits is retained only as historical project notes. **Authoritative current production plan:** [FINAL_LIZA_LASSE_PRODUCTION.md](FINAL_LIZA_LASSE_PRODUCTION.md). No old speaker/visual source is permitted in the new finished film.
+
+---
+
 ## Latest graphics/wardrobe checkpoint — 12 October 2026
 
 **A real, non-billable V2 graphics proof now exists.** The 10.840-second existing Rumi+Annie source was composited onto the original SIGNAL V2 SVG newsroom: header, 'BEYOND THE HEADLINE' strap, presenter's Rumi/lead-anchor lower third, ticker and illustrative market data disclosures. Download the [proof MP4 and 1080p still from GitHub Actions](https://github.com/waseem99/Money-24-7/actions/runs/38205178482/artifacts/11726389471). The run [completed successfully](https://github.com/waseem99/Money-24-7/actions/runs/38205178482). **Zero additional HeyGen generation credits were used.**
