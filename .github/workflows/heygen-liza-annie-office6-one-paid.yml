@@ -76,7 +76,7 @@ jobs:
           const look=await readOnly('/v3/avatars/looks/'+avatarId);
           if(look?.id!==avatarId||look?.group_id!==avatarGroup||look?.avatar_type!=='photo_avatar'||
              look?.status!=='completed'||!look.supported_api_engines?.includes('avatar_iii')||
-             !(Number(look.image_height)>Number(look.image_width)))
+             !(Number(look.image_width)>Number(look.image_height)))
             throw new Error('Liza formal Office 6 look is not compatible with Avatar III. No billable request.');
           
           const url=new URL('https://api.heygen.com/v3/voices');
