@@ -1,0 +1,34 @@
+name: Stocks — Orson direct voice entitlement audit (READ ONLY)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-voice-audit.yml'
+jobs:
+  voice-catalog:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Inspect access to Orson provider voice options (GET only)
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          const out={paidPosts:0,candidates:[],accountAccessible:false};
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key){console.log(JSON.stringify({...out,status:'NO_SECRET'}));process.exit(0)}
+          try{
+            const url='https://api.heygen.com/v3/voices?engine=starfish&type=public&language=English&gender=male&search_query=Orson&limit=100';
+            const resp=await fetch(url,{headers:{'x-api-key':key},signal:AbortSignal.timeout(20000)});
+            const data=await resp.json().catch(()=>({}));
+            const body=data.data??data;
+            const items=Array.isArray(body.items)?body.items:Array.isArray(body.voices)?body.voices:Array.isArray(body)?body:[];
+            out.status=resp.status;out.accountAccessible=resp.ok;
+            out.candidates=items.filter(v=>/orson/i.test(v.name||'')||['00e3d285aba44b27a83c47c02c9c','daad4813058a4c51b6f545a1a51c506a'].includes(v.voice_id)).map(v=>({id:v.voice_id,name:v.name,language:v.language,gender:v.gender,engines:v.available_engines||null}));
+            out.pageLength=items.length;out.hasMore=Boolean(body.next_token);
+            console.log('STOCKS_ORSON_VOICE_AUDIT='+JSON.stringify(out));
+          }catch(e){console.log('STOCKS_ORSON_VOICE_AUDIT='+JSON.stringify({...out,error:String(e.name||'NetworkError')}))}
+          JS
