@@ -47,21 +47,21 @@ export function budgetPreflight(profile='sample'){
   };
   const blockers=[
     'Full V2 speaking pipeline still requires ElevenLabs; independent HeyGen-only audition route is prepared and unspent',
-    'Selected public looks and default voices have not passed an actual pronunciation/lip-sync audition',
+    'Liza/Lasse public Photo Avatar office looks are visually formal but their generated facial motion and lip-sync with Annie/Orson are not yet accepted',
     'Standing alpha/matting compatibility and genuine non-speaking listener footage are unverified',
     'R2 full-scene listener, unequal split and standing quality gates are not satisfied by a simple single-speaker audition',
     'Editorial script, exact looks and source disclosures require approval before any provider render',
     'A user-approved maximum spend, API wallet status, and account-side recharge settings have not been verified'
   ];
   return {
-    asOf:'2026-10-10',noExternalCalls:true,paidRelease:'BLOCKED',
+    asOf:'2026-10-12',noExternalCalls:true,paidRelease:'BLOCKED',
     profile,programme:{id:p.id,durationSeconds:p.durationMs/1000,turns:p.turns.length,scenes:p.scenes.length,roles:p.presenters.map(({name,role,configRef,look})=>({name,role,configRef,look}))},
     publicCatalogLooks:Object.values(proposedPresenters),
-    providerPricing:{source:'https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained',avatarIIIDigitalTwinUsdPerMinute:1,avatarIVDigitalTwinUsdPerMinute:4,apiWalletMinimumUsd:5,pricingIsIndicative:true,avatarVApiPriceNotVerified:true},
+    providerPricing:{source:'https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained',avatarIIIPhotoUsdPerMinute:1,avatarIVPhotoUsdPerMinute:3,apiWalletMinimumUsd:5,pricingIsIndicative:true,avatarVApiPriceNotVerified:true},
     plannedExposure:{
       speakingSlotUpperSeconds:assignedSeconds,
       avatarIIIForSpeakingSlotsUSD:dollars(assignedSeconds/60),
-      avatarIVForSpeakingSlotsUSD:dollars(assignedSeconds/60*4),
+      avatarIVForSpeakingSlotsUSD:dollars(assignedSeconds/60*3),
       offScreenVoiceSecondsCurrentlySentThroughAvatar:offScreenSeconds,
       fullSceneVisiblePresenterCoverageSeconds:cellSeconds,
       extraListenerFootage:'not included in the above estimates; source/cost unverified',
