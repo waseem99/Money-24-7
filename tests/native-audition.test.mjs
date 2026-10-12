@@ -26,6 +26,8 @@ test('Rumi/Kevin/Rumi locked visual and voice identities, portrait framing and c
   assert.equal(a.paidRelease,'BLOCKED');
   assert.equal(proposedPresenters.ANCHOR.visualApprovalStatus,'approved');
   assert.equal(proposedPresenters.ANALYST.visualApprovalStatus,'approved');
+  assert.equal(proposedPresenters.ANCHOR.wardrobeApprovalStatus,'blocked-public-casual');
+  assert.equal(proposedPresenters.ANALYST.wardrobeApprovalStatus,'blocked-public-casual');
   assert.equal(a.engine,'avatar_iii');
   assert.deepEqual(a.turns.map(t=>t.presenter),['Rumi','Kevin','Rumi']);
   assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.aspectRatio),['9:16','16:9','9:16']);
@@ -136,50 +138,31 @@ test('read-only look check stores a same-account preflight; mismatched voice blo
   }
 });
 
-test('Rumi/Annie budget-gated audition requires the exact account preflight and never duplicates a paid job',async()=>{
-  const dir=await mkdtemp(path.join(os.tmpdir(),'signal-rumi-native-paid-mock-'));
+test('formal wardrobe is a hard NO-GO for paid Rumi or Kevin even after free account check and authorization hash',async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'signal-rumi-formal-clothing-hold-'));
   const old=process.env.PILOT_DATA_DIR;process.env.PILOT_DATA_DIR=dir;
   try{
     const run=await initNative();
-    let paidSubmissions=0,reads=0;
+    let paidSubmissions=0;
     const env={...testEnv,PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash};
     const provider={
       async avatarLook(id){return look(id);},
       async listVoices(args){return voiceCatalog(args);},
-      async avatarScript(text,avatarId,voiceId,key,opts){
-        paidSubmissions++;
-        assert.equal(opts.engine,'avatar_iii');
-        assert.equal(opts.aspectRatio,'9:16');
-        assert.equal(opts.fit,'contain');
-        assert.equal(avatarId,'efa5d7cf738a4efd84b1dac501d9aef8');
-        assert.equal(voiceId,'330290724a1b470fb63153f34d4c0183');
-        assert.equal(text,nativeAuditionPlan.turns[0].text);
-        return {videoId:'mock-rumi-video'};
-      },
-      async status(){reads++;return {status:'processing'};},
-      async download(){throw new Error('No download while pending');}
+      async avatarScript(){paidSubmissions++;throw new Error('Casual presenter must NEVER be rendered again');},
+      async status(){throw new Error('No provider status call expected');},
+      async download(){throw new Error('No media download expected');}
     };
     await assert.rejects(produceNativeTurn(run,'rumi-open',{env,provider}),/explicit --paid/);
-    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,env,provider}),/same-key read-only/);
-    const proof=await lookCheckNative(run,{env,provider});
-    assert.equal(proof.billedRenderRequests,0);
-    assert.equal(proof.chosenVoiceVerifiedInStarfishCatalog,true);
-    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,
-      env:{...env,PILOT_PAID_RELEASE_EPISODE_HASH:'unapproved'},provider}),/locked/);
-    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,
-      env:{...env,HEYGEN_API_KEY:'other-valid-key'},provider}),/same-key read-only/);
-    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,
-      env:{...env,PILOT_PAID_RELEASE_MAX_USD:'0.33'},provider}),/locked/);
-    await assert.rejects(produceNativeTurn(run,'not-a-turn',{paid:true,env,provider}),/one approved --turn/);
+    const check=await lookCheckNative(run,{env,provider});
+    assert.equal(check.billedRenderRequests,0);
+    assert.equal(check.chosenVoiceVerifiedInStarfishCatalog,true);
+    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,env,provider}),/business-formal presenter wardrobe not approved/);
+    await assert.rejects(produceNativeTurn(run,'kevin-analysis',{paid:true,env,provider}),/business-formal presenter wardrobe not approved/);
+    await assert.rejects(produceNativeTurn(run,'rumi-close',{paid:true,env,provider}),/business-formal presenter wardrobe not approved/);
     assert.equal(paidSubmissions,0);
-    const first=await produceNativeTurn(run,'rumi-open',{paid:true,env,provider});
-    const second=await produceNativeTurn(run,'rumi-open',{paid:true,env,provider});
-    assert.equal(first.state,'pending');
-    assert.equal(second.state,'pending');
-    assert.equal(paidSubmissions,1);
-    assert.equal(reads,2);
-    const final=await nativeStatus(run);
-    assert.equal(final.jobs.reservedEstimateUSD,.34);
+    const status=await nativeStatus(run);
+    assert.equal(status.jobs.reservedEstimateUSD,0);
+    assert.equal(status.jobs.jobs.length,0);
   }finally{
     if(old===undefined)delete process.env.PILOT_DATA_DIR;else process.env.PILOT_DATA_DIR=old;
     await rm(dir,{recursive:true,force:true});
