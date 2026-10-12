@@ -6,6 +6,7 @@
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {proposedPresenters} from './budget-preflight.mjs';
+import {auditFormalWardrobe} from './formal-wardrobe.mjs';
 
 const shots=[
   {id:'s01',length:5,layout:'intro-logo',presenter:null,headline:'SIGNAL | THE BIGGER PICTURE',
@@ -57,7 +58,7 @@ export const threeMinutePlan=Object.freeze({
   reservationPaddingSecondsPerPaidShot:3,
   minHumanPasses:['Rumi correct on-screen face and natural lip sync','Kevin natural mouth/jaw movement and Orson voice',
     'accurate visuals, source labels, no invented live financial facts','no fake listeners, artificial loops, standing matting or unapproved paid retakes'],
-  state:'EDITORIAL_READY_NOT_RENDERED',
+  state:'HOLD_BUSINESS_FORMAL_AVATAR_LOOKS',
   paidReleaseAuthorized:false,
   shots
 });
@@ -95,6 +96,7 @@ export function auditThreeMinutePlan(plan=threeMinutePlan){
     throw new Error('Film must be exactly 180 seconds with unique continuous scenes');
   const paidShots=plan.shots.filter(s=>s.presenter!==null),spokenSeconds=paidShots.reduce((n,s)=>n+s.length,0);
   const reservedSeconds=spokenSeconds+paidShots.length*plan.reservationPaddingSecondsPerPaidShot;
+  const wardrobe=auditFormalWardrobe();
   return {
     planId:plan.id,
     outputSeconds:offset,
@@ -105,6 +107,10 @@ export function auditThreeMinutePlan(plan=threeMinutePlan){
     conservativeInternalReserveUSD:usd(reservedSeconds*plan.providerRateUSDPerGeneratedMinute/60),
     notIncluded:'First audition clips, retries, actual HeyGen billing rounding, voice/matting, external music licensing, hosting or infrastructure',
     providerHardSpendCap:false,
+    wardrobeReady:wardrobe.ready,
+    wardrobeStatus:wardrobe.status,
+    wardrobeBlockers:wardrobe.blockers,
+    lookSourceWarning:'Rumi and Kevin original video-trained public looks retain their casual clothing; a real business-formal look for the same identities has NOT been created or approved.',
     disclosure:plan.disclosure,
     readyToPay:false,
     timeline
