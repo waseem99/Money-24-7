@@ -17,7 +17,8 @@ jobs:
         run: |
           mkdir -p r4plus-sources
           node --input-type=module <<'NODE'
-          import {mkdir,writeFile,createWriteStream} from 'node:fs';
+          import {createWriteStream} from 'node:fs';
+          import {writeFile} from 'node:fs/promises';
           import {pipeline} from 'node:stream/promises';
           import {Readable} from 'node:stream';
           const sources=[["top_stories","a2d92d492ec95eebe89a8c7a80fa119d"],["global_market","dcf2c09287724a14df7f9c587321e305"],["earnings","b38e9e26cd529a0607b310217f251cbf"]];
