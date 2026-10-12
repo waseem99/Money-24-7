@@ -185,6 +185,28 @@ function newsTicker(globalT){
   out+=tx(xx,1051,key,19,'#C2D1D9','font-weight="650"')+tx(xx+140,1050,value,22,C.white,'font-weight="800"');});
  return out+'</g>';
 }
+function editorialCutaway(scene,t){
+ // Source-attributed editorial graphic instead of an empty or frozen avatar window.
+ // Used only when the real person's lip-synced video has cut away; their spoken audio continues.
+ const dark=['rates','watchlist'].includes(scene.layout),a=colorOf(scene),src=scene.sourceIds?.length?SOURCES[scene.sourceIds[0]]:null;
+ let out=r(58,322,772,491,dark?'#18325B':'#EEF7FF','rx="8"')+r(58,322,772,9,dark?C.cyan:C.cobalt);
+ out+=tx(88,380,'AT A GLANCE',22,dark?C.cyan:C.cobalt,'font-weight="800" letter-spacing="1.6"');
+ const title=lineClamp(scene.headline,31).slice(0,2);
+ title.forEach((v,i)=>out+=tx(85,443+49*i,v,34,dark?C.white:C.ink,'font-weight="800" letter-spacing="-.3"'));
+ out+=r(86,555,688,3,dark?'#3C5B76':'#CFDEED');
+ if(src){
+   out+=tx(88,612,src.label,21,dark?'#CBDCEA':C.grey,'font-weight="700"');
+   const headlineVal=src.value.length>24?src.value.slice(0,24):src.value;
+   out+=tx(87,693,headlineVal,src.value.length>20?36:58,dark?C.gold:C.cobalt,'font-weight="800"');
+   out+=tx(88,766,src.source+'  /  '+src.date,18,dark?'#CFDDEC':C.grey,'font-weight="650"');
+ }else{
+   out+=tx(88,671,'THE HEADLINES. THE CONTEXT.',31,dark?C.white:C.ink,'font-weight="800"');
+   out+=tx(88,760,'SIGNAL MARKET WATCH',22,dark?C.gold:C.cobalt,'font-weight="700"');
+ }
+ // A genuine per-frame progress indicator, not a static placeholder.
+ out+=r(88,794,684*ease((t-3.0)/6),4,a);
+ return out;
+}
 function titleFrame(scene,t){
  const col='url(#broadcastGradient)',text=C.white;
  let o=r(0,114,1920,883,col)+r(0,114,1920,8,C.cyan);
@@ -196,7 +218,7 @@ function titleFrame(scene,t){
  o+=tx(75,830,scene.kind==='ident'?'TODAY: OIL  ·  BANK EARNINGS  ·  US INFLATION':'MONDAY 12 OCT 2026',22,C.gold,'font-weight="700"');
  return o;
 }
-export function renderFrame(scene,time=0,duration=20,{globalSeconds=0,audioDuration=18,includePresenterWindow=true}={}){
+export function renderFrame(scene,time=0,duration=20,{globalSeconds=0,audioDuration=18,includePresenterWindow=true,cutaway=false}={}){
  if(!scene||!SHOW.scenes.some(x=>x.id===scene.id))throw Error('Unknown locked broadcast segment');
  let out=`<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><linearGradient id="broadcastGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0E48BD"/><stop offset="58%" stop-color="#165DFF"/><stop offset="100%" stop-color="#18C6E8"/></linearGradient><clipPath id="scrollClip"><rect x="240" y="997" width="1680" height="83"/></clipPath><clipPath id="photoClip"><rect x="58" y="322" width="772" height="405" rx="8"/></clipPath></defs>`;
  const stageColor={rates:'#14284B',watchlist:'#182F55',energy:'#FFF4D9',inflation:'#E8F9FD',calendar:'#EEF0FF',earnings:'#F9FCFF'}[scene.layout]||C.paper;
@@ -206,7 +228,8 @@ export function renderFrame(scene,time=0,duration=20,{globalSeconds=0,audioDurat
   out+=mainHeading(scene);
   out+=panelRect(C.white);
   out+=storyCard(scene,time/Math.max(4,duration));
-  if(includePresenterWindow)out+=presenterFrame(scene,time);
+  if(includePresenterWindow&&scene.kind==='speaker')out+=presenterFrame(scene,time);
+  if(scene.kind==='interlude'||cutaway)out+=editorialCutaway(scene,time);
   out+=newscastCaption(scene,time,audioDuration);
   if(scene.kind==='speaker'&&scene.sourceIds?.length)out+=tx(1620,831,'SOURCE: '+getNewsSource(scene).source+' / '+getNewsSource(scene).date,16,['rates','watchlist'].includes(scene.layout)?'#C9D6E0':C.grey,'text-anchor="end" font-weight="650"');
  }
