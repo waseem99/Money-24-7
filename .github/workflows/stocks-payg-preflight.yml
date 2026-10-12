@@ -1,0 +1,32 @@
+name: Stocks — Verify direct Pay-As-You-Go API entitlement (READ ONLY)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-payg-preflight.yml'
+  workflow_dispatch:
+jobs:
+  direct-payg-no-spend:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Read-only entitlement inspection (no videos generated)
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          const k=process.env.HEYGEN_API_KEY;
+          if(!k){console.log('STOCKS_PAYG_PREFLIGHT_RESULT='+JSON.stringify({apiSecretPresent:false,paidCalls:0,blocker:'HEYGEN_API_KEY repository secret is not configured or not available for this run'}));process.exit(0)}
+          const lookId='Caroline_Business_Sitting_Front_public';
+          try{
+            const r=await fetch('https://api.heygen.com/v3/avatars/looks/'+lookId,{headers:{'x-api-key':k},signal:AbortSignal.timeout(18000)});
+            const data=await r.json().catch(()=>({}));
+            const look=data?.data??data;
+            const available=r.ok&&look?.id===lookId&&look?.status==='completed';
+            console.log('STOCKS_PAYG_PREFLIGHT_RESULT='+JSON.stringify({apiSecretPresent:true,readOnlyLookupHttp:r.status,selectedStudioLookAvailable:available,category:look?.avatar_type||null,paidCalls:0,renderEntitlementUnverified:true}));
+            if(!available)process.exitCode=2;
+          }catch(e){console.log('STOCKS_PAYG_PREFLIGHT_RESULT='+JSON.stringify({apiSecretPresent:true,readOnlyLookupFailed:true,reason:String(e.name||'NetworkError'),paidCalls:0}));process.exitCode=2;}
+          JS
