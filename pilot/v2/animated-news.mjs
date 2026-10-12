@@ -103,7 +103,7 @@ function ticker(globalTime,scene){
   }
 
  const labels=[['SIGNAL 500','117.84','+0.58%',P.up],['TECH 100','143.61','+0.91%',P.up],['INDUSTRIAL 30','168.22','−0.23%',P.down],['SMALL CAP','203.41','+0.37%',P.up]];
- let out=box(0,1004,W,76,'#0B1523')+box(0,1004,233,76,P.ink)+box(233,1004,7,76,P.gold)+txt(30,1052,'MARKET DEMO',21,'#F9F8F3','font-weight="700" letter-spacing="1.1"');
+ let out=box(0,1004,W,76,'#0B1523')+box(0,1004,233,76,P.ink)+box(233,1004,7,76,P.gold)+txt(30,1052,'INDEX WATCH',21,'#F9F8F3','font-weight="700" letter-spacing="1.1"');
  out+='<clipPath id="tkclip"><rect x="251" y="1004" width="1656" height="74"/></clipPath><g clip-path="url(#tkclip)">';
  let dx=(globalTime*95)%2720;
  for(let copy=0;copy<3;copy++)labels.forEach(([name,val,pct,col],i)=>{
@@ -116,7 +116,7 @@ function masthead(globalTime){
  let out=box(0,0,W,151,P.navy)+box(0,0,W,7,P.teal);
  out+=txt(65,79,'SIGNAL',59,'#FFFFFF','font-weight="800" letter-spacing="10"');
  out+=txt(420,72,'MARKET WATCH  /  12 OCT 2026',24,'#E3EFF0','letter-spacing="2.1" font-weight="700"');
- out+=badge(1510,36,'AI-PRESENTED',true)+badge(1718,36,'AS OF 12 OCT',true);
+ out+=badge(1510,36,'NEWS BRIEF',true)+badge(1718,36,'AS OF 12 OCT',true);
  out+=txt(66,125,'MARKETS AT A CROSSROADS',20,'#6ED7C7','font-weight="700" letter-spacing="2"');
  out+=txt(1852,124,'REPORTED SOURCES • 12 OCT 2026',16,'#AEC9CF','text-anchor="end" letter-spacing="1"');
  out+=box(0,146,clamp(globalTime/180)*W,5,P.gold);
@@ -135,7 +135,7 @@ function lowerThird(scene,elapsed,audioDuration,globalTime){
  out+=txt(70,906,scene.headline,scene.headline.length>33?30:36,P.ink,'font-weight="800" letter-spacing=".3"');
  out+=txt(72,947,scene.sub||'THE BIGGER PICTURE',21,P.grey,'font-weight="500"');
  out+=badge(1575,885,role?role.name.toUpperCase()+' / '+role.role.split(' ')[0]:'SIGNAL / EDITORIAL');
- out+=txt(70,988,scene.news?'SOURCED REPORTED NEWS • OCT 12 2026 • NOT LIVE QUOTES':'ILLUSTRATIVE CHART DATA • NOT LIVE PRICES • AI PRESENTERS',13,'#5D7181','letter-spacing=".2"');
+ out+=txt(70,988,scene.news?'SOURCED REPORTED NEWS • OCT 12 2026 • NOT LIVE QUOTES':'ILLUSTRATIVE INDEX SERIES • NOT LIVE MARKET PRICES',13,'#5D7181','letter-spacing=".2"');
  const cap=captionText(scene,elapsed,audioDuration);
  if(cap){
   out+=box(65,809,Math.min(1740,Math.max(480,cap.length*16+68)),47,'#08192A','rx="8" opacity=".96"');
@@ -285,7 +285,7 @@ export async function renderSceneBackground(scene,duration,{destination,fps=12,a
  if(!destination)throw Error('Output path required');
  const fr=Math.ceil(duration*fps),frames=framesLimit?Math.min(fr,framesLimit):fr;
  const cmd=['-hide_banner','-loglevel','error','-y','-f','rawvideo','-pix_fmt','rgba','-s','1920x1080','-framerate',String(fps),'-i','pipe:0',
-   '-an','-r','30','-c:v','libx264','-preset','veryfast','-crf','25','-pix_fmt','yuv420p','-movflags','+faststart',destination];
+   '-an','-r','30','-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',destination];
  const child=spawn('ffmpeg',cmd,{stdio:['pipe','ignore','pipe']});let err='';child.stderr.on('data',b=>{err+=b.toString().slice(0,5000)});
  try{
  for(let i=0;i<frames;i++){
