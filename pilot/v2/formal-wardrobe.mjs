@@ -1,83 +1,79 @@
 /**
- * Formal wardrobe acceptance gate for the final Jazz AI Channel film.
- *
- * HeyGen public digital twins supplied only casual video looks when checked.
- * Do NOT confuse an approved face or public-avatar gender with a suitable
- * professional outfit, permission to remix a public identity or an approved
- * new talking-avatar source.
- *
- * This module is PURE: no provider requests and no spending.
+ * Liza Office 6 + Lasse Office 3: existing provider photo looks, formally dressed.
+ * Wardrobe photographs ARE verified; genuine photo-avatar motion is NOT.
+ * No provider reads, writes, video generation or credit expense in this module.
  */
 import {proposedPresenters} from './budget-preflight.mjs';
 
-export const formalWardrobeBrief=Object.freeze({
-  status:'HOLD_FORMAL_VIDEO_LOOKS_NOT_AVAILABLE',
-  requiredForFinalMaster:true,
-  existingCasualLooksForbidden:true,
-  cast:Object.freeze({
-    ANCHOR:Object.freeze({
-      actor:'Rumi',
-      voice:'Annie - Lifelike',
-      groupId:proposedPresenters.ANCHOR.groupId,
-      originalCasualLookId:proposedPresenters.ANCHOR.lookId,
-      voiceId:proposedPresenters.ANCHOR.auditionVoiceId,
-      desired:'Premium female financial news anchor. Tailored navy or charcoal business blazer, crisp off-white blouse, neat collar, sophisticated minimal styling, modest professional fit. Seated or waist-up, squared shoulders, direct camera eye line, hands resting naturally. Do not modify face, hair, age or skin tone. Remove home interior: neutral studio/chroma/matting if actually supported.',
-      lookPackTheme:'Presenter / Modern Corporate',
-      metadataNotProof:'A new outfit must be seen in a real public/private Look preview. A prompt or look name is not visual approval.'
-    }),
-    ANALYST:Object.freeze({
-      actor:'Kevin',
-      voice:'Orson - Firm & Measured',
-      groupId:proposedPresenters.ANALYST.groupId,
-      originalCasualLookId:proposedPresenters.ANALYST.lookId,
-      voiceId:proposedPresenters.ANALYST.auditionVoiceId,
-      desired:'Seasoned male US financial market analyst. Tailored charcoal or deep navy suit jacket, clean pale-blue or white collared shirt, understated tie optional. No hoodie, T-shirt, polo or open casual collar. Waist-up and landscape shot with measured on-air posture. Do not modify face, hair, age or complexion. Clean neutral studio/chroma if genuine removal is supported.',
-      lookPackTheme:'Presenter / Modern Corporate',
-      metadataNotProof:'A new outfit must be seen in a real public/private Look preview. A prompt or look name is not visual approval.'
-    })
+const examples=Object.freeze({
+  ANCHOR:Object.freeze({
+    actor:'Liza',
+    groupId:'3727ecd034ef4248afea2a3443f7d2b7',
+    selectedFormalLookId:'5ee67ac453c34ffebd71e8eedb47b2fe',
+    look:'Liza Office 6 — grey business blazer with formal white blouse',
+    voice:'Annie - Lifelike',
+    voiceId:'330290724a1b470fb63153f34d4c0183',
+    visualSource:'https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office83_p3_a1.jpg',
+    videoPreview:'https://resource2.heygen.ai/public-avatars/Liza/image_videos/office83_p3_a1.mp4',
+    approvedWardrobeColors:['grey','white']
   }),
+  ANALYST:Object.freeze({
+    actor:'Lasse',
+    groupId:'46782f6d3de64ed98cec7f47d3d21ae7',
+    selectedFormalLookId:'de9f36c26bd841c891489a0c9d6174de',
+    look:'Lasse Office 3 — formal grey business blazer with collared blue shirt',
+    voice:'Orson - Firm & Measured',
+    voiceId:'00e3d285aba44b27a83c47c02c9c2d9c',
+    visualSource:'https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office120_p3_a1.jpg',
+    videoPreview:'https://resource2.heygen.ai/public-avatars/Lasse/image_videos/office120_p3_a1.mp4',
+    approvedWardrobeColors:['grey','blue']
+  })
+});
+
+export const formalWardrobeBrief=Object.freeze({
+  cast:examples,
+  status:'FORMAL_STILL_LOOKS_SELECTED_MOTION_PENDING',
+  wardrobeApproved:true,
+  cinematicMotionApproved:false,
+  originalRejectedLookIds:['425825d6465b4ba4bd261d334d530430','efa5d7cf738a4efd84b1dac501d9aef8','c8f428c549ea448488fdb2214dbcad57'],
   warnings:Object.freeze([
-    'Public avatar look groups are not owned custom identities; do not attempt to mutate them via an undocumented paid POST.',
-    'No formal video-trained Look for these public identities was found in the authenticated catalog.',
-    'A Photo Look or prompt-generated look, if permitted, may render less natural motion than the original recorded video look.',
-    'One generated Photo Look uses a separate premium-credit allocation (not the prepaid HeyGen API video wallet). Actual account entitlement must be checked before purchase.',
-    'Overlaid newsroom graphics cannot change clothing or erase the original home background behind a moving person.',
-    'No new paid HeyGen rendering may start until formal wardrobe is visually approved for BOTH presenters.'
+    'The user LOCKED the Liza and Lasse identities. The operator selected and visually inspected formal existing Office looks, rather than generating new unlicensed derivatives.',
+    'These are public Photo Avatar looks, not video-trained digital twins; the supplied image_videos previews do not certify the output mouth, eyes, gestures or natural quality.',
+    'Final three-minute master must not release until a REAL generated clip for each actor has been watched and accepted by a human.',
+    'API Photo Avatar III and IV costs may differ; account wallet usage and any retake charges remain unknown until provider verification.',
+    'Preserve genuine presenter faces, Annie and Orson voices, and existing SIGNAL V2 newsroom/header/ticker/chart system.'
   ])
 });
 
-const clean=x=>typeof x==='string'&&/^[a-zA-Z0-9_-]{8,128}$/.test(x);
-export function auditFormalWardrobe(looks={}, {strict=false}={}){
-  const failures=[],roles={};
+export function auditFormalWardrobe(looks=null,{strict=false}={}){
+  const result={};
+  const failures=[];
   for(const role of ['ANCHOR','ANALYST']){
-    const brief=formalWardrobeBrief.cast[role],v=looks?.[role];
-    const blockers=[];
-    if(!v||!clean(v.lookId))blockers.push(role+': missing an exact NEW professional outfit look ID');
-    else if(v.lookId===brief.originalCasualLookId)blockers.push(role+': original casual public video look is forbidden for final master');
-    else if(v.lookId==='425825d6465b4ba4bd261d334d530430')blockers.push(role+': previously visually rejected Araj look is forbidden');
-    if(!v||v.groupId!==brief.groupId)blockers.push(role+': same approved identity group not verified');
-    if(!v||!['video_avatar','digital_twin','photo_avatar'].includes(v.avatarType))
-      blockers.push(role+': new provider look type not verified');
-    if(!v||v.completed!==true)blockers.push(role+': provider look status not verified completed');
-    if(!v||v.actualOutfitReviewed!==true)blockers.push(role+': actual formal outfit image/video not signed off');
-    if(!v||v.faceMatchedExistingActor!==true)blockers.push(role+': face identity continuity not signed off');
-    if(!v||typeof v.approvedBy!=='string'||v.approvedBy.length<2)
-      blockers.push(role+': visual reviewer signoff missing');
-    if(!v||!/^https:\/\//.test(v.previewUrl||''))
-      blockers.push(role+': formal look preview evidence URL missing');
-    if(!v||v.actorName!==brief.actor||v.voiceId!==brief.voiceId)
-      blockers.push(role+': locked face/voice role mismatch');
-    if(v?.avatarType==='photo_avatar'&&v.motionQualityApproved!==true)
-      blockers.push(role+': new photo look has NOT passed real speaking-video motion/lip-sync QA');
-    roles[role]={actor:brief.actor,voice:brief.voice,ready:blockers.length===0,blockers};
-    failures.push(...blockers);
+    const spec=formalWardrobeBrief.cast[role];
+    const p=proposedPresenters[role];
+    const look=looks?.[role]||{
+      actorName:p.name,lookId:p.lookId,groupId:p.groupId,voiceId:p.auditionVoiceId,
+      avatarType:p.avatarType,completed:true,formalOutfitReviewed:p.wardrobeApprovalStatus==='approved',
+      previewUrl:spec.visualSource,motionQualityApproved:p.performanceApprovalStatus==='approved'
+    };
+    const issues=[];
+    if(look.actorName!==spec.actor||look.lookId!==spec.selectedFormalLookId||look.groupId!==spec.groupId)
+      issues.push(role+': unapproved face, group, or formal look');
+    if(look.voiceId!==spec.voiceId)issues.push(role+': voice changed');
+    if(look.avatarType!=='photo_avatar'||look.completed!==true)
+      issues.push(role+': the exact HeyGen public Photo Look must be completed');
+    if(!look.formalOutfitReviewed||!/^https:\/\//.test(look.previewUrl||''))
+      issues.push(role+': business-formal appearance requires actual image evidence');
+    if(look.motionQualityApproved!==true)
+      issues.push(role+': actual avatar speech/eyes/lip-sync motion still requires human QA');
+    failures.push(...issues);
+    result[role]={identity:spec.actor,voice:spec.voice,wardrobeVerified:issues.every(x=>!x.includes('face')&&!x.includes('formal')&&!x.includes('voice')&&!x.includes('appearance')),finalPerformanceApproved:issues.length===0,issues};
   }
-  const status=failures.length?'HOLD_FORMAL_WARDROBE':'READY_FOR_SEPARATE_PAID_MASTER_APPROVAL';
-  if(strict&&failures.length)throw new Error(status+': '+failures.join('; '));
-  return {status,ready:failures.length===0,roles,blockers:failures,
-    paidVideoAuthorized:false,
-    note:'A wardrobe-ready state is NOT a provider wallet ceiling, a paid-generation command, or an editorial approval.'};
+  const ready=failures.length===0;
+  const status=ready?'READY_FOR_SEPARATE_PAID_MASTER_APPROVAL':'HOLD_PHOTO_AVATAR_MOTION_QA';
+  if(strict&&!ready)throw new Error(status+': '+failures.join('; '));
+  return {status,ready,wardrobeReady:result.ANCHOR.wardrobeVerified&&result.ANALYST.wardrobeVerified,
+    photoMotionApproved:ready,roles:result,blockers:failures,paidVideoAuthorized:false,
+    note:'Suit/blazer looks are real and selected; user review of actual generated movement and a separate budget release are still mandatory.'};
 }
-
-if(process.argv[1]?.endsWith('formal-wardrobe.mjs'))
-  console.log(JSON.stringify(auditFormalWardrobe(),null,2));
+if(process.argv[1]?.endsWith('formal-wardrobe.mjs'))console.log(JSON.stringify(auditFormalWardrobe(),null,2));
