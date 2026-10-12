@@ -35,7 +35,7 @@ export const programme=Object.freeze({
  title:'SIGNAL | Markets at a Crossroads — earnings, inflation and energy',
  programmeId:'signal-oct12-2026-news-revision-r2',editionDate:'12 OCT 2026',targetSeconds:180,
  minAllowedSeconds:155,maxAllowedSeconds:215,width:1920,height:1080,fps:30,engine:'avatar_iii',
- disclosure:'AI PRESENTERS • REPORTED NEWS AS OF 12 OCT 2026 • ILLUSTRATIVE CHARTS, NOT LIVE PRICES',
+ disclosure:'REPORTED NEWS AS OF 12 OCT 2026 • ILLUSTRATIVE CHARTS ARE NOT LIVE MARKET PRICES',
  colours:{navy:'#07162A',ink:'#101F33',teal:'#2ABFB3',ice:'#EFF7F8',cream:'#FCF9F1',gold:'#DFAE5C',green:'#279F80',red:'#DA6472'},
  scenes:[
   {id:'intro',kind:'intro',duration:2.6,headline:'MARKETS AT A CROSSROADS',sub:'EARNINGS · RATES · ENERGY',layout:'intro'},
