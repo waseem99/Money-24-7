@@ -27,7 +27,7 @@ jobs:
             const body=data.data??data;
             const items=Array.isArray(body.items)?body.items:Array.isArray(body.voices)?body.voices:Array.isArray(body)?body:[];
             out.status=resp.status;out.accountAccessible=resp.ok;
-            out.candidates=items.filter(v=>/orson/i.test(v.name||'')||['00e3d285aba44b27a83c47c02c9c','daad4813058a4c51b6f545a1a51c506a'].includes(v.voice_id)).map(v=>({id:v.voice_id,name:v.name,language:v.language,gender:v.gender,engines:v.available_engines||null}));
+            out.candidates=items.filter(v=>/orson/i.test(v.name||'')||['00e3d285aba44b27a83c47c02c9c','daad4813058a4c51b6f545a1a51c506a'].includes(v.voice_id)).map(v=>({id:v.voice_id,name:v.name,language:v.language,gender:v.gender,defaultEngine:v.default_engine||null,engines:v.available_engines||null,provider:v.provider||null,voiceType:v.type||null}));
             out.pageLength=items.length;out.hasMore=Boolean(body.next_token);
             console.log('STOCKS_ORSON_VOICE_AUDIT='+JSON.stringify(out));
           }catch(e){console.log('STOCKS_ORSON_VOICE_AUDIT='+JSON.stringify({...out,error:String(e.name||'NetworkError')}))}
