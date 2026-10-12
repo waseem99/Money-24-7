@@ -35,6 +35,7 @@ test('active ticker, progressive candles, RSI and polished typographic overlays 
  assert.ok(late.includes('SIMULATED MARKET DATA'));
  assert.ok(late.includes('<svg'));
  assert.equal(simulated.length,52);
+ assert.equal(simulated.at(-1).close.toFixed(2),'117.84'); // ticker and chart represent the same illustrative instrument
 });
 
 test('timeline follows actual immutable speaking clips, produces approximately 180s and bounded caption tracks',()=>{
