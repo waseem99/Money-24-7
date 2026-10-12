@@ -6,7 +6,7 @@ import sharp from 'sharp';
 import {mkdir} from 'node:fs/promises';
 import {SHOW,CAST,SOURCES} from './newsroom-r4-plan.mjs';
 const W=1920,H=1080;
-const C={night:'#0B1725',ink:'#102335',slate:'#1A2D3D',paper:'#F6F8F6',cream:'#FFF7E8',mint:'#00A99C',mintLight:'#DDF5EF',white:'#FFFFFF',grey:'#587083',soft:'#AEC2D0',gold:'#E3AF5A',orange:'#DF8153',coral:'#C85B53',purple:'#625F99',lavender:'#EAE7F3',ice:'#E7F1F5'};
+const C={night:'#1556CA',ink:'#142B4F',slate:'#20416D',paper:'#F3F9FF',cream:'#FFF8E2',mint:'#05BEE0',mintLight:'#DDF9FF',white:'#FFFFFF',grey:'#3C5575',soft:'#A9D2EB',gold:'#FFBC35',orange:'#FF8B30',coral:'#ED5962',purple:'#6755DE',lavender:'#F3EDFF',ice:'#E6F9FF'};
 const s=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 const tx=(x,y,value,size=26,fill=C.ink,opts='')=>`<text x="${Math.round(x)}" y="${Math.round(y)}" font-family="DejaVu Sans,Arial,sans-serif" font-size="${size}" fill="${fill}" ${opts}>${s(value)}</text>`;
 const r=(x,y,w,h,fill,opts='')=>`<rect x="${Math.round(x)}" y="${Math.round(y)}" width="${Math.round(w)}" height="${Math.round(h)}" fill="${fill}" ${opts}/>`;
@@ -27,10 +27,10 @@ function masthead(scene,time,sec){
  const accent=colorOf(scene),w=1920;
  let out=r(0,0,w,114,C.night)+r(0,0,10,114,accent)+r(0,109,1920,5,accent);
  out+=tx(43,77,'SIGNAL',52,C.white,'font-weight="800" letter-spacing="7"');
- out+=tx(329,76,'MARKET WATCH',27,'#DDE6EB','font-weight="700" letter-spacing="3"');
+ out+=tx(329,76,'MARKET WATCH',27,'#EEF8FF','font-weight="700" letter-spacing="3"');
  out+=tx(1222,74,'MONDAY  ·  12 OCT 2026',22,'#DBE1E5','font-weight="600" letter-spacing="1.1"');
- out+=r(1680,35,194,43,'#29424E','rx="5"')+tx(1700,63,'NEWS BULLETIN',16,'#F3FFFD','font-weight="700" letter-spacing=".5"');
- out+=r(0,109,1920*Math.min(1,time/200),5,C.gold);
+ out+=r(1680,35,194,43,'#0E3683','rx="5"')+tx(1700,63,'MARKET BRIEF',16,'#FFFFFF','font-weight="700" letter-spacing=".5"');
+ out+=r(0,109,1920,5,C.mint)+r(0,109,1920*Math.min(1,time/200),5,C.gold);
  return out;
 }
 function mainHeading(scene){
@@ -56,11 +56,11 @@ function stat(source,{x=0,y=0,w=600,h=250,bg=C.white,accent=C.mint,big=64,dark=f
 }
 function panelHeader(scene){return tx(900,337,scene.eyebrow,22,'#0A796F','font-weight="800" letter-spacing="1.3"');}
 function presenterFrame(scene,t){
- const a=colorOf(scene);let o=r(47,309,794,504,'#1A3245','rx="9"')+r(47,309,794,6,a)+r(47,730,794,83,C.night);
+ const a=colorOf(scene);let o=r(47,309,794,504,'#153E74','rx="9"')+r(47,309,794,6,a)+r(47,730,794,83,C.night);
  const person=CAST[scene.role];
  o+=tx(82,770,person.name.toUpperCase(),29,C.white,'font-weight="800" letter-spacing=".4"');
  o+=tx(82,798,person.role,16,'#D3E0E5','font-weight="700" letter-spacing="1.1"');
- o+=r(48,308,793,421,'#152B3B','opacity=".11"');
+ o+=r(48,308,793,421,'#275D9B','opacity=".11"');
  return o;
 }
 function panelRect(bg=C.paper){return r(876,308,994,505,bg,'rx="10"');}
@@ -98,7 +98,7 @@ function storyCard(scene,t){
     });o+=cite(SOURCES.BANKS,921,786);break;
   }
   case 'rates':{
-    o+=panelRect('#162333');
+    o+=panelRect('#143C78');
     o+=tx(917,366,'FINANCING AND VALUATIONS',20,'#ACBFCC','font-weight="800"');
     o+=tx(908,483,'3.75–4.00%',73,'#F4BE6A','font-weight="800"');
     o+=tx(917,527,'FED FUNDS TARGET RANGE / SEP 16',19,'#D1DEE7','font-weight="700"');
@@ -142,7 +142,7 @@ function storyCard(scene,t){
     o+=cite(SOURCES.IMF,924,781);break;
   }
   case 'watchlist':{
-    o+=panelRect('#141F2E');
+    o+=panelRect('#15346C');
     o+=tx(921,368,'MARKET WATCH · THE NEXT 48 HOURS',22,'#C1CED8','font-weight="800"');
     const watch=[['01','BANKS','LOAN LOSSES & GUIDANCE'],['02','CPI','ACTUAL DATA VS FORECAST'],['03','OIL','ABOVE $100 / BBL']];
     watch.forEach(([no,key,v],i)=>{const y=411+i*120,progress=ease(t*2.1-i*.14);
@@ -172,7 +172,7 @@ function newscastCaption(scene,t,speechDuration){
  const words=scene.script.trim().split(/\s+/),chunkSize=10,n=Math.ceil(words.length/chunkSize),i=Math.min(n-1,Math.floor(t/speechDuration*n));
  const line=words.slice(i*chunkSize,(i+1)*chunkSize).join(' '),lens=lineClamp(line,79);
  let y=915;
- let out=r(67,867,1790,116,'#162636','rx="6"')+r(67,867,6,116,C.gold);
+ let out=r(67,867,1790,116,'#103768','rx="6"')+r(67,867,6,116,C.gold);
  lens.slice(0,2).forEach((item,j)=>out+=tx(99,y+40*j,item,25,'#FCFFFF','font-weight="600"'));
  return out;
 }
@@ -186,7 +186,7 @@ function newsTicker(globalT){
  return out+'</g>';
 }
 function titleFrame(scene,t){
- const col=scene.kind==='end'?C.night:'#151F2B',text=scene.kind==='end'?C.white:C.white;
+ const col=scene.kind==='end'?C.night:'#174ACC',text=scene.kind==='end'?C.white:C.white;
  let o=r(0,114,1920,883,col)+r(0,114,1920,8,C.gold);
  for(let i=0;i<10;i++){const x=180+i*197+(t*32)%310;o+=ln(x,115,x-350,866,'#34495B',2,'opacity=".22"');}
  o+=marker(72,239,scene.eyebrow,{bg:'#30414D',fg:C.gold,width:410});
@@ -199,7 +199,7 @@ function titleFrame(scene,t){
 export function renderFrame(scene,time=0,duration=20,{globalSeconds=0,audioDuration=18,includePresenterWindow=true}={}){
  if(!scene||!SHOW.scenes.some(x=>x.id===scene.id))throw Error('Unknown locked broadcast segment');
  let out=`<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><clipPath id="scrollClip"><rect x="240" y="997" width="1680" height="83"/></clipPath><clipPath id="photoClip"><rect x="58" y="322" width="772" height="405" rx="8"/></clipPath></defs>`;
- const stageColor={rates:'#1B2939',watchlist:'#172636',energy:'#FFF4E1',inflation:'#E4F0EB',calendar:'#EFF0FA',earnings:'#F5F5F0'}[scene.layout]||C.paper;
+ const stageColor={rates:'#163E79',watchlist:'#173976',energy:'#FFF4DB',inflation:'#E9FBFF',calendar:'#F2EFFF',earnings:'#EEF5FF'}[scene.layout]||C.paper;
  out+=r(0,0,W,H,stageColor)+masthead(scene,globalSeconds,duration);
  if(scene.kind==='ident'||scene.kind==='end')out+=titleFrame(scene,time);
  else{
@@ -207,6 +207,18 @@ export function renderFrame(scene,time=0,duration=20,{globalSeconds=0,audioDurat
   out+=panelRect(C.white);
   out+=storyCard(scene,time/Math.max(4,duration));
   if(includePresenterWindow)out+=presenterFrame(scene,time);
+  else if(scene.kind==='speaker'){
+   const accent=colorOf(scene),sources=(scene.sourceIds||[]).map(k=>SOURCES[k]).filter(Boolean);
+   out+=r(47,308,794,505,C.white,'rx="10"')+r(47,308,794,11,accent);
+   out+=tx(85,380,'MARKET WATCH',20,C.grey,'font-weight="800" letter-spacing="3"');
+   out+=tx(85,448,scene.eyebrow,35,C.ink,'font-weight="800"');
+   const rows=lineClamp(scene.headline,25).slice(0,3);
+   rows.forEach((line,i)=>out+=tx(82,516+55*i,line,43,C.ink,'font-weight="800"'));
+   if(sources.length)out+=tx(87,711,sources[0].source+'  /  '+sources[0].date,17,C.grey,'font-weight="750"');
+   const progress=ease(time/Math.max(duration,.5)*2.2),barWidth=680*progress;
+   out+=r(86,737,685,7,'#DCE7F2','rx="4"')+r(86,737,barWidth,7,accent,'rx="4"');
+   out+=tx(87,781,'WHAT THE MARKET IS WATCHING',19,'#36527E','font-weight="800" letter-spacing="1"');
+  }
   out+=newscastCaption(scene,time,audioDuration);
   if(scene.kind==='speaker'&&scene.sourceIds?.length)out+=tx(1620,831,'SOURCE: '+getNewsSource(scene).source+' / '+getNewsSource(scene).date,16,['rates','watchlist'].includes(scene.layout)?'#C9D6E0':C.grey,'text-anchor="end" font-weight="650"');
  }
