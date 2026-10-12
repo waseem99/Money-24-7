@@ -106,7 +106,7 @@ async function composeScene(scene,entry,source,{fpsGraphics=12,globalStart=0}={}
  if(scene.kind!=='speaker'){
    await command('ffmpeg',['-hide_banner','-v','error','-y','-i',bg,'-f','lavfi','-i','anullsrc=r=48000:cl=stereo',
      '-t',sec(entry.durationSeconds),'-map','0:v:0','-map','1:a:0','-r','30',
-     '-c:v','libx264','-preset','veryfast','-crf','22','-pix_fmt','yuv420p',
+     '-c:v','libx264','-preset','veryfast','-crf','18','-pix_fmt','yuv420p',
      '-c:a','aac','-ar','48000','-b:a','160k','-movflags','+faststart',out],{timeout:600000});
  }else{
    // 0:33 correction: brief camera appearance then decisive cut to full-screen
@@ -119,7 +119,7 @@ async function composeScene(scene,entry,source,{fpsGraphics=12,globalStart=0}={}
      `[1:a]aresample=48000,atempo=${speed.toFixed(4)},highpass=f=77,acompressor=threshold=-19dB:ratio=1.45:attack=9:release=130,volume=1.05,afade=t=in:st=0:d=0.045,afade=t=out:st=${sec(fadeOut)}:d=0.13,apad,atrim=duration=${sec(entry.durationSeconds)},asetpts=PTS-STARTPTS[a]`;
    await command('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',bg,'-i',source.file,'-filter_complex',filt,
      '-map','[v]','-map','[a]','-t',sec(entry.durationSeconds),'-r','30',
-     '-c:v','libx264','-preset','veryfast','-crf','22','-pix_fmt','yuv420p',
+     '-c:v','libx264','-preset','veryfast','-crf','18','-pix_fmt','yuv420p',
      '-c:a','aac','-ar','48000','-b:a','160k','-movflags','+faststart',out],{timeout:600000});
  }
  const p=await probe(out);
@@ -144,7 +144,7 @@ async function contactSheet(master,outDir){const shots=[6,24,43,65,87,115,150].m
   await command('ffmpeg',['-hide_banner','-v','error','-y','-ss',sec(s),'-i',master,'-frames:v','1','-update','1','-q:v','3',file],{timeout:40000});
   const img=await sharp(file).resize(560,315).jpeg({quality:83}).toBuffer();images.push({input:img,left:24+(i%2)*580,top:24+Math.floor(i/2)*349});
  }
- await sharp({create:{width:1184,height:24+Math.ceil(images.length/2)*349,channels:3,background:'#091A2E'}}).composite(images).png().toFile(join(outDir,'SIGNAL-R2-scene-contact-sheet.png'));
+ await sharp({create:{width:1184,height:24+Math.ceil(images.length/2)*349,channels:3,background:'#091A2E'}}).composite(images).png().toFile(join(outDir,'SIGNAL-R3-scene-contact-sheet.png'));
 }
 
 export async function assemble({workDir=MEDIA_ROOT,fixture=false,fpsGraphics=12,limitScenes=null}={}){
@@ -179,10 +179,10 @@ export async function assemble({workDir=MEDIA_ROOT,fixture=false,fpsGraphics=12,
  }
  const lines=files.map(x=>"file '"+x.replace(/'/g,"'\\''")+"'").join('\n')+'\n';
  const concat=join(workDir,'rendered','concat.txt');await writeFile(concat,lines);
- const filename=fixture?'SIGNAL-R2-TECHNICAL-NOT-APPROVED.mp4':'SIGNAL-R2-MARKETS-CROSSROADS-1080p-REVISION.mp4';
+ const filename=fixture?'SIGNAL-R2-TECHNICAL-NOT-APPROVED.mp4':'SIGNAL-R3-MARKETS-CROSSROADS-1080p-REVIEW.mp4';
  const master=join(workDir,filename),preMaster=join(workDir,'signal-pre-master-visual.mp4');
  await command('ffmpeg',['-hide_banner','-v','error','-y','-f','concat','-safe','0','-i',concat,
-    '-c:v','libx264','-preset','fast','-crf','19','-r','30','-pix_fmt','yuv420p',
+    '-c:v','libx264','-preset','fast','-crf','17','-r','30','-pix_fmt','yuv420p',
     '-c:a','aac','-b:a','192k','-ar','48000','-ac','2','-movflags','+faststart',preMaster],{timeout:900000});
  // Add quiet, self-composed broadcast music to prevent silence in editorial chart interludes.
  // Keep presenter voices in front: local bed peaks at about -30dBFS and never uses paid content.
@@ -195,7 +195,7 @@ export async function assemble({workDir=MEDIA_ROOT,fixture=false,fpsGraphics=12,
  if(!limitScenes && (Math.abs(verified.duration-timeline.totalSeconds)>.75||verified.duration<MIN-.75||verified.duration>MAX+.75))throw Error('Final runtime QA failed');
  if(verified.video.width!==1920||verified.video.height!==1080||verified.video.codec_name!=='h264'||verified.audio.codec_name!=='aac')throw Error('Final AV technical QA failed');
  const captions=captionsVTT(plan,timeline);
- await writeFile(join(workDir,'SIGNAL-R2-captions.vtt'),captions);
+ await writeFile(join(workDir,'SIGNAL-R3-captions.vtt'),captions);
  const report={status:fixture?'TECHNICAL_ONLY_NOT_FINAL':'RENDERED_REQUIRES_HUMAN_REVIEW',id:programme.programmeId,generatedAt:DATE,
    sourcedNewsAsOf:'2026-10-12',sourcedAndNotLive:true,reportSources:Object.values(REPORTS).map(x=>({label:x.label,date:x.date,source:x.source,url:x.url})),
    presenterPacing:{Liza:'1.065x pitch-preserving video+audio',Lasse:'1.025x pitch-preserving video+audio'},
@@ -207,8 +207,8 @@ export async function assemble({workDir=MEDIA_ROOT,fixture=false,fpsGraphics=12,
    soundtrack:'Original very low-level locally composed instrumental broadcast bed; no external music/licensing or additional AI credit usage',
    chartData:'Simulated index-only chart segments separate from source-dated Fed/Reuters/BLS reports',liveMarketDataUsed:false,
    originalCasualPresentersUsed:false,actors:[identity.LIZA.name,identity.LASSE.name],voices:[identity.LIZA.voiceName,identity.LASSE.voiceName],
-   fullHumanApproval:false,sceneTiming:timeline.entries};
- await writeFile(join(workDir,'SIGNAL-R2-technical-QA.json'),JSON.stringify(report,null,2));
+   visualLabelPolicy:'No DEMO DATA, MARKET DEMO, AI-PRESENTED or AI PRESENTERS labels in the broadcast graphics; use dated sources and mark illustrative indexes as not live',fullHumanApproval:false,sceneTiming:timeline.entries};
+ await writeFile(join(workDir,'SIGNAL-R3-technical-QA.json'),JSON.stringify(report,null,2));
  if(!limitScenes)await contactSheet(master,workDir);
  console.log('MASTER COMPLETE '+master+' duration='+verified.duration.toFixed(2)+'s');
  return {master,report,timeline};
