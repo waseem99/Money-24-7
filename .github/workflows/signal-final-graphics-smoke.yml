@@ -39,7 +39,7 @@ jobs:
             fps:12,audioDuration:2,globalStart:105});
           console.log('ENCODED',JSON.stringify(res));
           NODE
-          ffmpeg -hide_banner -loglevel error -y -ss .8 -i output-graphics/SIGNAL-animated-graphics-1080p.mp4 -frames:v 1 -update 1 output-graphics/SIGNAL-motion-frame.png
+          ffmpeg -hide_banner -loglevel error -y -ss 0.8 -i output-graphics/SIGNAL-animated-graphics-1080p.mp4 -frames:v 1 -update 1 output-graphics/SIGNAL-motion-frame.png
           ffprobe -v error -show_entries stream=width,height,r_frame_rate,codec_type -show_entries format=duration -of json output-graphics/SIGNAL-animated-graphics-1080p.mp4
       - uses: actions/upload-artifact@v4
         with:
