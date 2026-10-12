@@ -59,11 +59,19 @@ export async function importV2(run,{turnId,sceneId,presenterId,file,alignmentFil
     if(!listener)delete run.manifest.pending[key];run.manifest.state='media-partial';await save(run);return collection[key];
   });
 }
+// A paid render must be released for this exact immutable episode and capped explicitly.
+// This is an operator authorization gate, NOT a substitute for the provider wallet limit.
+export function requirePaidRelease(run,env){
+  if(env.PILOT_PAID_RELEASE_EPISODE_HASH!==run.manifest.episodeHash)throw new Error('Paid generation locked: approve and set PILOT_PAID_RELEASE_EPISODE_HASH for the exact programme');
+  const approved=Number(env.PILOT_PAID_RELEASE_MAX_USD),reserved=Number(env.PILOT_MAX_ESTIMATED_USD);
+  if(!Number.isFinite(approved)||approved<=0||!Number.isFinite(reserved)||reserved<=0||reserved>approved)throw new Error('Paid generation locked: PILOT_MAX_ESTIMATED_USD must be within a positive PILOT_PAID_RELEASE_MAX_USD');
+}
 export async function produceV2(run,{paid=false,env=process.env,provider=new Providers(env),turnId,onProgress=()=>{}}={}){
   if(!paid||run.manifest.fixture)throw new Error('Real provider production requires --paid');await requireEditorial(run);
   for(const name of ['ELEVENLABS_API_KEY','ELEVENLABS_MODEL_ID','HEYGEN_API_KEY'])required(env,name);
   if(turnId&&!run.episode.turns.some(t=>t.id===turnId))throw new Error('Unknown turn');
   for(const field of ['PILOT_SPEECH_ESTIMATE_USD','PILOT_AVATAR_ESTIMATE_USD','PILOT_MAX_ESTIMATED_USD'])if(!(Number(env[field])>0))throw new Error('Positive estimate required: '+field);
+  requirePaidRelease(run,env);
   for(const p of run.episode.presenters.filter(p=>run.episode.turns.some(t=>t.speakerId===p.id&&(!turnId||turnId===t.id)))){required(env,`ELEVENLABS_${p.configRef}_VOICE_ID`);required(env,`HEYGEN_${p.configRef}_AVATAR_ID`);if(requiresAlpha(run.episode,p.id)&&env[`HEYGEN_${p.configRef}_MATTING`]!=='true')throw new Error(`Confirm matting compatibility before paid calls: HEYGEN_${p.configRef}_MATTING=true`);}
   if(run.episode.snapshots.some(s=>s.kind==='current'&&Date.parse(s.expiresAt)<=Date.now()))throw new Error('Expired source snapshot: revise programme before production');
   return withLock(run.root,async()=>{await fresh(run);const db=new Store(run.root);try{

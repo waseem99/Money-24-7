@@ -44,6 +44,7 @@ Settings in `.env.local` (see `.env.example`; placeholders never start paid call
 - `ELEVENLABS_API_KEY`, `ELEVENLABS_MODEL_ID` and `ELEVENLABS_<CONFIG_REF>_VOICE_ID` for each identity.
 - `HEYGEN_API_KEY`, `HEYGEN_<CONFIG_REF>_AVATAR_ID`; the standing identity also needs `HEYGEN_<CONFIG_REF>_MATTING=true` after verifying actual compatible assets.
 - `PILOT_SPEECH_ESTIMATE_USD`, `PILOT_AVATAR_ESTIMATE_USD`, `PILOT_DIRECTOR_ESTIMATE_USD` and `PILOT_MAX_ESTIMATED_USD`. These are operator budget estimates, not provider quotes. Actual billed cost remains unknown until reconciled with the provider. Listener creation costs are separate.
+- `PILOT_PAID_RELEASE_EPISODE_HASH` (exact hash from that run's manifest) and `PILOT_PAID_RELEASE_MAX_USD` (approved positive limit). **New mandatory V2 release lock:** paid `produce`/`pipeline` will refuse to start unless both are set and `PILOT_MAX_ESTIMATED_USD` is within the approved limit. A new episode revision requires a new release; this does not enforce the provider's actual invoice or API wallet limit. Run the zero-cost audit in [`ZERO_SPEND_PREFLIGHT.md`](ZERO_SPEND_PREFLIGHT.md) first.
 
 Default references are `ANCHOR` and `ANALYST`. No identities are inferred from names. Select consistent, permitted looks/voices and suitable standing framing. A matting flag is capability configuration; decoded alpha and human visual review are still required.
 

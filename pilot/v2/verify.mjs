@@ -42,7 +42,7 @@ const provider={
   async status(key){calls.status++;const job=jobs.get(key);if(!job.polled){job.polled=true;return {status:'processing'};}return {status:'completed',video_url:job.role==='ANALYST'?'mock:alpha':'mock:opaque'};},
   async download(url,file){await copyFile(path.join(base,url==='mock:alpha'?'b.webm':'a.mp4'),file);}
 };
-const env={ELEVENLABS_API_KEY:'mock-key',ELEVENLABS_MODEL_ID:'mock-model',HEYGEN_API_KEY:'mock-key',ELEVENLABS_ANCHOR_VOICE_ID:'anchor-voice',ELEVENLABS_ANALYST_VOICE_ID:'analyst-voice',HEYGEN_ANCHOR_AVATAR_ID:'anchor-avatar',HEYGEN_ANALYST_AVATAR_ID:'standing-avatar',HEYGEN_ANALYST_MATTING:'true',PILOT_SPEECH_ESTIMATE_USD:'1',PILOT_AVATAR_ESTIMATE_USD:'2',PILOT_MAX_ESTIMATED_USD:'9'};
+const env={ELEVENLABS_API_KEY:'mock-key',ELEVENLABS_MODEL_ID:'mock-model',HEYGEN_API_KEY:'mock-key',ELEVENLABS_ANCHOR_VOICE_ID:'anchor-voice',ELEVENLABS_ANALYST_VOICE_ID:'analyst-voice',HEYGEN_ANCHOR_AVATAR_ID:'anchor-avatar',HEYGEN_ANALYST_AVATAR_ID:'standing-avatar',HEYGEN_ANALYST_MATTING:'true',PILOT_SPEECH_ESTIMATE_USD:'1',PILOT_AVATAR_ESTIMATE_USD:'2',PILOT_MAX_ESTIMATED_USD:'9',PILOT_PAID_RELEASE_EPISODE_HASH:providerRun.manifest.episodeHash,PILOT_PAID_RELEASE_MAX_USD:'9'};
 await produceV2(providerRun,{paid:true,env,provider});assert.equal(Object.keys(providerRun.manifest.assets).length,0);
 await produceV2(providerRun,{paid:true,env,provider});assert.equal(Object.keys(providerRun.manifest.assets).length,3);
 await produceV2(providerRun,{paid:true,env,provider});assert.deepEqual(calls,{speech:3,avatar:3,status:6});

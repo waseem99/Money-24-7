@@ -1,0 +1,267 @@
+{
+  "programTitle": "SIGNAL MARKET WATCH — The Day in Markets",
+  "edition": "2026-10-12",
+  "userRequiredRuntime": "approximately 180 seconds",
+  "runtimeSeconds": 178.738,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "fps": 30,
+  "streams": [
+    {
+      "codec_name": "h264",
+      "codec_type": "video",
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "30/1"
+    },
+    {
+      "codec_name": "aac",
+      "codec_type": "audio",
+      "sample_rate": "48000",
+      "channels": 2,
+      "r_frame_rate": "0/0"
+    }
+  ],
+  "fileBytes": 11355060,
+  "sha256": "3df76962e7515f088bd8494abc88d1a52c7e3f4067cf1dc5379f1745227b3cba",
+  "errorFreeDecode": true,
+  "sourceScenes": 16,
+  "footageUserIdentityPair": [
+    "Liza / Annie",
+    "Lasse / Orson"
+  ],
+  "noNewSuccessfulPaidVoiceGenerationsThisCut": true,
+  "outstandingNewR4SpeechSegments": [
+    "world_outlook",
+    "watchlist",
+    "signoff"
+  ],
+  "reason": "Provider returned MOVIO_PAYMENT_INSUFFICIENT_CREDIT for earlier new-take requests; reused older footage or source-dated visual-only segments.",
+  "sceneMediaDisclosures": {
+    "scheduledCPI": true,
+    "futureIMFRelease": true,
+    "liveFeed": false,
+    "priceSnapshotsDated": true
+  },
+  "humanCreativeReviewPending": true,
+  "estimatedCaptionsNotWordAligned": true,
+  "palette": {
+    "cobalt": "#1556CA",
+    "cyan": "#05BEE0",
+    "gold": "#FFBC35",
+    "offwhite": "#F3F9FF",
+    "purple": "#6755DE"
+  },
+  "sceneTimeline": [
+    {
+      "id": "intro",
+      "kind": "graphics",
+      "showSceneId": "ident",
+      "start": 0,
+      "duration": 8,
+      "end": 8,
+      "source": null,
+      "role": null,
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    },
+    {
+      "id": "top_stories",
+      "kind": "voice",
+      "showSceneId": "top_stories",
+      "start": 8,
+      "duration": 15.8,
+      "end": 23.8,
+      "source": "r4/top_stories.mp4",
+      "role": "LIZA",
+      "sourceDuration": 16.44,
+      "words": "Good morning. Welcome to Signal Market Watch. I'm Liza. A volatile start to the week: oil has pulled back, stocks are cautiously higher, and investors are bracing for major U.S. bank earnings and Wednesday's inflation report. We begin with what moved overnight.",
+      "playbackSpeed": 1.04
+    },
+    {
+      "id": "global_market",
+      "kind": "voice",
+      "showSceneId": "global_market",
+      "start": 23.8,
+      "duration": 17.133333333333333,
+      "end": 40.93333333333333,
+      "source": "r4/global_market.mp4",
+      "role": "LASSE",
+      "sourceDuration": 17.48,
+      "words": "Asian shares were mixed on Monday, while U.S. stock-index futures edged higher. Reuters reported Brent crude near one hundred four dollars a barrel after retreating from recent highs. That is still an expensive energy backdrop, and markets remain sensitive to every new geopolitical headline.",
+      "playbackSpeed": 1.02
+    },
+    {
+      "id": "transition_market",
+      "kind": "graphics",
+      "showSceneId": "global_market",
+      "start": 40.93333333333333,
+      "duration": 3,
+      "end": 43.93333333333333,
+      "source": null,
+      "role": "LASSE",
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    },
+    {
+      "id": "earnings",
+      "kind": "voice",
+      "showSceneId": "earnings",
+      "start": 43.93333333333333,
+      "duration": 16.766666666666666,
+      "end": 60.7,
+      "source": "r4/earnings.mp4",
+      "role": "LIZA",
+      "sourceDuration": 17.424,
+      "words": "Now to Wall Street. Major U.S. banks begin third-quarter reporting this week. Analysts expect a strong earnings season, but the question is not simply profits. Investors will scrutinize credit losses, loan demand and management guidance for signs that higher costs are beginning to bite.",
+      "playbackSpeed": 1.04
+    },
+    {
+      "id": "recap",
+      "kind": "voice",
+      "showSceneId": "world_outlook",
+      "start": 60.7,
+      "duration": 18,
+      "end": 78.7,
+      "source": "r2/news_open.mp4",
+      "role": "LIZA",
+      "sourceDuration": 18.73,
+      "words": "Markets are facing a real test this week. Bank earnings are about to arrive, inflation data are due Wednesday, and oil is still above one hundred dollars a barrel. Technology shares have powered expectations higher. But can those profits withstand expensive money? Lasse, what is the tension investors need to understand?",
+      "playbackSpeed": 1.04
+    },
+    {
+      "id": "midpoint",
+      "kind": "graphics",
+      "showSceneId": "earnings",
+      "start": 78.7,
+      "duration": 6,
+      "end": 84.7,
+      "source": null,
+      "role": "LIZA",
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    },
+    {
+      "id": "rates",
+      "kind": "voice",
+      "showSceneId": "rates",
+      "start": 84.7,
+      "duration": 19.7,
+      "end": 104.4,
+      "source": "r2/rates.mp4",
+      "role": "LASSE",
+      "sourceDuration": 20.088,
+      "words": "Two powerful forces are colliding. Big technology profits look promising. Yet borrowing is costly. In September the Federal Reserve raised its policy range to three and three quarters through four percent. Treasury yields have climbed to multi-decade highs. That's a serious valuation test, even for companies delivering good results.",
+      "playbackSpeed": 1.02
+    },
+    {
+      "id": "transition_rates",
+      "kind": "graphics",
+      "showSceneId": "rates",
+      "start": 104.4,
+      "duration": 3,
+      "end": 107.4,
+      "source": null,
+      "role": "LASSE",
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    },
+    {
+      "id": "energy",
+      "kind": "voice",
+      "showSceneId": "energy",
+      "start": 107.4,
+      "duration": 15.566666666666666,
+      "end": 122.96666666666667,
+      "source": "r2/oil.mp4",
+      "role": "LIZA",
+      "sourceDuration": 16.2,
+      "words": "And now energy is complicating the picture. Brent crude has been above one hundred dollars, according to Monday's market reports. That can raise shipping and manufacturing costs. If profits look strong but households and businesses face higher bills, where do you look for the warning signs?",
+      "playbackSpeed": 1.04
+    },
+    {
+      "id": "inflation",
+      "kind": "voice",
+      "showSceneId": "inflation",
+      "start": 122.96666666666667,
+      "duration": 18.333333333333332,
+      "end": 141.3,
+      "source": "r2/cpi.mp4",
+      "role": "LASSE",
+      "sourceDuration": 18.704,
+      "words": "Start with the major banks. Watch loan demand, credit losses, and what executives say about customers. Then Wednesday's consumer inflation report. A hotter reading could keep pressure on bond yields and highly valued shares. A cooler one could ease it. Neither outcome is certain. That's why this week matters.",
+      "playbackSpeed": 1.02
+    },
+    {
+      "id": "world_outlook",
+      "kind": "graphics",
+      "showSceneId": "world_outlook",
+      "start": 141.3,
+      "duration": 12,
+      "end": 153.3,
+      "source": null,
+      "role": "LIZA",
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    },
+    {
+      "id": "transition_calendar",
+      "kind": "graphics",
+      "showSceneId": "inflation",
+      "start": 153.3,
+      "duration": 3,
+      "end": 156.3,
+      "source": null,
+      "role": "LASSE",
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    },
+    {
+      "id": "watchlist",
+      "kind": "voice",
+      "showSceneId": "watchlist",
+      "start": 156.3,
+      "duration": 15.266666666666667,
+      "end": 171.56666666666666,
+      "source": "r3/lasse_takeaway.mp4",
+      "role": "LASSE",
+      "sourceDuration": 15.569,
+      "words": "So the discipline is simple: verify the source, define the timeframe, compare volume, and keep indicators in context. If the evidence is incomplete, say so. That makes the story more useful than a confident but unsupported claim.",
+      "playbackSpeed": 1.02
+    },
+    {
+      "id": "signoff",
+      "kind": "voice",
+      "showSceneId": "signoff",
+      "start": 171.56666666666666,
+      "duration": 1.0666666666666667,
+      "end": 172.63333333333333,
+      "source": "r3/liza_close.mp4",
+      "role": "LIZA",
+      "sourceDuration": 9.404,
+      "words": "Thanks for watching.",
+      "playbackSpeed": 1
+    },
+    {
+      "id": "outro",
+      "kind": "graphics",
+      "showSceneId": "end",
+      "start": 172.63333333333333,
+      "duration": 6,
+      "end": 178.63333333333333,
+      "source": null,
+      "role": null,
+      "sourceDuration": null,
+      "words": null,
+      "playbackSpeed": null
+    }
+  ]
+}

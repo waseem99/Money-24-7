@@ -1,0 +1,51 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {threeMinutePlan,auditThreeMinutePlan} from '../pilot/v2/three-minute-plan.mjs';
+import {proposedPresenters} from '../pilot/v2/budget-preflight.mjs';
+
+test('3-minute cinema-style finance film plan is exact, budgeted and has only approved human-selected presenters',()=>{
+  const p=auditThreeMinutePlan();
+  assert.equal(p.outputSeconds,180);
+  assert.equal(p.totalShots,11);
+  assert.equal(p.paidSingleSpeakerShots,9);
+  assert.equal(p.estimatedGeneratedSpeakerSeconds,171);
+  assert.equal(p.estimatedSpeakerCostUSD,2.85);
+  assert.equal(p.conservativeInternalReserveUSD,3.30);
+  assert.equal(p.providerHardSpendCap,false);
+  assert.equal(p.readyToPay,false);
+  assert.equal(p.wardrobeReady,true);
+  assert.equal(p.presenterMotionApproved,false);
+  assert.equal(p.wardrobeStatus,'HOLD_PHOTO_AVATAR_MOTION_QA');
+  assert.ok(p.wardrobeBlockers.some(x=>/lip-sync|motion/.test(x)));
+  assert.equal(threeMinutePlan.state,'HOLD_PHOTO_AVATAR_PERFORMANCE_QA');
+  assert.equal(threeMinutePlan.paidReleaseAuthorized,false);
+  assert.equal(threeMinutePlan.cast.anchor.name,'Liza');
+  assert.equal(threeMinutePlan.cast.anchor.lookId,proposedPresenters.ANCHOR.lookId);
+  assert.equal(threeMinutePlan.cast.anchor.voiceId,proposedPresenters.ANCHOR.auditionVoiceId);
+  assert.equal(threeMinutePlan.cast.analyst.name,'Lasse');
+  assert.equal(threeMinutePlan.cast.analyst.lookId,proposedPresenters.ANALYST.lookId);
+  assert.equal(threeMinutePlan.cast.analyst.voiceId,proposedPresenters.ANALYST.auditionVoiceId);
+  assert.ok(p.disclosure.includes('Illustrative'));
+  assert.ok(!threeMinutePlan.shots.some(s=>s.layout==='discussion-two'||s.layout==='anchor-analyst-wall'));
+  for(let i=1;i<p.timeline.length;i++)assert.equal(p.timeline[i].startSeconds,p.timeline[i-1].endSeconds);
+  assert.equal(p.timeline.at(-1).endSeconds,180);
+  assert.equal(threeMinutePlan.shots.filter(s=>s.presenter===null).length,2);
+});
+
+test('3-minute cost model refuses paid-release flags, silently swapped presenters and unsafe live data',()=>{
+  const permit=structuredClone(threeMinutePlan);
+  permit.paidReleaseAuthorized=true;
+  assert.throws(()=>auditThreeMinutePlan(permit),/never itself authorize/);
+  const swapped=structuredClone(threeMinutePlan);
+  swapped.cast.anchor.lookId='425825d6465b4ba4bd261d334d530430';
+  assert.throws(()=>auditThreeMinutePlan(swapped),/cast changed/);
+  const voice=structuredClone(threeMinutePlan);
+  voice.cast.analyst.voiceId='unapproved';
+  assert.throws(()=>auditThreeMinutePlan(voice),/cast changed/);
+  const inaccurate=structuredClone(threeMinutePlan);
+  inaccurate.shots[1].script="Today's actual prices are breaking financial news";
+  assert.throws(()=>auditThreeMinutePlan(inaccurate),/Unverified live/);
+  const over=structuredClone(threeMinutePlan);
+  over.shots[2].length+=2;
+  assert.throws(()=>auditThreeMinutePlan(over),/exactly 180/);
+});
