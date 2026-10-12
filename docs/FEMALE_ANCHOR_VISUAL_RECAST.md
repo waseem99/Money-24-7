@@ -1,3 +1,9 @@
+# Recast completed — 12 October 2026
+
+**This is a historical visual-casting incident report.** The user subsequently selected and locked **Rumi** (look `efa5d7cf738a4efd84b1dac501d9aef8`) paired with the existing approved **Annie — Lifelike** voice, keeping **Kevin + Orson**. The [first Rumi audition](https://app.heygen.com/videos/12186d2986911a13710d9298344c7ab5) completed technically (10.8408 seconds) and remains pending human visual acceptance. [See current three-minute programme plan](THREE_MINUTE_MASTER_EXECUTION.md). The rejected Araj face must never be used again.
+
+---
+
 # Jazz AI Channel — Visual-casting failure and female anchor replacement
 
 Status: **visual cast rejected, all new paid HeyGen submissions blocked, no replacement selected**
