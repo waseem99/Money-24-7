@@ -13,7 +13,7 @@ try{
   const run=await initNative({fixture:true});
   assert.equal(run.manifest.fixture,true);
   let calls=0;
-  await assert.rejects(produceNativeTurn(run,'rumi-open',{
+  await assert.rejects(produceNativeTurn(run,'liza-open',{
     paid:true,env:{HEYGEN_API_KEY:'mock',PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash,
       PILOT_MAX_ESTIMATED_USD:'3',PILOT_PAID_RELEASE_MAX_USD:'3'},
     provider:{async avatarScript(){calls++;}}
@@ -33,7 +33,7 @@ try{
   assert.equal(qa.synthetic,true);
   assert.equal(qa.realPresenterSources,false);
   assert.equal(qa.humanLipSyncApproval,false);
-  assert.deepEqual(run.plan.turns.map(t=>t.aspectRatio),['9:16','16:9','9:16']);
+  assert.deepEqual(run.plan.turns.map(t=>t.aspectRatio),['16:9','16:9','16:9']);
   assert.equal(qa.withinRequested30To45Seconds,false);
   assert.equal(qa.actualProviderCostUSD,null);
   assert.equal(record.video.width,1920);assert.equal(record.video.height,1080);
