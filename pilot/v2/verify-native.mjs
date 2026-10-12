@@ -13,7 +13,7 @@ try{
   const run=await initNative({fixture:true});
   assert.equal(run.manifest.fixture,true);
   let calls=0;
-  await assert.rejects(produceNativeTurn(run,'liza-open',{
+  await assert.rejects(produceNativeTurn(run,'rumi-open',{
     paid:true,env:{HEYGEN_API_KEY:'mock',PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash,
       PILOT_MAX_ESTIMATED_USD:'3',PILOT_PAID_RELEASE_MAX_USD:'3'},
     provider:{async avatarScript(){calls++;}}
