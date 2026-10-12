@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {EDITION,SHOTS,PROOF} from './episode.mjs';
+import {MOTION_REVIEW,paidGenerationRelease} from './motion-qa.mjs';
 
 const money = n => Math.round(n*100)/100;
 const digest = data => createHash('sha256').update(JSON.stringify(data)).digest('hex');
@@ -20,6 +21,7 @@ export function buildMotionProof() {
   return {show:'Stocks',edition:EDITION.date,hash,turns,engine:PROOF.avatarEngine,
     resolution:PROOF.resolution,plannedSeconds:PROOF.maxPlannedGeneratedSeconds,
     estimatedSpendUSD:money(PROOF.maxPlannedGeneratedSeconds/60*3),
+    paidReleaseAllowed:false,humanQualityGate:MOTION_REVIEW.qualityGate,
     NOTE:'Planning estimate, not an actual HeyGen wallet cap or charged amount.'};
 }
 export function auditStocks({mode='proof',providerBalanceUSD=null,correspondentApproved=false,
@@ -63,7 +65,8 @@ export function auditStocks({mode='proof',providerBalanceUSD=null,correspondentA
     totalSpokenWords:SHOTS.reduce((n,s)=>n+(s.script.trim()?s.script.trim().split(/\s+/).length:0),0),
     cast:[EDITION.mainCast.NORA.onAirName,EDITION.mainCast.MARCUS.onAirName],
     proofHash:proof.hash,proofBudgetUSD:proof.estimatedSpendUSD,
-    paidRequestsMade:0,problems,warnings};
+    paidRequestsMade:0,paidRelease:paidGenerationRelease(),
+    humanMotionQA:MOTION_REVIEW.qualityGate,problems,warnings};
 }
 const thisFile=fileURLToPath(import.meta.url);
 if(process.argv[1]===thisFile){
