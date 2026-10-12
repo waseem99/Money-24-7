@@ -1,5 +1,18 @@
 # Jazz AI Channel — Formal Wardrobe Conversion & Provider Readiness
 
+## Additional source inspection — verified, zero spend
+
+The *existing* alternative Photo Looks were downloaded through authenticated **GET only** and visually inspected in [GitHub run #38206601070](https://github.com/waseem99/Money-24-7/actions/runs/38206601070) ([ZIP with both source images](https://github.com/waseem99/Money-24-7/actions/runs/38206601070/artifacts/11727347820)). Both are unsuitable for our formal film:
+
+- **Rumi existing Photo Look 4fd269954c4a401d81dc0fec69e7eed8:** the same loose green shirt and residential interior as the recorded video.
+- **Kevin existing Photo Look 26196c98e584435e8159cb8c1378f6ed:** white casual henley-style top, relaxed selfie view, laptop and bed; not a blazer/suit or appropriate broadcast set.
+
+Therefore neither already-available alternate look provides a cost-free business-formal shortcut. The only valid route is a **new provider-authorized formal wardrobe Look** (or appropriately licensed real formal source footage). No HeyGen generation or new voice/video charges were made for this inspection.
+
+---
+
+
+
 **State as at 12 October 2026: BLOCKED ON PUBLIC-AVATAR LOOK EDIT RIGHTS.** This is a styling and production specification, not a claim that formal avatar footage has been generated. No additional HeyGen generation credits have been spent on outfit changes.
 
 ## Frozen identities, appearance only changes
