@@ -1,0 +1,94 @@
+name: Jazz Liza and Lasse — private API preflight (GET only)
+
+on:
+  push:
+    branches:
+      - ops/jazz-formal-anchors-20261012
+    paths:
+      - .github/workflows/liza-lasse-api-readonly.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-cast:
+    if: github.ref == 'refs/heads/ops/jazz-formal-anchors-20261012'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Validate Liza, Lasse, Annie, and Orson using read-only API requests
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const apiKey=process.env.HEYGEN_API_KEY;
+          if(!apiKey||apiKey.length<12||process.env.GITHUB_REPOSITORY!=='waseem99/Money-24-7')
+            throw new Error('API key unavailable or untrusted repository context; no paid requests.');
+          const cast=[
+            {name:'Liza',look:'5ee67ac453c34ffebd71e8eedb47b2fe',
+             group:'3727ecd034ef4248afea2a3443f7d2b7',defaultVoice:'96a7560392c44869a4b66ac849be59a5',
+             voice:'330290724a1b470fb63153f34d4c0183',voiceName:'Annie',gender:'female',aspect:'landscape'},
+            {name:'Lasse',look:'de9f36c26bd841c891489a0c9d6174de',
+             group:'46782f6d3de64ed98cec7f47d3d21ae7',defaultVoice:'0828ce2c70c94787aee8d6745bcde7d7',
+             voice:'00e3d285aba44b27a83c47c02c9c2d9c',voiceName:'Orson',gender:'male',aspect:'landscape'}
+          ];
+          async function read(url){
+            const u=new URL(url);
+            if(u.protocol!=='https:'||u.host!=='api.heygen.com')throw new Error('Invalid API host');
+            const r=await fetch(u,{method:'GET',
+              headers:{'X-Api-Key':apiKey,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!r.ok)throw new Error('Read-only HeyGen lookup HTTP '+r.status+'; no paid submission.');
+            const raw=await r.json();
+            if(raw?.error)throw new Error('HeyGen read-only error; details suppressed.');
+            return raw?.data??raw;
+          }
+          const user=await read('https://api.heygen.com/v3/users/me');
+          if(!user||typeof user!=='object')throw new Error('Key is not authenticated');
+          console.log('PASS: existing encrypted API key authenticates');
+          for(const item of cast){
+            const look=await read('https://api.heygen.com/v3/avatars/looks/'+item.look);
+            if(look?.id!==item.look||look?.group_id!==item.group||
+               look?.avatar_type!=='photo_avatar'||look?.status!=='completed'||
+               look?.default_voice_id!==item.defaultVoice||
+               !look.supported_api_engines?.includes('avatar_iii')||
+               (item.aspect==='portrait'?
+                 !(look.image_height>look.image_width):
+                 !(look.image_width>look.image_height)))
+              throw new Error(item.name+' exact Photo Avatar Office look, engine or orientation mismatch; no paid request.');
+            // The look's default voice may be invalid for TTS. Check the independently
+            // selected Starfish voice ID explicitly, with pagination if needed.
+            let cursor=null,available=false;
+            for(let page=0;page<4;page++){
+              const url=new URL('https://api.heygen.com/v3/voices');
+              for(const [k,v] of Object.entries({
+                engine:'starfish',type:'public',language:'English',gender:item.gender,
+                limit:'100',search_query:item.voiceName
+              }))url.searchParams.set(k,v);
+              if(cursor)url.searchParams.set('token',cursor);
+              const body=await read(url.toString());
+              const voices=Array.isArray(body)?body:
+                Array.isArray(body.items)?body.items:
+                Array.isArray(body.voices)?body.voices:[];
+              if(voices.some(x=>x.voice_id===item.voice&&x.language==='English'&&
+                 x.gender===item.gender&&String(x.name||'').includes(item.voiceName))) {
+                available=true;break;
+              }
+              if(!body?.next_token||body.next_token===cursor)break;
+              cursor=body.next_token;
+            }
+            if(!available)throw new Error(item.name+' selected voice not independently available on Starfish direct API; zero paid requests.');
+            console.log('PASS: '+item.name+' exact user-selected look, native orientation, Avatar III and '+item.voiceName+' audio ID');
+          }
+          console.log('PASS: READ-ONLY API GETs only. No video or audio synthesis job; no credits spent.');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## Jazz API preflight (free)\\n\\n'+
+            '- Liza + Annie: **Verified for direct API access**\\n'+
+            '- Lasse + Orson: **Verified for direct API access**\\n'+
+            '- Engine: Avatar III / 1080p\\n'+
+            '- Paid videos requested: **0**\\n'+
+            '- Human lip-sync and full-film quality: **not yet approved**\\n');
+          NODE
