@@ -1,0 +1,58 @@
+name: Stocks — recover existing Marcus direct API video (GET only)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-marcus-recover.yml'
+jobs:
+  no-spend-download:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Recover one already submitted HeyGen video without regeneration
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import {writeFileSync} from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          const videoId='2dd7888ccdc14636b205cf723325f47f';
+          const result={videoId,provider:'HeyGen direct API',postRequestsMade:0,downloadSucceeded:false};
+          const save=()=>writeFileSync('stocks-marcus-recovery.json',JSON.stringify(result,null,2));
+          if(!key){result.status='KEY_UNAVAILABLE';save();process.exit(0)}
+          for(let i=0;i<30;i++){
+            try{
+              const r=await fetch('https://api.heygen.com/v3/videos/'+videoId,{headers:{'x-api-key':key},signal:AbortSignal.timeout(15000)});
+              const raw=await r.json().catch(()=>({}));
+              const v=raw.data??raw;result.status=v.status||'unknown';result.polls=i+1;
+              if(['failed','error','cancelled'].includes(result.status)){result.failureCode=v.error?.code||v.error_code||null;save();process.exit(0)}
+              if(result.status==='completed'){
+                const url=v.video_url||v.videoUrl||v.url;
+                result.duration=v.duration||null;
+                if(!url){result.status='COMPLETED_BUT_NO_URL';save();process.exit(0)}
+                const stream=await fetch(url,{signal:AbortSignal.timeout(120000)});
+                if(!stream.ok){result.status='MEDIA_DOWNLOAD_FAILED';result.http=stream.status;save();process.exit(0)}
+                const arr=new Uint8Array(await stream.arrayBuffer());
+                if(arr.length>100*1024*1024){result.status='MEDIA_EXCEEDS_LIMIT';save();process.exit(0)}
+                writeFileSync('stocks-marcus-direct-api-1080p.mp4',arr);
+                result.downloadSucceeded=true;result.mediaBytes=arr.length;save();
+                console.log('STOCKS_MARCUS_RECOVERY='+JSON.stringify(result));process.exit(0);
+              }
+            }catch(e){result.lastReadError=String(e.name||'NetworkError').slice(0,100)}
+            save();
+            await new Promise(res=>setTimeout(res,8000));
+          }
+          result.status='STILL_PROCESSING_AFTER_WAIT';save();
+          console.log('STOCKS_MARCUS_RECOVERY='+JSON.stringify(result));
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-existing-marcus-real-source-no-retry
+          path: |
+            stocks-marcus-recovery.json
+            stocks-marcus-direct-api-1080p.mp4
+          retention-days: 21

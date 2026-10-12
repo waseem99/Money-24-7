@@ -1,0 +1,74 @@
+name: Stocks — ONE authorized direct API Nora motion test
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-paid-nora-once.yml'
+jobs:
+  authorized-one-shot-nora:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Submit only one locked, low-cost Pay-As-You-Go take
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import {createHash} from 'node:crypto';
+          import {writeFileSync} from 'node:fs';
+          import {SHOTS,EDITION} from './pilot/stocks/episode.mjs';
+          import {MOTION_REVIEW,MULTI_ANGLE_CANDIDATES} from './pilot/stocks/motion-qa.mjs';
+          let receipt={network:'Stocks',type:'ONE PAID REQUEST ONLY',studio:'Caroline Business Sitting Front',account:'Direct PAYG API',noRetries:true,submittedVideoId:null};
+          const record=()=>writeFileSync('stocks-nora-attempt.json',JSON.stringify(receipt,null,2));
+          try {
+            const key=process.env.HEYGEN_API_KEY, gh=process.env.GH_TOKEN;
+            if(!key||!gh)throw Error('Credentials unavailable; no spend.');
+            if(EDITION.network!=='Stocks'||MOTION_REVIEW.qualityGate!=='FAILED_REALISM')throw Error('Incorrect Stocks casting state');
+            const look='Caroline_Business_Sitting_Front_public';
+            const verified=MULTI_ANGLE_CANDIDATES.find(x=>x.lookId===look&&x.type==='studio_avatar'&&x.supportedEngines.includes('avatar_iii'));
+            if(!verified)throw Error('Studio look not in read-only verified catalogue');
+            const script=SHOTS.find(x=>x.id===15&&x.speaker==='NORA')?.script;
+            if(!script||script.trim().split(/\s+/).length>45)throw Error('Bounded approved Nora dialogue missing');
+            const payload={type:'avatar',avatar_id:look,script,
+              voice_id:'330290724a1b470fb63153f34d4c0183',
+              engine:{type:'avatar_iii'},resolution:'1080p',aspect_ratio:'16:9',
+              output_format:'webm',caption:{file_format:'srt'},
+              title:'Stocks | Nora Caroline video-trained test | ONE attempt'};
+            const hash=createHash('sha256').update(JSON.stringify({avatar_id:payload.avatar_id,script:payload.script,voice_id:payload.voice_id,engine:payload.engine})).digest('hex');
+            const tag='stocks-one-shot-nora-'+hash.slice(0,20);
+            receipt.payloadHash=hash;receipt.lockTag=tag;receipt.engine='Avatar III Studio';receipt.output_format='webm';receipt.resolution='1080p';
+            receipt.budgetPlanning='~0.20 to 0.40 USD at the published 1 USD/minute rate; provider billed duration may differ; NOT a hard account cap';
+            const verify=await fetch('https://api.heygen.com/v3/avatars/looks/'+look,{headers:{'x-api-key':key},signal:AbortSignal.timeout(15000)});
+            const val=await verify.json().catch(()=>({}));
+            if(!verify.ok||(val.data??val)?.id!==look)throw Error('Direct API read-only look authorization failed');
+            // Atomic persistent idempotency barrier BEFORE any billable provider POST.
+            const lock=await fetch('https://api.github.com/repos/'+process.env.GITHUB_REPOSITORY+'/git/refs',{
+              method:'POST',headers:{Authorization:'Bearer '+gh,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},
+              body:JSON.stringify({ref:'refs/tags/'+tag,sha:process.env.GITHUB_SHA}),signal:AbortSignal.timeout(18000)});
+            if(lock.status===422){receipt.status='ALREADY_LOCKED_NO_DUPLICATE_SUBMISSION';record();console.log('STOCKS_NORA_RECEIPT='+JSON.stringify(receipt));process.exit(0)}
+            if(!lock.ok)throw Error('Cannot acquire GitHub one-shot reference lock; HTTP '+lock.status);
+            receipt.status='LOCK_ACQUIRED_PENDING_POST';record();
+            const resp=await fetch('https://api.heygen.com/v3/videos',{
+              method:'POST',headers:{'x-api-key':key,'Content-Type':'application/json'},
+              body:JSON.stringify(payload),signal:AbortSignal.timeout(35000)});
+            const data=await resp.json().catch(()=>({}));
+            receipt.submissionHttp=resp.status;
+            receipt.providerErrorCode=data?.error_code??data?.error?.code??null;
+            if(!resp.ok){receipt.status='PROVIDER_REJECTED_NO_RETRY';record();console.log('STOCKS_NORA_RECEIPT='+JSON.stringify(receipt));process.exit(0)}
+            receipt.submittedVideoId=data?.data?.video_id??data?.video_id??null;
+            if(!receipt.submittedVideoId){receipt.status='POST_UNCERTAIN_LOCK_RETAINED';record();console.log('STOCKS_NORA_RECEIPT='+JSON.stringify(receipt));process.exit(0)}
+            receipt.status='SUBMITTED_ONCE';
+            record();console.log('STOCKS_NORA_RECEIPT='+JSON.stringify(receipt));
+          }catch(e){receipt.status='BLOCKED_OR_UNCERTAIN_NO_RETRY';receipt.reason=String(e.message||e).slice(0,180);record();console.log('STOCKS_NORA_RECEIPT='+JSON.stringify(receipt));process.exitCode=0}
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-nora-one-shot-receipt
+          path: stocks-nora-attempt.json
+          retention-days: 30
