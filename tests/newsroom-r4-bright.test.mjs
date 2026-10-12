@@ -11,7 +11,7 @@ test('R4+ has vivid cobalt/cyan/amber newsroom hierarchy without demo labels',()
  assert.ok(face.includes('#1556CA'),'vivid cobalt masthead required');
  assert.ok(face.includes('#05BEE0'),'cyan story accent required');
  assert.ok(face.includes('MARKET WATCH'));
- assert.ok(face.includes('NEWS'));
+ assert.ok(face.includes('MARKET BRIEF'));
  assert.ok(card.includes('WHAT THE MARKET IS WATCHING'));
  assert.ok(face.includes('LIZA'));
  assert.ok(!card.includes('DEMO DATA')&&!card.includes('AI PRESENTED')&&!card.includes('MARKET DEMO'));
