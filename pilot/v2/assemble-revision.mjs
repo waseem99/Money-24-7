@@ -95,7 +95,8 @@ async function composeScene(scene,entry,source,{fpsGraphics=12,globalStart=0}={}
  const out=join(outDir,id+'-final.mp4');
  // Reuse previously QA-passing, unchanged generic/intro/outro scenes.
  // Sourced news cards always rerender to incorporate dated editorial corrections.
- if(process.env.SIGNAL_R2_CACHE_NONNEWS==='1'&&!scene.news?.length){
+ if((process.env.SIGNAL_R2_CACHE_NONNEWS==='1'&&!scene.news?.length)||
+    (process.env.SIGNAL_R3_CACHE_COMPLETED==='1'&&scene.id!=='liza_close')){
    try{const cached=await probe(out);
      if(Math.abs(cached.duration-entry.durationSeconds)<.23&&cached.video.width===1920&&cached.audio){
        console.log('REUSED QA scene '+id+' '+cached.duration.toFixed(2)+'s');return out;
