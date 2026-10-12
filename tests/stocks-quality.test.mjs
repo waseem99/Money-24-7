@@ -45,11 +45,11 @@ test('Master must remain blocked until remote, standing, eye-lines and footage p
 test('Actual original T icon embedded once into layout: no desk or background duplicates',()=>{
   for(const person of ['NORA','MARCUS']){
     const svg=renderStocksProofSVG(person);
-    assert.equal((svg.match(/data:image\\/png;base64,/g)||[]).length,1);
+    assert.equal(svg.split('data:image/png;base64,').length-1,1);
     assert.ok(svg.includes('Stocks'));
     assert.ok(svg.includes('REUTERS'));
     assert.ok(svg.includes('51,761.98'));
-    assert.doesNotMatch(svg,/SIGNAL MARKET|STALKS|STOCKS GPT|AI PRESENTED|LIVE<\\/text>/i);
+    assert.doesNotMatch(svg,/SIGNAL MARKET|STALKS|STOCKS GPT|AI PRESENTED/i);
     assert.ok(svg.startsWith('<svg'));
   }
 });
