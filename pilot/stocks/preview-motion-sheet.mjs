@@ -1,12 +1,12 @@
 /** Download and visually sample only HeyGen's PUBLIC, PRE-EXISTING studio-avatar preview URLs.
  * This is a read-only GET workflow: no video generation, no auth tokens and no API charges.
- * Output: four-row expression contact sheet, candidate metadata, and optional silent 2-person clip.
+ * Output: eight-view seated/standing front/side expression contact sheet, candidate metadata, and optional silent 2-person clip.
  */
 import sharp from 'sharp';
 import {spawnSync} from 'node:child_process';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import {VIDEO_TRAINED_CANDIDATES} from './motion-qa.mjs';
+import {MULTI_ANGLE_CANDIDATES} from './motion-qa.mjs';
 
 const DEST=process.argv[2]||'/tmp/stocks-motion-previews';
 await mkdir(DEST,{recursive:true});
@@ -18,8 +18,8 @@ function cmd(program,args,timeout=180000){
 const W=480,H=292,TOP=56;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 const thumbs=[],records=[];
-for(let i=0;i<VIDEO_TRAINED_CANDIDATES.length;i++){
- const item=VIDEO_TRAINED_CANDIDATES[i];
+for(let i=0;i<MULTI_ANGLE_CANDIDATES.length;i++){
+ const item=MULTI_ANGLE_CANDIDATES[i];
  if(item.type!=='studio_avatar'||!item.previewVideoUrl.startsWith('https://files2.heygen.ai/avatar/v3/'))throw new Error('Only exact public provider studio previews are authorized');
  const file=path.join(DEST,'public-'+i+'.mp4');
  cmd('curl',['-fsSL','--connect-timeout','20','--max-time','100','--max-filesize','30000000',item.previewVideoUrl,'-o',file],120000);
@@ -39,9 +39,9 @@ for(let i=0;i<VIDEO_TRAINED_CANDIDATES.length;i++){
  records.push({name:item.name,lookId:item.lookId,publicPreview:item.previewVideoUrl,durationSeconds:duration,
    width:v.width,height:v.height,mediaSizeBytes:Number(probe.format.size),approved:false,source:'Existing HeyGen public provider preview, no generation'});
 }
-const height=(H+TOP)*VIDEO_TRAINED_CANDIDATES.length;
+const height=(H+TOP)*MULTI_ANGLE_CANDIDATES.length;
 const bg=sharp({create:{width:W*4,height,channels:3,background:'#05172a'}});
-const labels=VIDEO_TRAINED_CANDIDATES.map((x,i)=>{
+const labels=MULTI_ANGLE_CANDIDATES.map((x,i)=>{
  const y=i*(H+TOP);
  return `<text x="22" y="${y+38}" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="25">${esc(x.name)} — existing filmed studio preview • not approved</text>`;
 }).join('');
