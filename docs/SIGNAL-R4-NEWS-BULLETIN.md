@@ -115,7 +115,7 @@ The faces and formal outfits stay the same. The new spoken script needs new HeyG
 | YIELD | ~5.24% — REPORTED SNAPSHOT | REPORTED 9 OCT | [REUTERS](https://www.reuters.com/business/wall-st-week-ahead-bank-earnings-cpi-headline-busy-markets-week-sp-500-hovers-2026-10-09/) |
 | CPI | WED 14 OCT — UPCOMING RELEASE | 8:30 AM ET | [US BLS](https://www.bls.gov/schedule/2026/10_sched_list.htm) |
 | CPIFORECAST | 3.7% Y/Y — FORECAST ONLY | FORECAST — NOT RELEASED | [REUTERS](https://www.reuters.com/business/wall-st-week-ahead-bank-earnings-cpi-headline-busy-markets-week-sp-500-hovers-2026-10-09/) |
-| IMF | TUE 13 OCT — SCHEDULED | UPCOMING PUBLICATION | [IMF](https://www.imf.org/en/publications/weo/issues/2026/10/13/world-economic-outlook-october-2026) |
+| IMF | TUE 13 OCT — SCHEDULED | UPCOMING PUBLICATION | [IMF](https://data.imf.org/en/Release-Calendar) |
 
 ## Production/budget gate
 
