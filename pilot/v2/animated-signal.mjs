@@ -20,7 +20,7 @@ const WORDS=`<!-- All values simulated and fixed by code; not financial quotes -
 
 export const simulated=Array.from({length:52},(_,i)=>{
   const s=Math.sin(i*.35)*1.3+Math.sin(i*.9)*.6;
-  const trend=i*.115, base=112+trend+s+Math.cos(i*.17)*.5;
+  const trend=i*.115, base=112.519+trend+s+Math.cos(i*.17)*.5;
   const open=base-.28*Math.sin(i*.83),close=base+.35*Math.cos(i*.74),hi=Math.max(open,close)+.22+Math.abs(Math.sin(i))*.28,
   lo=Math.min(open,close)-.19-Math.abs(Math.cos(i*.6))*.29;
   const volume=180+Math.round(72*Math.abs(Math.sin(i*.63))+37*Math.abs(Math.sin(i*.22+2)));
