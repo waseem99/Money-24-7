@@ -13,13 +13,13 @@ import {mediaRecord,verifyAudible,inspectMedia,command,vttTime} from '../media.m
 import {proposedPresenters} from './budget-preflight.mjs';
 
 const turns=[
-  {id:'rumi-open',role:'ANCHOR',text:"Good evening, and welcome to Signal. I'm Rumi. Markets can move quickly, but a headline never tells the whole story. Kevin, what should viewers look at first?"},
-  {id:'kevin-analysis',role:'ANALYST',text:"I start with the timeframe and trading volume. A sharp move across one session can look very different over a week. It's important to check the source and avoid jumping to conclusions."},
-  {id:'rumi-close',role:'ANCHOR',text:"Exactly. We'll show the chart and its timeframe, and explain what the numbers can and cannot tell us. This is an AI-presented demonstration using illustrative information. Thanks for watching Signal."}
+  {id:'liza-open',role:'ANCHOR',text:"Good evening, and welcome to Signal. I'm Liza. Markets can move quickly, but a headline never tells the whole story. Lasse, what should viewers look at first?"},
+  {id:'lasse-analysis',role:'ANALYST',text:"I start with the timeframe and trading volume. A sharp move across one session can look very different over a week. It's important to check the source and avoid jumping to conclusions."},
+  {id:'liza-close',role:'ANCHOR',text:"Exactly. We'll show the chart and its timeframe, and explain what the numbers can and cannot tell us. This is an AI-presented demonstration using illustrative information. Thanks for watching Signal."}
 ];
 
 export const nativeAuditionPlan=Object.freeze({
-  version:4,id:'signal-native-rumi-kevin',kind:'short-presenter-audition',engine:'avatar_iii',
+  version:5,id:'signal-native-liza-lasse',kind:'short-presenter-audition',engine:'avatar_iii',
   resolution:'1080p',targetSeconds:45,maxEstimatedClipSeconds:20,disclosure:'AI presenters; illustrative market discussion, not live quotes.',
   turns:turns.map(t=>({...t,avatarId:proposedPresenters[t.role].lookId,
     voiceId:proposedPresenters[t.role].auditionVoiceId,name:proposedPresenters[t.role].name,
@@ -29,8 +29,8 @@ export const nativeAuditionPlan=Object.freeze({
 const rateFor=engine=>engine==='avatar_iv'?4:engine==='avatar_iii'?1:NaN; // 1080p digital-twin API rates
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
-  if(plan.version!==4||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
-  if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Rumi/Kevin/Rumi turns required');
+  if(plan.version!==5||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
+  if(!Array.isArray(plan.turns)||plan.turns.length!==3||plan.turns.map(t=>t.role).join(',')!=='ANCHOR,ANALYST,ANCHOR')throw new Error('Three Liza/Lasse/Liza turns required');
   const ids=new Set;
   for(const t of plan.turns){
     if(ids.has(t.id)||!/^[-a-z0-9]+$/.test(t.id)||!t.text||t.text.length>5000||t.text.split(/\s+/).length>38)throw new Error('Invalid bounded audition turn');
@@ -47,7 +47,7 @@ export function auditNativePlan(plan=nativeAuditionPlan){
       words:t.text.split(/\s+/).length,script:t.text,visualApprovalStatus:proposedPresenters[t.role].visualApprovalStatus,estimatedReservationUSD:perClip})),
     rateUSDPerVideoMinute:rate,maximumReservedEstimateUSD:usd(perClip*plan.turns.length),
     caveat:'Estimates are not actual charges; no retakes, listener footage, matting or provider-side wallet limit are included. User selected the cast, not spending.',
-    unresolved:['Rumi has been selected after viewing her free public preview, but actual generated appearance and Annie lip-sync still require human acceptance', 'A previous Araj/default-voice render failed TTS and Araj/Annie was visually rejected; those look IDs must not be reused','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
+    unresolved:['Liza and Lasse are public Photo Avatars wearing verified Office 6 and Office 3 business formal looks. Photo-avatar motion and Annie/Orson lip sync require real human review before the full film', 'A previous Araj/default-voice render failed TTS and Araj/Annie was visually rejected; those look IDs must not be reused','American English/accent and natural-looking on-screen performance not independently verified','Both photo sources are 16:9; avoid forced crops and use existing Signal newsroom compositor','R2 standing alpha and non-speaking listener footage']};
 }
 export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
@@ -77,7 +77,7 @@ function paidGate(run,env){
   if(casting.some(p=>p.lookId==='425825d6465b4ba4bd261d334d530430'))
     throw new Error('Paid audition locked: rejected historical Araj look cannot be billed again');
   // Future paid footage must use proven FORMAL looks, not the original public
-  // source outfits. Both Rumi and Kevin are currently informal on video.
+  // original prior informal sources are disallowed; current Office looks are formal.
   if(casting.some(p=>p.wardrobeApprovalStatus!=='approved'))
     throw new Error('Paid audition locked: business-formal presenter wardrobe not approved. Only free look research is permitted.');
   if(env.PILOT_PAID_RELEASE_EPISODE_HASH!==run.manifest.planHash)throw new Error('Paid audition locked: approve the exact plan hash first');
@@ -99,7 +99,7 @@ export async function lookCheckNative(run,{env=process.env,provider=new Provider
   const token=required(env,'HEYGEN_API_KEY'),checks=[];
   for(const role of ['ANCHOR','ANALYST']){
     const p=proposedPresenters[role],look=await provider.avatarLook(p.lookId);
-    if(look.id!==p.lookId||look.avatar_type!=='digital_twin'||look.status!=='completed'||
+    if(look.id!==p.lookId||look.avatar_type!==p.avatarType||look.status!=='completed'||
        look.group_id!==p.groupId||look.default_voice_id!==p.defaultVoiceId||
        !look.supported_api_engines?.includes(run.plan.engine))
       throw new Error('Selected '+p.name+' look, default voice or engine is not confirmed for this direct API account');
