@@ -1,3 +1,15 @@
+## First genuine paired newsroom preview completed — 12 October 2026
+
+**A real two-presenter formal footage proof is now available.** One Liza+Annie Avatar III Office 6 video (HeyGen ID `9180a425a289d33d75c4ef82178ce9a8`, completed **8.12408s**) and one Lasse+Orson Office 3 video (ID `d69f9b79b86a04dec1dee7473e9cf9db`, completed **8.85551s**) were each submitted exactly once with permanent GitHub no-retry tag locks. Both API scene records confirm the intended **exact look and voice IDs**.
+
+The already-generated clips were combined with the **existing SIGNAL V2 1080p logo/header, name lower-thirds, headlines, ticker, market snapshot board and illustrative-data disclosure** using FFmpeg with **zero additional HeyGen video-generation charges**. The output [17.008-second combined newsroom proof, still images and source note](https://github.com/waseem99/Money-24-7/actions/runs/38213206045/artifacts/11730311697) passed [GitHub Actions #38213206045](https://github.com/waseem99/Money-24-7/actions/runs/38213206045) and `ffprobe`: H.264 1920×1080, 30fps, AAC 48kHz. [Liza's real API video](https://app.heygen.com/videos/9180a425a289d33d75c4ef82178ce9a8) and [Lasse's real API video](https://app.heygen.com/videos/d69f9b79b86a04dec1dee7473e9cf9db).
+
+Both outputs show **business-formal blazers and collars**. **Note:** the generated Liza blazer appears lighter/cream than the original Office 6 reference's grey, and the generated Lasse shirt appears white rather than the original Office 3 reference's blue. The video sources are still associated with the exact selected HeyGen avatar IDs. Human review should judge the actual output—not assume photo-avatar generations reproduce every reference-image fabric color exactly.
+
+**Remaining:** the source actors are still Photo Avatars and need human approval of natural expressions and lip-sync in the actual moving video. The 17-second proof uses static backstage SIGNAL graphics; an actual animated 180-second master with all 11 editorial scenes, timed moving charts and full captions has **not** been rendered. Two short real tests have been charged at their actual provider-metered durations; account billing and remaining prepaid wallet must be checked before generating the full film.
+
+---
+
 # SIGNAL Financial News — FINAL locked actors, voices and production plan
 
 **Authoritative as of 12 October 2026.** User expressly selected **Liza and Lasse**, superseding provisional Rumi/Kevin and rejected Araj casting. Do not reopen presenter selection without user instruction.
