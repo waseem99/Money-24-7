@@ -45,7 +45,8 @@ async function main(){
     files.push(clip);
   }
   const list=path.join(dir,'stocks-proof-concat.txt');
-  await writeFile(list,files.map(f=>"file '"+f.replaceAll("'","'\\''")+"'").join('\\n')+'\\n');
+  if(files.some(f=>f.includes("'"))) throw new Error('Unsupported apostrophe in output path');
+  await writeFile(list,files.map(f=>"file '"+f+"'").join('\n')+'\n');
   run('ffmpeg',['-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',list,
     '-c:v','libx264','-preset','veryfast','-crf','19','-r','30',
     '-c:a','aac','-ar','48000','-b:a','192k','-movflags','+faststart',target]);
