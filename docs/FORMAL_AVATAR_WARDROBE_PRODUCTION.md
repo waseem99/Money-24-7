@@ -1,3 +1,7 @@
+> **SUPERSEDED — 12 OCT 2026:** User has locked **Liza Office 6 + Annie** (female anchor) and **Lasse Office 3 + Orson** (male analyst), both already in formal blazers. Everything below about Rumi, Kevin and their inability to change outfits is retained only as historical project notes. **Authoritative current production plan:** [FINAL_LIZA_LASSE_PRODUCTION.md](FINAL_LIZA_LASSE_PRODUCTION.md). No old speaker/visual source is permitted in the new finished film.
+
+---
+
 ## Direct wardrobe-generation attempt — provider blocked before creation
 
 On 12 October 2026, the connected HeyGen `create_prompt_avatar` operation was invoked with Rumi's exact existing public look ID `efa5d7cf738a4efd84b1dac501d9aef8`, asking only for a navy blazer/ivory blouse and studio background with strict face-preservation. **The provider returned HTTP 404 `resource_not_found`: “Avatar 74384d3dd9894ffb83cca47473eb6829 not found in this workspace.”** That is the public Rumi avatar group, not an editable avatar in this customer's workspace. No new look ID, photo or completed render was returned; no duplicate attempt was made.
