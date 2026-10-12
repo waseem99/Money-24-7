@@ -170,7 +170,7 @@ function sourcedSecondPage(scene,progress){
   o+=txt(x+43,y+131,slide.headline,39,'#FFFFFF','font-weight="800" letter-spacing="-.6"');
   for(let i=0;i<2;i++){
     const lhs=i===0,items=lhs?slide.left:slide.right;
-    const tx=x+44+i*885,ty=y+191,delay=i*.10,active=ease(phase*1.8-delay),shift=(1-active)*110;
+    const tx=x+44+i*885,ty=y+191,delay=i*.10,active=ease(phase*1.8-delay),shift=i===0?-(1-active)*90:0;
     const fill=lhs?'#E8F2F1':'#FBF4E5';
     o+=box(tx+shift,ty,850,264,fill,'rx="13" opacity="'+(.65+.35*active)+'"');
     o+=box(tx+shift,ty,9,264,lhs?P.teal:P.gold);
