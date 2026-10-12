@@ -10,21 +10,21 @@ import {validateProgramme} from '../../src/broadcast/contracts.js';
 import {slots} from '../../src/broadcast/timeline.js';
 
 export const proposedPresenters=Object.freeze({
-  ANCHOR:{id:'araj',name:'Araj',role:'Lead news anchor',lookName:'Araj Digital Twin (portrait)',groupId:'f643cf465f0e4b1ab46946978dd76a65',lookId:'425825d6465b4ba4bd261d334d530430',defaultVoiceId:'5769809d7ddd445e8173b3d08c509ae1',auditionVoiceId:'330290724a1b470fb63153f34d4c0183',auditionVoiceName:'Annie - Lifelike',avatarType:'digital_twin',visualApprovalStatus:'rejected',visualApprovalReason:'User reports male-presenting visual with female Annie voice in successful Araj clip; never render this look again',preferredAspectRatio:'9:16',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'REJECTED ON-SCREEN ARAJ FACE; Annie voice approved independently; visual recast required before any paid video generation'},
-  ANALYST:{id:'kevin',name:'Kevin',role:'Markets analyst',lookName:'Kevin Digital Twin (landscape)',groupId:'ce741649eb8c4ca38cd34164881a2ef5',lookId:'c8f428c549ea448488fdb2214dbcad57',defaultVoiceId:'5141743c956d4a1298b7126c9639d416',auditionVoiceId:'00e3d285aba44b27a83c47c02c9c2d9c',auditionVoiceName:'Orson - Firm & Measured',avatarType:'digital_twin',visualApprovalStatus:'pending',visualApprovalReason:'Kevin visual and final lipsync pending validation',preferredAspectRatio:'16:9',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'Kevin and Orson casting retained; on-screen quality approval remains pending'}
+  ANCHOR:{id:'rumi',name:'Rumi',role:'Lead news anchor',lookName:'Rumi Digital Twin (portrait)',groupId:'74384d3dd9894ffb83cca47473eb6829',lookId:'efa5d7cf738a4efd84b1dac501d9aef8',defaultVoiceId:'61034173a9344488b55466d745315173',auditionVoiceId:'330290724a1b470fb63153f34d4c0183',auditionVoiceName:'Annie - Lifelike',avatarType:'digital_twin',visualApprovalStatus:'approved',visualApprovalSource:'User explicitly reviewed public video preview and locked Rumi as female lead; generated output still requires human QA',performanceApprovalStatus:'pending',preferredAspectRatio:'9:16',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'LOCKED: user-approved Rumi look and Annie voice; first Rumi footage quality not yet approved'}},
+  ANALYST:{id:'kevin',name:'Kevin',role:'Markets analyst',lookName:'Kevin Digital Twin (landscape)',groupId:'ce741649eb8c4ca38cd34164881a2ef5',lookId:'c8f428c549ea448488fdb2214dbcad57',defaultVoiceId:'5141743c956d4a1298b7126c9639d416',auditionVoiceId:'00e3d285aba44b27a83c47c02c9c2d9c',auditionVoiceName:'Orson - Firm & Measured',avatarType:'digital_twin',visualApprovalStatus:'approved',visualApprovalSource:'User explicitly locked Kevin for male analyst after public video preview',performanceApprovalStatus:'pending',preferredAspectRatio:'16:9',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'LOCKED: user-approved Kevin look and Orson voice; generated output still requires performance QA'}
 });
 
 export function selectedProgramme(profile='sample'){
   if(!['sample','pilot'].includes(profile))throw new Error('Only sample and pilot profiles are audited');
   const p=exampleProgramme(profile);
-  const ids={maya:'araj',daniel:'kevin'};
-  p.id=`signal-araj-kevin-${profile}`;
+  const ids={maya:'rumi',daniel:'kevin'};
+  p.id=`signal-rumi-kevin-${profile}`;
   p.presenters=p.presenters.map(old=>{
     const sel=proposedPresenters[old.configRef];
     if(!sel)throw new Error('Unmapped presenter role');
     return {...old,id:sel.id,name:sel.name,role:sel.role,look:sel.lookName};
   });
-  p.turns=p.turns.map(t=>({...t,speakerId:ids[t.speakerId],text:t.text.replace(/\bMaya\b/g,'Araj').replace(/\bDaniel\b/g,'Kevin')}));
+  p.turns=p.turns.map(t=>({...t,speakerId:ids[t.speakerId],text:t.text.replace(/\bMaya\b/g,'Rumi').replace(/\bDaniel\b/g,'Kevin')}));
   p.scenes=p.scenes.map(s=>({...s,presenterIds:s.presenterIds.map(id=>ids[id])}));
   p.cues=p.cues.map(c=>c.presenterId?{...c,presenterId:ids[c.presenterId]}:c);
   return validateProgramme(p);
