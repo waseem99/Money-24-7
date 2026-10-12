@@ -1,54 +1,48 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {formalWardrobeBrief,auditFormalWardrobe} from '../pilot/v2/formal-wardrobe.mjs';
+import {auditFormalWardrobe,formalWardrobeBrief} from '../pilot/v2/formal-wardrobe.mjs';
 import {proposedPresenters} from '../pilot/v2/budget-preflight.mjs';
 
-test('business-formal wardrobe is required before the full Jazz master',()=>{
+const look=(role,overrides={})=>{
+  const p=proposedPresenters[role];
+  const brief=formalWardrobeBrief.cast[role];
+  return {
+    actorName:p.name,lookId:p.lookId,groupId:p.groupId,voiceId:p.auditionVoiceId,
+    avatarType:p.avatarType,completed:true,formalOutfitReviewed:true,
+    previewUrl:brief.visualSource,motionQualityApproved:false,...overrides
+  };
+};
+
+test('user-selected formal Office Photo Looks pass wardrobe inspection but do not pass lip-sync QA',()=>{
   const a=auditFormalWardrobe();
+  assert.equal(a.wardrobeReady,true);
+  assert.equal(a.photoMotionApproved,false);
   assert.equal(a.ready,false);
-  assert.equal(a.status,'HOLD_FORMAL_WARDROBE');
+  assert.equal(a.status,'HOLD_PHOTO_AVATAR_MOTION_QA');
   assert.equal(a.paidVideoAuthorized,false);
-  assert.equal(a.roles.ANCHOR.actor,'Rumi');
-  assert.equal(a.roles.ANALYST.actor,'Kevin');
-  assert.equal(formalWardrobeBrief.cast.ANCHOR.voiceId,'330290724a1b470fb63153f34d4c0183');
-  assert.equal(formalWardrobeBrief.cast.ANALYST.voiceId,'00e3d285aba44b27a83c47c02c9c2d9c');
-  assert.ok(a.blockers.some(x=>x.includes('exact NEW professional outfit')));
-  assert.throws(()=>auditFormalWardrobe({}, {strict:true}),/HOLD_FORMAL_WARDROBE/);
+  assert.equal(a.roles.ANCHOR.identity,'Liza');
+  assert.equal(a.roles.ANALYST.identity,'Lasse');
+  assert.equal(formalWardrobeBrief.cast.ANCHOR.selectedFormalLookId,'5ee67ac453c34ffebd71e8eedb47b2fe');
+  assert.equal(formalWardrobeBrief.cast.ANALYST.selectedFormalLookId,'de9f36c26bd841c891489a0c9d6174de');
+  assert.ok(a.blockers.every(x=>/motion|lip-sync/i.test(x)));
+  assert.throws(()=>auditFormalWardrobe(null,{strict:true}),/HOLD_PHOTO_AVATAR_MOTION_QA/);
 });
 
-test('casual original public video looks must NEVER pass wardrobe gate even after someone marks them approved',()=>{
-  const formal=role=>{
-    const p=proposedPresenters[role];
-    return {actorName:p.name,lookId:p.lookId,groupId:p.groupId,voiceId:p.auditionVoiceId,
-      avatarType:'digital_twin',completed:true,actualOutfitReviewed:true,
-      faceMatchedExistingActor:true,approvedBy:'Human reviewer',previewUrl:'https://example.org/formal-preview',motionQualityApproved:true};
-  };
-  const result=auditFormalWardrobe({ANCHOR:formal('ANCHOR'),ANALYST:formal('ANALYST')});
-  assert.equal(result.ready,false);
-  assert.ok(result.roles.ANCHOR.blockers.some(x=>x.includes('original casual public video look')));
-  assert.ok(result.roles.ANALYST.blockers.some(x=>x.includes('original casual public video look')));
-  assert.equal(result.paidVideoAuthorized,false);
-});
-
-test('photo-based wardrobe versions additionally demand lip-sync motion QA and same-identity evidence',()=>{
-  const role=(key,id,avatarType='digital_twin')=>{
-    const p=proposedPresenters[key];
-    return {actorName:p.name,lookId:id,groupId:p.groupId,voiceId:p.auditionVoiceId,
-      avatarType,completed:true,actualOutfitReviewed:true,faceMatchedExistingActor:true,
-      approvedBy:'User reviewed real source',previewUrl:'https://example.org/real-preview'};
-  };
-  const looks={
-    ANCHOR:role('ANCHOR','feedfeedfeedfeedfeedfeedfeedfeed','photo_avatar'),
-    ANALYST:role('ANALYST','deadbeefdeadbeefdeadbeefdeadbeef')
-  };
-  let a=auditFormalWardrobe(looks);
-  assert.equal(a.ready,false);
-  assert.ok(a.roles.ANCHOR.blockers.some(x=>x.includes('motion/lip-sync QA')));
-  looks.ANCHOR.motionQualityApproved=true;
-  a=auditFormalWardrobe(looks);
-  assert.equal(a.ready,true);
-  assert.equal(a.status,'READY_FOR_SEPARATE_PAID_MASTER_APPROVAL');
-  assert.equal(a.paidVideoAuthorized,false);
-  looks.ANALYST.groupId='bad-identity';
-  assert.equal(auditFormalWardrobe(looks).ready,false);
+test('only exact pre-approved Liza/Lasse public Office look and original locked voices can proceed',()=>{
+  const looks={ANCHOR:look('ANCHOR',{motionQualityApproved:true}),ANALYST:look('ANALYST',{motionQualityApproved:true})};
+  const good=auditFormalWardrobe(looks);
+  assert.equal(good.ready,true);
+  assert.equal(good.paidVideoAuthorized,false);
+  const invalid=structuredClone(looks);
+  invalid.ANCHOR.lookId='425825d6465b4ba4bd261d334d530430';
+  assert.equal(auditFormalWardrobe(invalid).ready,false);
+  const changedVoice=structuredClone(looks);
+  changedVoice.ANALYST.voiceId='invalid-default-voice';
+  assert.equal(auditFormalWardrobe(changedVoice).ready,false);
+  const wrongGroup=structuredClone(looks);
+  wrongGroup.ANCHOR.groupId='wrong';
+  assert.equal(auditFormalWardrobe(wrongGroup).ready,false);
+  const noMotion=structuredClone(looks);
+  noMotion.ANALYST.motionQualityApproved=false;
+  assert.equal(auditFormalWardrobe(noMotion).ready,false);
 });
