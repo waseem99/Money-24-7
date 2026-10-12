@@ -1,3 +1,9 @@
+# Final cast update — 12 October 2026
+
+**Current locked casting: Rumi + Annie (female lead) and Kevin + Orson (male analyst).** The Araj face was rejected, replaced with Rumi after the user approved Rumi's free recorded preview. [A real Rumi+Annie clip completed at 10.8408 seconds](https://app.heygen.com/videos/12186d2986911a13710d9298344c7ab5); human realism/lip-sync review is still pending. [See current 3-minute master plan](THREE_MINUTE_MASTER_EXECUTION.md). Everything about Araj below is retained as historical incident evidence and **must not** be used as current production direction. No further paid footage is authorized merely by this document.
+
+---
+
 > **VISUAL CASTING FAILURE / NO-GO (12 October 2026).** Araj is **REJECTED** as lead anchor after the user watched the finished 10.1878-second Annie-voiced clip and reported a male-presenting face with a female voice. HeyGen's avatar gender metadata said female, but its output was not suitable. This is an **avatar-face casting issue**, not a Kevin/Annie ID swap. The user has approved **Annie** as a voice and **Orson** for Kevin, but there is currently **no approved female lead look**. **All further paid renders blocked**, regardless of existing API key or wallet. See [visual casting incident and verified free previews](FEMALE_ANCHOR_VISUAL_RECAST.md). This section supersedes earlier Araj selection below.
 
 # Final casting and zero-spend production gate — Jazz AI Channel
