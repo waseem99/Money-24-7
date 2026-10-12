@@ -42,12 +42,12 @@ export function auditNativePlan(plan=nativeAuditionPlan){
   if(plan.maxEstimatedClipSeconds<10||plan.maxEstimatedClipSeconds>20||plan.targetSeconds!==45)throw new Error('Bounded audition size changed');
   const rate=rateFor(plan.engine);
   const perClip=usd(plan.maxEstimatedClipSeconds*rate/60);
-  return {planHash:hash(plan),paidRelease:'BLOCKED',safeDryRun:true,engine:plan.engine,
+  return {planHash:hash(plan),paidRelease:'BLOCKED_VISUAL_APPROVAL',safeDryRun:true,engine:plan.engine,
     turns:plan.turns.map(t=>({id:t.id,presenter:t.name,lookId:t.avatarId,voiceId:t.voiceId,
-      words:t.text.split(/\s+/).length,script:t.text,estimatedReservationUSD:perClip})),
+      words:t.text.split(/\s+/).length,script:t.text,visualApprovalStatus:proposedPresenters[t.role].visualApprovalStatus,estimatedReservationUSD:perClip})),
     rateUSDPerVideoMinute:rate,maximumReservedEstimateUSD:usd(perClip*plan.turns.length),
     caveat:'Estimates are not actual charges; no retakes, listener footage, matting or provider-side wallet limit are included. User selected the cast, not spending.',
-    unresolved:['Prior Araj default voice failed TTS; selected replacement requires real lip-sync audit and separate payment approval','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
+    unresolved:['Araj LOOK REJECTED after real paid clip: male-presenting anchor on screen with female Annie voice; replace look after preview and explicit visual sign-off. No more paid submissions.', 'Prior Araj default voice failed TTS; selected replacement requires real lip-sync audit and separate payment approval','American English/accent and natural-looking on-screen performance not independently verified','Female portrait look requires 9:16 contain framing and custom newsroom panel','R2 standing alpha and non-speaking listener footage']};
 }
 export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
@@ -66,6 +66,13 @@ export async function loadNative(name){
   return {name,root,plan,manifest};
 }
 function paidGate(run,env){
+  // Provider gender metadata is insufficient visual approval. Araj was
+  // rejected after a real paid clip showed a male-presenting on-screen face
+  // with Annie's approved female voice. This blocks ALL new paid jobs until
+  // a replacement look is visually approved and code-reviewed.
+  const casting=Object.values(proposedPresenters);
+  if(casting.some(p=>p.visualApprovalStatus!=='approved'))
+    throw new Error('Paid audition locked: on-screen avatar casting is visually rejected or unapproved. Recast and get explicit visual sign-off before ANY paid render');
   if(env.PILOT_PAID_RELEASE_EPISODE_HASH!==run.manifest.planHash)throw new Error('Paid audition locked: approve the exact plan hash first');
   const approved=Number(env.PILOT_PAID_RELEASE_MAX_USD),reserved=Number(env.PILOT_MAX_ESTIMATED_USD);
   const min=auditNativePlan(run.plan).maximumReservedEstimateUSD;
