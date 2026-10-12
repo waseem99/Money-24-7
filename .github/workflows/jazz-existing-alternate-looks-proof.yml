@@ -1,0 +1,67 @@
+name: HeyGen existing Rumi & Kevin alternate photo looks — read-only inspection
+
+on:
+  push:
+    branches:
+      - ops/jazz-rumi-annie-20261012
+    paths:
+      - .github/workflows/jazz-existing-alternate-looks-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  existing-photo-look-proof:
+    if: github.ref == 'refs/heads/ops/jazz-rumi-annie-20261012'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Download only preexisting public look preview stills
+        shell: bash
+        run: |
+          mkdir -p alternate-looks
+          node --input-type=module <<'NODE'
+          import {writeFile} from 'node:fs/promises';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12)throw new Error('Encrypted API key unavailable');
+          const looks=[
+            {name:'Rumi-photo-existing',id:'4fd269954c4a401d81dc0fec69e7eed8',
+              group:'74384d3dd9894ffb83cca47473eb6829'},
+            {name:'Kevin-photo-existing',id:'26196c98e584435e8159cb8c1378f6ed',
+              group:'ce741649eb8c4ca38cd34164881a2ef5'}
+          ];
+          const manifest=[];
+          for(const look of looks){
+            const r=await fetch('https://api.heygen.com/v3/avatars/looks/'+look.id,{
+              method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!r.ok)throw new Error('Existing look API GET HTTP '+r.status);
+            const raw=await r.json(),meta=raw?.data??raw;
+            if(meta.id!==look.id||meta.group_id!==look.group||meta.avatar_type!=='photo_avatar'||meta.status!=='completed')
+              throw new Error('Look is not the expected existing photo identity');
+            const url=meta.preview_image_url;
+            if(!url)throw new Error('No preview URL for '+look.name);
+            const u=new URL(url);
+            if(u.protocol!=='https:'||!['heygen.ai','heygen.com'].some(root=>u.hostname===root||u.hostname.endsWith('.'+root)))
+              throw new Error('Unexpected existing photo asset domain');
+            const image=await fetch(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!image.ok)throw new Error('Photo preview GET HTTP '+image.status);
+            const bytes=new Uint8Array(await image.arrayBuffer());
+            if(bytes.length<2000||bytes.length>15*1024*1024)throw new Error('Photo preview outside bounded size');
+            await writeFile('alternate-looks/'+look.name+'.webp',bytes);
+            manifest.push({identity:look.name,lookId:look.id,avatarType:meta.avatar_type,
+              groupId:meta.group_id,status:meta.status,originalPhotoDimensions:[meta.image_width,meta.image_height],
+              noNewLookGeneration:true});
+            console.log('PASS: existing photo preview '+look.name+' downloaded '+bytes.length+' bytes; zero generation calls');
+          }
+          await writeFile('alternate-looks/manifest.json',JSON.stringify(manifest,null,2));
+          NODE
+      - name: Publish existing previews for human wardrobe inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: existing-Rumi-Kevin-photo-looks-no-spend
+          path: alternate-looks/
+          if-no-files-found: error
+          retention-days: 14
