@@ -1,5 +1,6 @@
 /**
- * Historical audition casting and incident state; original Araj visual is REJECTED.
+ * User-locked Rumi/Annie and Kevin/Orson casting for the 3–5 minute pilot.
+ * Historical Araj visual rejection is preserved as a negative safety test.
  * Catalog metadata was read from the user's connected HeyGen on 2026-10-10.
  * An AI-generated face's apparent ethnicity, age, nationality and accent are
  * not confirmed by the provider catalog; do not invent those attributes.
@@ -7,13 +8,13 @@
 import {proposedPresenters} from './budget-preflight.mjs';
 
 export const finalCast=Object.freeze({
-  status:'visual-casting-rejected-needs-female-anchor-recast',
+  status:'locked-ru-mi-and-kevin-preview-approved-performance-pending',
   accountPurchaseAuthorized:false,
-  liveVideoProduced:true, // One Araj/Annie provider clip completed but was visually REJECTED by user.
+  liveVideoProduced:true, // Prior Araj/Annie clip completed but was rejected; no Rumi+Annie film has been generated.
   dialogueApprovalPending:true,
   anchor:Object.freeze({
     ...proposedPresenters.ANCHOR,
-    videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/425825d6465b4ba4bd261d334d530430/half/2.2/preview_video_target.mp4',
+    videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/efa5d7cf738a4efd84b1dac501d9aef8/half/2.2/preview_video_target.mp4',
     sourceWidth:720,sourceHeight:1280,
     characterDirection:'Warm, poised, clear financial-news presenter; short questions, small expressions, natural pauses, not an advertisement voice.',
     cameraDirection:'9:16 source preserved inside a branded vertical portrait window in the 16:9 show; no facial stretch or harsh widescreen crop.'
@@ -32,17 +33,17 @@ export const finalCast=Object.freeze({
   avatarVDirectApiPriceConfirmed:false,
   sharedRules:Object.freeze([
     'No extra avatar expressions or motion prompts in the first paid audition.',
-    'No voice-cloning or likeness claims; reuse the licensed public default voices if available in API.',
+    'Use locked public Starfish voice Annie for Rumi and Orson for Kevin. Never fall back to the original look-assigned default voices.',
     'No two-person fake listener loops; show active speaker or verified chart.',
     'Display the programme as AI-presented illustrative footage; do not claim live financial facts.',
-    'No paid render until an actually woman-presenting lead anchor look is selected from a recorded free visual preview and explicitly approved, in addition to exact script hash, account checks and spend limits.'
+    'Only the user-approved public video preview for Rumi (not HeyGen gender metadata) qualifies for an initial short paid visual test. Further paid footage and final programme need separate quality review, exact hash, account checks and spend limits.'
   ])
 });
 
 export function realismComparison(){
   const a=finalCast;
   return {
-    selectedPair:null,rejectedPair:['Araj','Kevin'],femaleLead:false,maleAnalyst:true,reason:'Provider tagged Araj female, but the finished Annie-voiced clip looked male to the user; visual rejected, no approved replacement yet',
+    selectedPair:['Rumi','Kevin'],rejectedPriorLook:'425825d6465b4ba4bd261d334d530430',femaleLead:true,maleAnalyst:true,reason:'Rumi and Kevin locked by user after free visual previews; voices Annie and Orson locked independently; no accepted new footage yet',
     type:'video-trained public digital twins',reviewRequired:['appearance and suitable diversity','American-accent suitability','lip sync and speaker movement','portrait-safe newsroom composition'],
     avatarIIICostPerMinuteUSD:1,avatarIVCostPerMinuteUSD:4,avatarVDirectApiPriceConfirmed:false,
     hypothetical45SecondIIIUSD:0.75,hypothetical45SecondIVUSD:3,
