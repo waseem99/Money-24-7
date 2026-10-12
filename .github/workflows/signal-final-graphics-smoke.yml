@@ -1,0 +1,49 @@
+name: SIGNAL master — zero-credit animated graphics smoke test
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-final-graphics-smoke.yml]
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prep/jazz-zero-spend-gate-20261010
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify final film manifest, charts and runtime without provider calls
+        run: |
+          node --test tests/animated-signal-demo.test.mjs
+          node pilot/v2/demo-master-plan.mjs
+      - name: Install local FFmpeg and font only
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core >/dev/null
+          mkdir -p output-graphics
+      - name: Encode 2-second 1080p moving-candle proof (no speech/credits)
+        run: |
+          node --input-type=module <<'NODE'
+          import {programme} from './pilot/v2/demo-master-plan.mjs';
+          import {renderSceneBackground} from './pilot/v2/animated-signal.mjs';
+          const scene=programme.scenes.find(s=>s.id==='lasse_momentum');
+          const res=await renderSceneBackground(scene,2,{
+            destination:'output-graphics/SIGNAL-animated-graphics-1080p.mp4',
+            fps:12,audioDuration:2,globalStart:105});
+          console.log('ENCODED',JSON.stringify(res));
+          NODE
+          ffmpeg -hide_banner -loglevel error -y -ss .8 -i output-graphics/SIGNAL-animated-graphics-1080p.mp4 -frames:v 1 -update 1 output-graphics/SIGNAL-motion-frame.png
+          ffprobe -v error -show_entries stream=width,height,r_frame_rate,codec_type -show_entries format=duration -of json output-graphics/SIGNAL-animated-graphics-1080p.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-1080p-animated-candles-smoke-no-spend
+          path: output-graphics/
+          if-no-files-found: error
+          retention-days: 14
