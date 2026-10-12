@@ -37,8 +37,9 @@ jobs:
       - name: Check available media tools
         shell: bash
         run: |
-          ffmpeg -version | head -n 1
-          ffprobe -version | head -n 1
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+          echo 'FFmpeg and FFprobe available'
           mkdir -p studio-proof
       - name: Download prior completed Rumi video via GET only
         shell: bash
