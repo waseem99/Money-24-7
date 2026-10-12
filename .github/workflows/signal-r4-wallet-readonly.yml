@@ -1,0 +1,44 @@
+name: SIGNAL R4 direct API budget readiness — read-only
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-r4-wallet-readonly.yml]
+permissions:
+  contents: read
+jobs:
+  check-newscast-funding:
+    if: github.ref == 'refs/heads/ops/jazz-formal-anchors-20261012'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Authenticate using GET only and report whether new nine-take plan is funded
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12||process.env.GITHUB_REPOSITORY!=='waseem99/Money-24-7')throw Error('Private key or trusted scope missing');
+          const res=await fetch('https://api.heygen.com/v3/users/me',{
+            method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+            redirect:'error',signal:AbortSignal.timeout(25000)});
+          if(!res.ok)throw Error('Direct API account GET failed HTTP '+res.status);
+          const body=await res.json();if(body.error)throw Error('Authenticated GET returned a provider error');
+          const data=body.data??body;
+          const possible=[data.wallet?.balance,data.wallet?.available_balance,data.api_wallet?.balance,data.credits?.available];
+          const amount=possible.find(v=>(typeof v==='number'||typeof v==='string')&&Number.isFinite(Number(v))&&Number(v)>=0);
+          const known=amount!==undefined,threshold=3.50;
+          console.log('Direct API authentication: PASS');
+          console.log('Balance number exposed by current user API: '+(known?'YES':'NO'));
+          if(known)console.log('A $3.50 new R4 estimated limit is '+(Number(amount)>=threshold?'COVERED':'NOT COVERED')+' by the returned balance.');
+          else console.log('UNKNOWN wallet balance; must review HeyGen API billing page before any paid generation.');
+          console.log('NO video POST, speech synthesis or API credit spent.');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## SIGNAL R4 read-only funding gate\n\n'+
+            '- Existing API account verified: **yes**\n'+
+            '- Wallet numeric balance exposed: **'+(known?'yes':'no')+'**\n'+
+            '- Estimated R4 new narration budget: **$3.50 planning ceiling (not provider hard cap)**\n'+
+            '- Sufficient funds independently established: **'+(known?(Number(amount)>=threshold?'yes':'no'):'unknown')+'**\n'+
+            '- New provider paid submissions: **zero**\n');
+          NODE
