@@ -2,9 +2,11 @@ import {createHash} from 'node:crypto';
 import {writeFileSync} from 'node:fs';
 import {SHOTS,EDITION} from './episode.mjs';
 const id='Brandon_Business_Sitting_Front_public';
-const voice='00e3d285aba44b27a83c47c02c9c';
+// Exact Firm & Measured ID was catalogued but rejected with invalid_parameter/voice_not_found.
+// This is the provider-listed Orson alternative; audition-only, not a final voice approval.
+const voice='daad4813058a4c51b6f545a1a51c506a';
 const text=SHOTS.find(s=>s.id===16&&s.speaker==='MARCUS')?.script;
-const receipt={network:'Stocks',role:'Marcus Varden',lookId:id,engine:'avatar_iii',resolution:'1080p',oneShot:true,paidRequests:0};
+const receipt={network:'Stocks',role:'Marcus Varden',lookId:id,engine:'avatar_iii',resolution:'1080p',oneShot:true,paidRequests:0,voiceVariant:'Orson alternate public voice - not final-approved'};
 const save=()=>writeFileSync('stocks-marcus-receipt.json',JSON.stringify(receipt,null,2));
 try {
   if(EDITION.network!=='Stocks'||!text||text.trim().split(/\s+/).length>42)throw Error('Editorial gate failed');
@@ -12,7 +14,7 @@ try {
   if(!key||!token||!process.env.GITHUB_REPOSITORY||!process.env.GITHUB_SHA)throw Error('Credentials or repo context unavailable');
   const payload={type:'avatar',avatar_id:id,script:text,voice_id:voice,engine:{type:'avatar_iii'},
     resolution:'1080p',aspect_ratio:'16:9',output_format:'mp4',
-    caption:{file_format:'srt'},title:'Stocks Marcus Orson studio anchor reply — one approved attempt'};
+    caption:{file_format:'srt'},title:'Stocks Marcus / Orson alternate voice - compatibility-only short audition'};
   const payloadHash=createHash('sha256').update(JSON.stringify(payload)).digest('hex');
   const lockName='stocks-marcus-only-'+payloadHash.slice(0,20);
   receipt.payloadHash=payloadHash;receipt.lockName=lockName;
