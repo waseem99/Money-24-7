@@ -4,7 +4,7 @@ import {EDITION,SHOTS,PROOF} from './episode.mjs';
 
 const money = n => Math.round(n*100)/100;
 const digest = data => createHash('sha256').update(JSON.stringify(data)).digest('hex');
-const forbiddenOnAir = /\\b(?:stalks|stocks gpt|chatgpt|signal market watch|demo data|illustrative figures|example market data)\\b/i;
+const forbiddenOnAir = /\b(?:stalks|stocks gpt|chatgpt|signal market watch|demo data|illustrative figures|example market data)\b/i;
 
 export function buildMotionProof() {
   const turns = PROOF.shots.map(id => {
@@ -37,8 +37,8 @@ export function auditStocks({mode='proof',providerBalanceUSD=null,correspondentA
     if(shot.speaker&&!shot.script.trim())problems.push('Missing speech '+shot.id);
     if(forbiddenOnAir.test(shot.graphic)||forbiddenOnAir.test(shot.script))problems.push('Forbidden old/demo branding in shot '+shot.id);
     if(!shot.sources.length||shot.sources.some(x=>!EDITION.sources[x]))problems.push('Missing citation in shot '+shot.id);
-    if(/\\bLIVE\\b/i.test(shot.graphic))problems.push('False LIVE slate in shot '+shot.id);
-    const words=shot.script.trim()?shot.script.trim().split(/\\s+/).length:0;
+    if(/\bLIVE\b/i.test(shot.graphic))problems.push('False LIVE slate in shot '+shot.id);
+    const words=shot.script.trim()?shot.script.trim().split(/\s+/).length:0;
     const wpm=words*60/(shot.end-shot.start);
     if(words&&wpm>150)warnings.push('Review spoken pace for shot '+shot.id+': '+Math.round(wpm)+' WPM');
     end=shot.end;
@@ -60,7 +60,7 @@ export function auditStocks({mode='proof',providerBalanceUSD=null,correspondentA
   }
   return {mode,pass:problems.length===0,edition:EDITION.date,network:EDITION.network,
     plannedRuntimeSeconds:EDITION.totalSeconds,shots:SHOTS.length,speechTurns:SHOTS.filter(s=>!!s.script).length,
-    totalSpokenWords:SHOTS.reduce((n,s)=>n+(s.script.trim()?s.script.trim().split(/\\s+/).length:0),0),
+    totalSpokenWords:SHOTS.reduce((n,s)=>n+(s.script.trim()?s.script.trim().split(/\s+/).length:0),0),
     cast:[EDITION.mainCast.NORA.onAirName,EDITION.mainCast.MARCUS.onAirName],
     proofHash:proof.hash,proofBudgetUSD:proof.estimatedSpendUSD,
     paidRequestsMade:0,problems,warnings};
@@ -69,6 +69,6 @@ const thisFile=fileURLToPath(import.meta.url);
 if(process.argv[1]===thisFile){
   const mode=process.argv.includes('--full')?'full':'proof';
   const report=auditStocks({mode});
-  process.stdout.write(JSON.stringify(report,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(report,null,2)+'\n');
   if(!report.pass)process.exitCode=2;
 }
