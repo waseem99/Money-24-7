@@ -13,6 +13,10 @@ test('3-minute cinema-style finance film plan is exact, budgeted and has only ap
   assert.equal(p.conservativeInternalReserveUSD,3.30);
   assert.equal(p.providerHardSpendCap,false);
   assert.equal(p.readyToPay,false);
+  assert.equal(p.wardrobeReady,false);
+  assert.equal(p.wardrobeStatus,'HOLD_FORMAL_WARDROBE');
+  assert.ok(p.wardrobeBlockers.some(x=>x.includes('original'))||p.wardrobeBlockers.some(x=>x.includes('formal'))||p.wardrobeBlockers.some(x=>x.includes('outfit')));
+  assert.equal(threeMinutePlan.state,'HOLD_BUSINESS_FORMAL_AVATAR_LOOKS');
   assert.equal(threeMinutePlan.paidReleaseAuthorized,false);
   assert.equal(threeMinutePlan.cast.anchor.name,'Rumi');
   assert.equal(threeMinutePlan.cast.anchor.lookId,proposedPresenters.ANCHOR.lookId);
