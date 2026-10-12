@@ -14,6 +14,10 @@ jobs:
         with:
           ref: prep/jazz-zero-spend-gate-20261010
           persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
       - name: Verify and export exact R4 newsroom graphics and editorial source
         run: |
           node --test tests/newsroom-r4.test.mjs
