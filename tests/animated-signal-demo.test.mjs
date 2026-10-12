@@ -15,7 +15,7 @@ test('frozen formal Liza/Annie and Lasse/Orson 3-minute film is narratively cohe
  assert.equal(identity.LIZA.look,'5ee67ac453c34ffebd71e8eedb47b2fe');
  assert.equal(identity.LIZA.voice,'330290724a1b470fb63153f34d4c0183');
  assert.equal(identity.LASSE.look,'de9f36c26bd841c891489a0c9d6174de');
- assert.equal(identity.LASSE.voice,'00e3d285aba44b27a83c47c02c9d416');
+ assert.equal(identity.LASSE.voice,'00e3d285aba44b27a83c47c02c9c2d9c');
  assert.equal(programme.illustrative,true);
  assert.equal(programme.disclosure.includes('NOT LIVE'),true);
  assert.ok(newVideoScenes.every(s=>s.script&&!s.existingVideoId));
