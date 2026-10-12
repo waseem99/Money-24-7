@@ -1,0 +1,54 @@
+name: SIGNAL R2 new current-affairs clips — GET only download
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-news-r2-source-download.yml]
+permissions:
+  contents: read
+jobs:
+  download-previously-paid-news-clips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Read exact finished HeyGen job URLs and download four existing sources (NO provider POST)
+        shell: bash
+        run: |
+          mkdir -p news-r2-sources
+          node --input-type=module <<'NODE'
+          import {createWriteStream} from 'node:fs';
+          import {writeFile} from 'node:fs/promises';
+          import {Readable} from 'node:stream';
+          import {pipeline} from 'node:stream/promises';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12||process.env.GITHUB_REPOSITORY!=='waseem99/Money-24-7')
+            throw Error('No private key or repository protection');
+          const clips=[{"id":"news_open","videoId":"2f024a7c545dbfa3a446d422a69af8ff"},{"id":"rates","videoId":"ffd161164f25d09e26193f0edc81b343"},{"id":"oil","videoId":"17b699ebce13c4ca1d890931a5385bea"},{"id":"cpi","videoId":"c75a2070c0b2bc08edd380b64ae6bd52"}];
+          const report=[];
+          for(const s of clips){
+            const response=await fetch('https://api.heygen.com/v3/videos/'+s.videoId,{
+              method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!response.ok)throw Error('GET source metadata HTTP '+response.status+' for '+s.id);
+            const raw=await response.json(),d=raw.data??raw;
+            if(d.status!=='completed'||(d.video_id&&d.video_id!==s.videoId))
+              throw Error('Source incomplete/mismatch '+s.id);
+            const videoUrl=d.video_url??d.videoUrl,u=new URL(videoUrl);
+            if(u.protocol!=='https:'||!['heygen.ai','heygen.com'].some(x=>u.hostname===x||u.hostname.endsWith('.'+x)))
+              throw Error('Unexpected media domain for '+s.id);
+            const file=await fetch(videoUrl,{method:'GET',redirect:'follow',signal:AbortSignal.timeout(180000)});
+            if(!file.ok||!file.body)throw Error('Unable to download '+s.id);
+            await pipeline(Readable.fromWeb(file.body),createWriteStream('news-r2-sources/'+s.id+'.mp4'));
+            report.push({scene:s.id,videoId:s.videoId,duration:Number(d.duration)||null,verifiedCompleted:true,requestMethods:'GET only'});
+            console.log('DOWNLOADED '+s.id+' '+s.videoId+' '+d.duration+'s');
+          }
+          await writeFile('news-r2-sources/manifest.json',JSON.stringify(report,null,2));
+          console.log('NO new paid video generation, speech synthesis or wallet changes.');
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-R2-sourced-new-voice-video-clips
+          path: news-r2-sources/
+          if-no-files-found: error
+          retention-days: 14
