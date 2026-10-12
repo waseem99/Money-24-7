@@ -48,3 +48,14 @@ test('short female camera exposure avoids another ten-second 00:33-style artific
   assert.ok(onCamera.includes('SIGNAL MARKETS'));
   assert.ok(!graphic.includes('SIGNAL MARKETS'));
 });
+test('final broadcast graphics exclude demo and AI-presented labels while marking illustrative indexes',()=>{
+  for(const id of ['rates','news_open','liza_board','lasse_volume']){
+    const s=programme.scenes.find(x=>x.id===id);
+    const frame=renderFrame(s,4.5,19,{globalSeconds:60,audioDuration:18});
+    for(const label of ['AI-PRESENTED','MARKET DEMO','DEMO DATA','AI PRESENTERS'])
+      assert.equal(frame.includes(label),false,id+' contains banned label: '+label);
+    assert.ok(frame.includes('AS OF 12 OCT'));
+    assert.ok(frame.includes(s.news?.length?'REPORTED NEWS':'INDEX WATCH'));
+  }
+  assert.ok(renderFrame(programme.scenes.find(s=>s.id==='liza_board'),5,18,{globalSeconds:93,audioDuration:14}).includes('ILLUSTRATIVE INDEX SERIES'));
+});
