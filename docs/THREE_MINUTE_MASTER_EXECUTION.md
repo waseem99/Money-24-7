@@ -1,3 +1,15 @@
+## Latest graphics/wardrobe checkpoint — 12 October 2026
+
+**A real, non-billable V2 graphics proof now exists.** The 10.840-second existing Rumi+Annie source was composited onto the original SIGNAL V2 SVG newsroom: header, 'BEYOND THE HEADLINE' strap, presenter's Rumi/lead-anchor lower third, ticker and illustrative market data disclosures. Download the [proof MP4 and 1080p still from GitHub Actions](https://github.com/waseem99/Money-24-7/actions/runs/38205178482/artifacts/11726389471). The run [completed successfully](https://github.com/waseem99/Money-24-7/actions/runs/38205178482). **Zero additional HeyGen generation credits were used.**
+
+This proof also exposes the two remaining *non-negotiable* on-screen gaps: **Rumi wears a casual green top** and the original video still shows a domestic interior. Formal newsroom clothes are **not** a property of the Studio SVG code or the final-film shotlist, and have not been implemented in these public video-trained avatar looks. The background/ticker in this proof are a still graphic; all 3-minute scene transitions remain unrendered. Kevin's real footage is still pending.
+
+**Wardrobe acceptance gate:** both locked faces and voices remain fixed; prior to the real 180-second master, obtain **approved business-formal looks with suitable background removal/studio integration** for Rumi and Kevin. Their public look groups contain one video-trained look and one photo avatar look each; the current video-trained looks have no independently verified formal attire variant. HeyGen publishes [Avatar Looks options](https://help.heygen.com/en/articles/9964694-avatar-looks-explained) but creating a different photo look from a public avatar, its expense, and whether it preserves video-trained motion must be checked **without automatically paying**. A tighter crop can reduce visible clothing but does not amount to a blazer/suit. The existing full film is **not visually approved** until these are addressed.
+
+[Implementation and QA status matrix](BROADCAST_STUDIO_INTEGRATION_STATUS.md)
+
+---
+
 # Jazz AI Channel / Signal — 3-minute broadcast master plan
 
 **Goal:** Deliver a genuinely watchable **3:00 / 180-second** financial-news film with the user-locked public video-trained presenters **Rumi + Annie** and **Kevin + Orson**. The five-minute version can be extended **after** the first master passes stakeholder review. This is not an authorization to create a 24/7 stream or to buy additional software.
