@@ -10,21 +10,21 @@ import {validateProgramme} from '../../src/broadcast/contracts.js';
 import {slots} from '../../src/broadcast/timeline.js';
 
 export const proposedPresenters=Object.freeze({
-  ANCHOR:{id:'rumi',name:'Rumi',role:'Lead news anchor',lookName:'Rumi Digital Twin (portrait)',groupId:'74384d3dd9894ffb83cca47473eb6829',lookId:'efa5d7cf738a4efd84b1dac501d9aef8',defaultVoiceId:'61034173a9344488b55466d745315173',auditionVoiceId:'330290724a1b470fb63153f34d4c0183',auditionVoiceName:'Annie - Lifelike',avatarType:'digital_twin',visualApprovalStatus:'approved',visualApprovalSource:'User explicitly reviewed public video preview and locked Rumi as female lead; generated output still requires human QA',performanceApprovalStatus:'pending',wardrobeApprovalStatus:'blocked-public-casual',preferredAspectRatio:'9:16',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'LOCKED: user-approved Rumi look and Annie voice; first Rumi footage quality not yet approved'},
-  ANALYST:{id:'kevin',name:'Kevin',role:'Markets analyst',lookName:'Kevin Digital Twin (landscape)',groupId:'ce741649eb8c4ca38cd34164881a2ef5',lookId:'c8f428c549ea448488fdb2214dbcad57',defaultVoiceId:'5141743c956d4a1298b7126c9639d416',auditionVoiceId:'00e3d285aba44b27a83c47c02c9c2d9c',auditionVoiceName:'Orson - Firm & Measured',avatarType:'digital_twin',visualApprovalStatus:'approved',visualApprovalSource:'User explicitly locked Kevin for male analyst after public video preview',performanceApprovalStatus:'pending',wardrobeApprovalStatus:'blocked-public-casual',preferredAspectRatio:'16:9',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'LOCKED: user-approved Kevin look and Orson voice; generated output still requires performance QA'}
+  ANCHOR:{id:'liza',name:'Liza',role:'Lead news anchor',lookName:'Liza Office 6 — formal grey blazer and white blouse',groupId:'3727ecd034ef4248afea2a3443f7d2b7',lookId:'5ee67ac453c34ffebd71e8eedb47b2fe',defaultVoiceId:'96a7560392c44869a4b66ac849be59a5',auditionVoiceId:'330290724a1b470fb63153f34d4c0183',auditionVoiceName:'Annie - Lifelike',avatarType:'photo_avatar',visualApprovalStatus:'approved',visualApprovalSource:'User explicitly locked Liza as the female anchor; existing Office 6 grey-blazer look was visually reviewed by production operator',performanceApprovalStatus:'pending',wardrobeApprovalStatus:'approved',wardrobeApprovalSource:'Existing recorded HeyGen public Office 6 look visibly contains a grey business blazer and white blouse; no generated outfit or unpermitted identity alteration',preferredAspectRatio:'16:9',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'FINAL FACE Liza, voice Annie, formal existing Office 6; realistic motion acceptance still pending'}
+  ANALYST:{id:'lasse',name:'Lasse',role:'Markets analyst',lookName:'Lasse Office 3 — formal grey blazer and blue collared shirt',groupId:'46782f6d3de64ed98cec7f47d3d21ae7',lookId:'de9f36c26bd841c891489a0c9d6174de',defaultVoiceId:'0828ce2c70c94787aee8d6745bcde7d7',auditionVoiceId:'00e3d285aba44b27a83c47c02c9c2d9c',auditionVoiceName:'Orson - Firm & Measured',avatarType:'photo_avatar',visualApprovalStatus:'approved',visualApprovalSource:'User explicitly locked Lasse as the male analyst; existing Office 3 formal business look visually reviewed by production operator',performanceApprovalStatus:'pending',wardrobeApprovalStatus:'approved',wardrobeApprovalSource:'Existing HeyGen public Office 3 shows an appropriate grey blazer and blue collared shirt, filmed-preview motion quality still pending',preferredAspectRatio:'16:9',supportedEngines:['avatar_iii','avatar_iv','avatar_v'],selection:'FINAL FACE Lasse, voice Orson, formal existing Office 3; realistic motion acceptance still pending'}
 });
 
 export function selectedProgramme(profile='sample'){
   if(!['sample','pilot'].includes(profile))throw new Error('Only sample and pilot profiles are audited');
   const p=exampleProgramme(profile);
-  const ids={maya:'rumi',daniel:'kevin'};
-  p.id=`signal-rumi-kevin-${profile}`;
+  const ids={maya:'liza',daniel:'lasse'};
+  p.id=`signal-liza-lasse-${profile}`;
   p.presenters=p.presenters.map(old=>{
     const sel=proposedPresenters[old.configRef];
     if(!sel)throw new Error('Unmapped presenter role');
     return {...old,id:sel.id,name:sel.name,role:sel.role,look:sel.lookName};
   });
-  p.turns=p.turns.map(t=>({...t,speakerId:ids[t.speakerId],text:t.text.replace(/\bMaya\b/g,'Rumi').replace(/\bDaniel\b/g,'Kevin')}));
+  p.turns=p.turns.map(t=>({...t,speakerId:ids[t.speakerId],text:t.text.replace(/\bMaya\b/g,'Liza').replace(/\bDaniel\b/g,'Lasse')}));
   p.scenes=p.scenes.map(s=>({...s,presenterIds:s.presenterIds.map(id=>ids[id])}));
   p.cues=p.cues.map(c=>c.presenterId?{...c,presenterId:ids[c.presenterId]}:c);
   return validateProgramme(p);
