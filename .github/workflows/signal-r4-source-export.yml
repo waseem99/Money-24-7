@@ -1,0 +1,28 @@
+name: SIGNAL R4 newsroom renderer source export (no credits)
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-r4-source-export.yml]
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prep/jazz-zero-spend-gate-20261010
+          persist-credentials: false
+      - name: Verify and export exact R4 newsroom graphics and editorial source
+        run: |
+          node --test tests/newsroom-r4.test.mjs
+          mkdir -p source
+          cp pilot/v2/newsroom-r4-plan.mjs source/
+          cp pilot/v2/newsroom-r4-graphics.mjs source/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-r4-newsroom-renderer-source
+          path: source/
+          retention-days: 7
+          if-no-files-found: error
