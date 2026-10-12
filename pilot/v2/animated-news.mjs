@@ -127,6 +127,9 @@ function captionText(scene,elapsed,audioDuration){
  const words=scene.script.trim().split(/\s+/);
  const count=10,n=Math.ceil(words.length/count),i=Math.min(n-1,Math.floor(elapsed/audioDuration*n));
  const chunk=words.slice(i*count,(i+1)*count).join(' ');
+ // Spoken provenance remains intact; complete WebVTT is supplied separately.
+ // The user does not want AI-presenter badges appearing as burned-in labels.
+ if(scene.id==='liza_close' && /\bAI presenters\b/i.test(chunk))return null;
  return chunk.length>85?chunk.slice(0,85):chunk;
 }
 function lowerThird(scene,elapsed,audioDuration,globalTime){
