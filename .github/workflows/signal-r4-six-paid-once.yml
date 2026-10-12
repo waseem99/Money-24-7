@@ -1,0 +1,141 @@
+name: SIGNAL R4+ final news — six paid-once narration takes
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-r4-six-paid-once.yml]
+permissions:
+  contents: write
+concurrency:
+  group: signal-r4-six-paid-once-oct12
+  cancel-in-progress: false
+jobs:
+  produce-exact-locked-news-takes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_ONCE_TOKEN: ${{ github.token }}
+    steps:
+      - name: GET-validate locked faces and voices, then submit six individually guarded clips with no paid retries
+        shell: bash
+        run: |
+          mkdir -p r4-ledger
+          node --input-type=module <<'NODE'
+          import {writeFile} from 'node:fs/promises';
+          import {createHash} from 'node:crypto';
+          import {setTimeout as pause} from 'node:timers/promises';
+          const apiKey=process.env.HEYGEN_API_KEY,gitToken=process.env.GH_ONCE_TOKEN;
+          const repo='waseem99/Money-24-7',branch='refs/heads/ops/jazz-formal-anchors-20261012';
+          const takes=[{"id":"top_stories","role":"LIZA","script":"Good morning. Welcome to Signal Market Watch. I'm Liza. A volatile start to the week: oil has pulled back, stocks are cautiously higher, and investors are bracing for major U.S. bank earnings and Wednesday's inflation report. We begin with what moved overnight.","words":42,"cast":{"look":"5ee67ac453c34ffebd71e8eedb47b2fe","group":"3727ecd034ef4248afea2a3443f7d2b7","voice":"330290724a1b470fb63153f34d4c0183","gender":"female","name":"Annie"}},{"id":"global_market","role":"LASSE","script":"Asian shares were mixed on Monday, while U.S. stock-index futures edged higher. Reuters reported Brent crude near one hundred four dollars a barrel after retreating from recent highs. That is still an expensive energy backdrop, and markets remain sensitive to every new geopolitical headline.","words":44,"cast":{"look":"de9f36c26bd841c891489a0c9d6174de","group":"46782f6d3de64ed98cec7f47d3d21ae7","voice":"00e3d285aba44b27a83c47c02c9c2d9c","gender":"male","name":"Orson"}},{"id":"earnings","role":"LIZA","script":"Now to Wall Street. Major U.S. banks begin third-quarter reporting this week. Analysts expect a strong earnings season, but the question is not simply profits. Investors will scrutinize credit losses, loan demand and management guidance for signs that higher costs are beginning to bite.","words":44,"cast":{"look":"5ee67ac453c34ffebd71e8eedb47b2fe","group":"3727ecd034ef4248afea2a3443f7d2b7","voice":"330290724a1b470fb63153f34d4c0183","gender":"female","name":"Annie"}},{"id":"world_outlook","role":"LIZA","script":"Beyond the United States, the IMF's World Economic Outlook is scheduled for Tuesday. Investors will be watching its assessment of global growth, debt and trade risks. With energy prices elevated and financing costs high, there is opportunity on one side and mounting pressure on the other.","words":46,"cast":{"look":"5ee67ac453c34ffebd71e8eedb47b2fe","group":"3727ecd034ef4248afea2a3443f7d2b7","voice":"330290724a1b470fb63153f34d4c0183","gender":"female","name":"Annie"}},{"id":"watchlist","role":"LASSE","script":"Here are the three signals I'm watching: banks' credit-loss provisions, Wednesday's inflation reading compared with forecasts, and whether oil stays elevated. Strong earnings could lift confidence. Hotter inflation or weaker company guidance could reverse it. None of those outcomes is assured, and we will separate results from expectations.","words":48,"cast":{"look":"de9f36c26bd841c891489a0c9d6174de","group":"46782f6d3de64ed98cec7f47d3d21ae7","voice":"00e3d285aba44b27a83c47c02c9c2d9c","gender":"male","name":"Orson"}},{"id":"signoff","role":"LIZA","script":"That is the Market Watch briefing for Monday, October twelfth. The next moves depend on data still to come, not only the headlines already on our screens. I'm Liza, with Lasse. Thanks for watching Signal Market Watch. We'll see you at the next update.","words":44,"cast":{"look":"5ee67ac453c34ffebd71e8eedb47b2fe","group":"3727ecd034ef4248afea2a3443f7d2b7","voice":"330290724a1b470fb63153f34d4c0183","gender":"female","name":"Annie"}}];
+          if(!apiKey||apiKey.length<12||!gitToken||process.env.GITHUB_REPOSITORY!==repo||
+             process.env.GITHUB_REF!==branch||!process.env.GITHUB_SHA)
+            throw Error('Missing private credentials or unexpected run context; no billable POST');
+          if(takes.length!==6)throw Error('Only six new takes may be generated');
+          const rate=1,reserved=0.47*takes.length;
+          if(reserved>2.82)throw Error('Internal budget lock exceeded');
+          for(const t of takes){
+            if(!['LIZA','LASSE'].includes(t.role)||t.words<20||t.words>55||t.script.length>480)
+              throw Error('Unapproved speaker/length '+t.id);
+          }
+          const log=[],save=()=>writeFile('r4-ledger/production.json',JSON.stringify({
+            edition:'2026-10-12',estimatedMaxNewUSD:reserved,providerHardCap:false,
+            userAuthorized:true,retries:false,producer:'one-shot-github-only',takeCount:takes.length,log
+          },null,2));
+          async function get(path){
+            const r=await fetch('https://api.heygen.com'+path,{method:'GET',
+              headers:{'X-Api-Key':apiKey,Accept:'application/json'},redirect:'error',
+              signal:AbortSignal.timeout(25000)});
+            if(!r.ok)throw Error('HeyGen account or catalogue GET returned '+r.status+'; no new billable POST');
+            const raw=await r.json();if(raw?.error)throw Error('HeyGen catalogue GET error, provider body suppressed');
+            return raw?.data??raw;
+          }
+          const account=await get('/v3/users/me');
+          if(!account||typeof account!=='object')throw Error('API key authentication failed');
+          const reload=[
+            account.wallet?.auto_reload,account.wallet?.auto_reload_enabled,
+            account.api_wallet?.auto_reload_enabled,account.billing?.auto_reload_enabled].filter(x=>typeof x==='boolean');
+          if(reload.includes(true))throw Error('Detected recharge enabled; no new generation');
+          const cfg={};
+          for(const role of ['LIZA','LASSE']){
+            const c=takes.find(t=>t.role===role)?.cast;
+            if(!c)throw Error('Required role missing');
+            const l=await get('/v3/avatars/looks/'+c.look);
+            if(l.id!==c.look||l.group_id!==c.group||l.avatar_type!=='photo_avatar'||
+               l.status!=='completed'||!(l.image_width>l.image_height)||
+               !l.supported_api_engines?.includes('avatar_iii'))
+              throw Error('Approved formal photo avatar look does not match: '+role);
+            const u=new URL('https://api.heygen.com/v3/voices');
+            for(const [k,v] of Object.entries({engine:'starfish',type:'public',language:'English',gender:c.gender,limit:100,search_query:c.name}))u.searchParams.set(k,String(v));
+            let cursor=null,found=false;
+            for(let page=0;page<4;page++){
+              if(cursor)u.searchParams.set('token',cursor);
+              const catalog=await get(u.pathname+u.search);
+              const arr=Array.isArray(catalog)?catalog:Array.isArray(catalog.items)?catalog.items:Array.isArray(catalog.voices)?catalog.voices:[];
+              if(arr.some(v=>v.voice_id===c.voice&&v.gender===c.gender&&v.language==='English')){found=true;break;}
+              if(!catalog.next_token||catalog.next_token===cursor)break;cursor=catalog.next_token;
+            }
+            if(!found)throw Error('User-approved voice unavailable on direct API: '+role);
+            cfg[role]=c;
+          }
+          console.log('PASS: exact Liza/Annie and Lasse/Orson 1080p Photo III source access and voices via authenticated GET');
+          console.log('Six 20-55 word news clips; conservative internal reservation USD '+reserved+'. No wallet or billing cap guarantee.');
+          const remain=[...takes];
+          await save();
+          for(const t of remain){
+            const digest=createHash('sha256').update(t.id+':'+t.script+':'+t.cast.look+':'+t.cast.voice).digest('hex').slice(0,14);
+            const tag='refs/tags/signal-r4-20261012-'+t.id+'-'+digest+'-paid-once';
+            const lock=await fetch('https://api.github.com/repos/'+repo+'/git/refs',{method:'POST',
+              headers:{Authorization:'Bearer '+gitToken,Accept:'application/vnd.github+json',
+               'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+              body:JSON.stringify({ref:tag,sha:process.env.GITHUB_SHA}),redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(lock.status===422){log.push({scene:t.id,role:t.role,status:'SKIPPED_EXISTING_TAG',tag});await save();console.log('LOCKED '+t.id+' without extra provider request');continue;}
+            if(lock.status!==201)throw Error('Unable to acquire immutable paid once lock for '+t.id+' (HTTP '+lock.status+'); NO provider POST');
+            const entry={scene:t.id,role:t.role,tag,scriptHash:digest,status:'LOCKED_PROVIDER_POST_UNCERTAIN'};
+            log.push(entry);await save();
+            let response;
+            try{
+              response=await fetch('https://api.heygen.com/v3/videos',{
+                method:'POST',headers:{'X-Api-Key':apiKey,'Content-Type':'application/json',Accept:'application/json'},
+                body:JSON.stringify({type:'avatar',avatar_id:t.cast.look,voice_id:t.cast.voice,
+                   script:t.script,engine:{type:'avatar_iii'},aspect_ratio:'16:9',
+                   resolution:'1080p',fit:'cover',title:'SIGNAL R4 FINAL '+t.id+' '+digest,
+                   callback_id:'signal-r4-final-'+t.id+'-'+digest}),
+                redirect:'error',signal:AbortSignal.timeout(120000)
+              });
+            }catch{
+              await save();throw Error('Paid submission status unknown for '+t.id+'. Tag retained. DO NOT retry.');
+            }
+            if(!response.ok){entry.status='API_RESPONSE_'+response.status;await save();
+              throw Error('HeyGen POST HTTP '+response.status+' for '+t.id+'. One-time tag retained, NO retry or top-up.');}
+            let body;try{body=await response.json();}catch{await save();throw Error('Unparsable POST response: do not retry');}
+            const id=body?.data?.video_id??body?.video_id;
+            if(typeof id!=='string'||!id){await save();throw Error('No usable video ID, cannot safely retry');}
+            entry.videoId=id;entry.status='accepted';await save();
+            console.log('ACCEPTED '+t.id+' video='+id);
+          }
+          for(const e of log){
+            if(!e.videoId)continue;
+            for(let attempt=0;attempt<32;attempt++){
+              await pause(10000);
+              let v;
+              try{v=await get('/v3/videos/'+encodeURIComponent(e.videoId));}catch{continue;}
+              if(['completed','failed','cancelled','canceled','error'].includes(v.status)){
+                e.status=v.status;
+                const seconds=Number(v.duration);if(Number.isFinite(seconds))e.seconds=seconds;
+                if(v.failure_code)e.failureCode=v.failure_code;
+                await save();console.log('RESULT '+e.scene+' '+e.status+(e.seconds?' '+e.seconds+'s':''));
+                break;
+              }
+            }
+          }
+          if(log.some(e=>e.status!=='completed'))throw Error('Not every clip is completed; ledger preserved. Never submit duplicate paid jobs.');
+          console.log('COMPLETE: all six R4 user-authorized clips ready for 1080p editor. No additional generation.');
+          NODE
+      - name: Preserve paid attempt ledger whether success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-R4-user-approved-six-video-ledger
+          path: r4-ledger/
+          if-no-files-found: warn
+          retention-days: 30
