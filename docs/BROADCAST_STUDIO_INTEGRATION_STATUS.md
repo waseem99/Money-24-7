@@ -1,3 +1,7 @@
+> **SUPERSEDED — 12 OCT 2026:** User has locked **Liza Office 6 + Annie** (female anchor) and **Lasse Office 3 + Orson** (male analyst), both already in formal blazers. Everything below about Rumi, Kevin and their inability to change outfits is retained only as historical project notes. **Authoritative current production plan:** [FINAL_LIZA_LASSE_PRODUCTION.md](FINAL_LIZA_LASSE_PRODUCTION.md). No old speaker/visual source is permitted in the new finished film.
+
+---
+
 # Jazz AI Channel — formal wardrobe, studio graphics and production integration status
 
 **Status (12 October 2026): Graphics bridge proven on a 10-second clip; full film and formal wardrobe still incomplete. This is a technical implementation audit, not a finished programme approval.** The user's expectation is a premium, formal 3–5-minute financial-news programme featuring Rumi (voice Annie) and Kevin (voice Orson) inside the previously agreed Signal broadcaster architecture. **The existing raw HeyGen clips do not show the studio graphics or guaranteed formal clothing.**
