@@ -1,0 +1,28 @@
+name: Stocks — one Marcus speaking take
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-paid-marcus-once.yml'
+jobs:
+  one-authorized-take:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: One locked Studio Avatar III attempt, no automatic retries
+        run: node pilot/stocks/paid-marcus-once.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-marcus-locked-direct-api-receipt
+          path: stocks-marcus-receipt.json
+          retention-days: 30
