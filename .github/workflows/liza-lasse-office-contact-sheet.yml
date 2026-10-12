@@ -1,0 +1,58 @@
+name: Zero-spend Liza and Lasse formal office look inspection
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/liza-lasse-office-contact-sheet.yml]
+permissions:
+  contents: read
+jobs:
+  previews:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Assemble unchanged existing public office look previews, no paid API
+        run: |
+          node --input-type=module <<'NODE'
+          import sharp from 'sharp';
+          import {mkdir,writeFile} from 'node:fs/promises';
+          const looks=[["Liza","Office 1","2753c42eb648421e9463df15aeee723a","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office80_p2_a1.jpg"],["Liza","Office 2","e92946838c1d492aa21812dca676f4be","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office81_p1_a1.jpg"],["Liza","Office 3","998ed46b7ac44db898a6959b7e7b80ac","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office81_p2_a1.jpg"],["Liza","Office 4","e44a0a235e79477988dbc3468aaa3852","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office82_p3_a0.jpg"],["Liza","Office 5","41ced2e9c0324424baeb3928486fb9e0","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office83_p1_a0.jpg"],["Liza","Office 6","5ee67ac453c34ffebd71e8eedb47b2fe","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office83_p3_a1.jpg"],["Liza","Office 7","81708c00d9824a17a0a88c5666d2c2ac","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office84_p1_a0.jpg"],["Liza","Office 8","b40cef88164a4c779052d66d3a65bc35","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office84_p1_a1.jpg"],["Liza","Office 9","20a27ba23d614f15ad20867e95458103","https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office84_p3_a0.jpg"],["Lasse","Office 1","7d605424f4e147439fbad5a084d0ec0a","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office118_p1_a1.jpg"],["Lasse","Office 2","9a5904c9a50d48ea8c243033c5555c1d","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office118_p3_a0.jpg"],["Lasse","Office 3","de9f36c26bd841c891489a0c9d6174de","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office120_p3_a1.jpg"],["Lasse","Office 4","511ff0fd17194835a399f00d5b1b658b","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office122_p3_a0.jpg"],["Lasse","Office 5","db0a24122085429aab196bac60cb9baa","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office126_p1_a0.jpg"],["Lasse","Office 6","7070e179bf5345c0b316df3cc4904eac","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office126_p1_a1.jpg"],["Lasse","Office 7","dd70870ee4b04f5eba2e4165c3ceafe4","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office126_p2_a0.jpg"],["Lasse","Office 8","9a8fabffc92041b394639ec53937a0c0","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office126_p3_a0.jpg"],["Lasse","Office 9","85b739255dc94a6aa99e22044f0e77c1","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office126_p3_a1.jpg"],["Lasse","Office 10","3d47b8b972ed40e5b5f034c4b8dddb1f","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office128_p2_a0.jpg"],["Lasse","Office 11","ddb1a86885b445cf8ca6f28a20775ead","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office128_p3_a0.jpg"],["Lasse","Office 12","5ec7c13ee1484f49af433564b5e9b015","https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office128_p3_a1.jpg"]];
+          await mkdir('look-review',{recursive:true});
+          const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+          for(const person of ['Liza','Lasse']){
+           const all=looks.filter(x=>x[0]===person),tiles=[];
+           const cellW=470,cellH=340,cols=3,margin=18,header=70;
+           for(let i=0;i<all.length;i++){
+             const [name,label,id,url]=all[i];
+             const u=new URL(url);if(u.hostname!=='resource2.heygen.ai')throw new Error('Unexpected image host');
+             const r=await fetch(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(30000)});
+             if(!r.ok)throw new Error('HTTP '+r.status+' for '+name+' '+label);
+             const buf=Buffer.from(await r.arrayBuffer());if(buf.length>6000000)throw new Error('Preview too large');
+             await writeFile('look-review/'+name.toLowerCase()+'-'+label.toLowerCase().replace(' ','-')+'.jpg',buf);
+             const pic=await sharp(buf).resize(452,255,{fit:'cover',position:'attention'}).png().toBuffer();
+             const overlay=Buffer.from('<svg width="470" height="340"><rect width="470" height="340" fill="#0a192b"/><rect y="267" width="470" height="73" fill="#152a43"/><text x="14" y="291" font-size="20" font-family="DejaVu Sans" fill="#f4f7fa">'+esc(name+' '+label)+'</text><text x="14" y="318" font-size="14" font-family="DejaVu Sans" fill="#70d9cc">'+esc(id)+'</text></svg>');
+             const tile=await sharp(overlay).composite([{input:pic,top:7,left:9}]).png().toBuffer();
+             const x=margin+(i%cols)*(cellW+margin),y=header+margin+Math.floor(i/cols)*(cellH+margin);
+             tiles.push({input:tile,left:x,top:y});console.log('PASS '+name+' '+label+' '+id);
+           }
+           const rows=Math.ceil(all.length/cols);
+           const canvas=await sharp({create:{width:margin*2+cols*(cellW+margin)-margin,height:header+margin+rows*(cellH+margin),channels:3,background:'#07162a'}}).png().toBuffer();
+           const hd=Buffer.from('<svg width="1500" height="70"><text x="20" y="43" font-size="30" font-family="DejaVu Sans" font-weight="bold" fill="#f4f7fa">'+esc(person.toUpperCase()+' - existing HeyGen office looks | no generated credit used')+'</text></svg>');
+           const p=await sharp(canvas).composite([{input:hd,left:0,top:0},...tiles]).png().toBuffer();
+           await writeFile('look-review/'+person+'-office-contact-sheet.png',p);
+          }
+          await writeFile('look-review/README.txt','Existing public Liza and Lasse Photo Avatar Office reference images only. Free retrieval, not generated or edited. Inspect dress and set, select only the professional looks. Still photo-avatar motion naturalness requires an actual paid short test.\n');
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liza-lasse-office-looks-visual-selection
+          path: look-review/
+          retention-days: 14
