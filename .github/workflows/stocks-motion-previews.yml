@@ -1,5 +1,10 @@
 name: Stocks — inspect existing provider studio previews (zero spend)
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-motion-previews.yml'
+      - 'pilot/stocks/preview-motion-sheet.mjs'
+      - 'pilot/stocks/motion-qa.mjs'
   push:
     branches:
       - feat/stocks-quality-proof-20261012
