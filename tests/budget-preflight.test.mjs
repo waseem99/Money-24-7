@@ -21,7 +21,7 @@ test('Liza/Lasse profile is valid, retains timings and cannot silently use Maya/
   assert.equal(proposedPresenters.ANCHOR.visualApprovalStatus,'approved');
   assert.equal(proposedPresenters.ANALYST.auditionVoiceId,'00e3d285aba44b27a83c47c02c9c2d9c');
   assert.equal(proposedPresenters.ANALYST.preferredAspectRatio,'16:9');
-  assert.equal(proposedPresenters.ANCHOR.preferredAspectRatio,'9:16');
+  assert.equal(proposedPresenters.ANCHOR.preferredAspectRatio,'16:9');
   assert.throws(()=>selectedProgramme('segment'),/Only sample and pilot/);
 });
 
