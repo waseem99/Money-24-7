@@ -1,0 +1,51 @@
+name: SIGNAL R4plus — download 3 completed new voice clips, GET only
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-r4plus-three-approved-source-download.yml]
+permissions:
+  contents: read
+jobs:
+  collect-already-paid-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Download exact three newly completed source videos, no billable requests
+        shell: bash
+        run: |
+          mkdir -p r4plus-sources
+          node --input-type=module <<'NODE'
+          import {mkdir,writeFile,createWriteStream} from 'node:fs';
+          import {pipeline} from 'node:stream/promises';
+          import {Readable} from 'node:stream';
+          const sources=[["top_stories","a2d92d492ec95eebe89a8c7a80fa119d"],["global_market","dcf2c09287724a14df7f9c587321e305"],["earnings","b38e9e26cd529a0607b310217f251cbf"]];
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12||process.env.GITHUB_REPOSITORY!=='waseem99/Money-24-7')
+           throw Error('Trusted secret unavailable');
+          const manifest=[];
+          for(const [name,id] of sources){
+           const r=await fetch('https://api.heygen.com/v3/videos/'+id,{
+             method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+             redirect:'error',signal:AbortSignal.timeout(20000)});
+           if(!r.ok)throw Error('Read-only video status HTTP '+r.status+' '+name);
+           const raw=await r.json(),d=raw.data??raw;
+           if(d.status!=='completed'||d.video_id&&d.video_id!==id)throw Error('Video source not ready '+name);
+           const u=new URL(d.video_url??d.videoUrl);
+           if(u.protocol!=='https:'||!['heygen.ai','heygen.com'].some(x=>u.hostname===x||u.hostname.endsWith('.'+x)))
+              throw Error('Unsafe media source');
+           const media=await fetch(u.toString(),{method:'GET',redirect:'follow',signal:AbortSignal.timeout(120000)});
+           if(!media.ok||!media.body)throw Error('Media GET failed '+name);
+           await pipeline(Readable.fromWeb(media.body),createWriteStream('r4plus-sources/'+name+'.mp4'));
+           manifest.push({name,videoId:id,durationSeconds:Number(d.duration)||null});
+           console.log('Downloaded existing paid clip '+name+' '+id+' '+d.duration+'s. No API POST.');
+          }
+          await writeFile('r4plus-sources/source-index.json',JSON.stringify(manifest,null,2));
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-R4plus-three-new-completed-clips
+          path: r4plus-sources/
+          retention-days: 14
+          if-no-files-found: error
