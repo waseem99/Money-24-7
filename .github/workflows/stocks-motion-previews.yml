@@ -35,5 +35,7 @@ jobs:
           path: |
             /tmp/stocks-previews/STOCKS-VIDEO-TRAINED-CANDIDATE-MOTION-STRIP.jpg
             /tmp/stocks-previews/STOCKS-EXISTING-STUDIO-PREVIEWS-SIDE-BY-SIDE.mp4
+            /tmp/stocks-previews/public-0.mp4
+            /tmp/stocks-previews/public-1.mp4
             /tmp/stocks-previews/STOCKS-MOTION-PREVIEW-QA.json
           retention-days: 14
