@@ -26,7 +26,7 @@ export const nativeAuditionPlan=Object.freeze({
     aspectRatio:proposedPresenters[t.role].preferredAspectRatio,
     fit:proposedPresenters[t.role].preferredAspectRatio==='9:16'?'contain':'cover'}))
 });
-const rateFor=engine=>engine==='avatar_iv'?4:engine==='avatar_iii'?1:NaN; // 1080p digital-twin API rates
+const rateFor=engine=>engine==='avatar_iv'?3:engine==='avatar_iii'?1:NaN; // 1080p Photo Avatar API rates
 const usd=n=>Math.ceil(n*100-1e-9)/100;
 export function auditNativePlan(plan=nativeAuditionPlan){
   if(plan.version!==5||plan.kind!=='short-presenter-audition'||!['avatar_iii','avatar_iv'].includes(plan.engine)||plan.resolution!=='1080p')throw new Error('Unapproved audition format/engine');
@@ -47,7 +47,7 @@ export function auditNativePlan(plan=nativeAuditionPlan){
       words:t.text.split(/\s+/).length,script:t.text,visualApprovalStatus:proposedPresenters[t.role].visualApprovalStatus,estimatedReservationUSD:perClip})),
     rateUSDPerVideoMinute:rate,maximumReservedEstimateUSD:usd(perClip*plan.turns.length),
     caveat:'Estimates are not actual charges; no retakes, listener footage, matting or provider-side wallet limit are included. User selected the cast, not spending.',
-    unresolved:['Liza and Lasse are public Photo Avatars wearing verified Office 6 and Office 3 business formal looks. Photo-avatar motion and Annie/Orson lip sync require real human review before the full film', 'A previous Araj/default-voice render failed TTS and Araj/Annie was visually rejected; those look IDs must not be reused','American English/accent and natural-looking on-screen performance not independently verified','Both photo sources are 16:9; avoid forced crops and use existing Signal newsroom compositor','R2 standing alpha and non-speaking listener footage']};
+    unresolved:['Liza Office 6 and Lasse Office 3 are PHOTO avatars in verified business attire; realistic eye and mouth movement remain to be auditioned', 'User locked Liza/Lasse faces and Annie/Orson voices; never reuse rejected Rumi/Kevin or Araj sources', 'No live data may be fabricated; use the existing SIGNAL ticker, headline and chart compositor', 'No synthetic silent listener footage, alpha standing analyst or unapproved retakes']};
 }
 export async function initNative({fixture=false}={}){
   const audit=auditNativePlan(),plan=nativeAuditionPlan;
@@ -77,7 +77,7 @@ function paidGate(run,env){
   if(casting.some(p=>p.lookId==='425825d6465b4ba4bd261d334d530430'))
     throw new Error('Paid audition locked: rejected historical Araj look cannot be billed again');
   // Future paid footage must use proven FORMAL looks, not the original public
-  // original prior informal sources are disallowed; current Office looks are formal.
+  // Original casual sources are disallowed; user-locked Office looks are formal.
   if(casting.some(p=>p.wardrobeApprovalStatus!=='approved'))
     throw new Error('Paid audition locked: business-formal presenter wardrobe not approved. Only free look research is permitted.');
   if(env.PILOT_PAID_RELEASE_EPISODE_HASH!==run.manifest.planHash)throw new Error('Paid audition locked: approve the exact plan hash first');
