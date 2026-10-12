@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/stocks-paid-marcus-once.yml'
+      - 'pilot/stocks/paid-marcus-once.mjs'
 jobs:
   one-authorized-take:
     if: github.event.pull_request.head.repo.full_name == github.repository
