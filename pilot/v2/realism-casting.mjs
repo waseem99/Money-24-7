@@ -1,57 +1,61 @@
 /**
- * User-locked Rumi/Annie and Kevin/Orson casting for the 3–5 minute pilot.
- * Historical Araj visual rejection is preserved as a negative safety test.
- * Catalog metadata was read from the user's connected HeyGen on 2026-10-10.
- * An AI-generated face's apparent ethnicity, age, nationality and accent are
- * not confirmed by the provider catalog; do not invent those attributes.
+ * Final user-specified Liza and Lasse casting.
+ * The Office 6 / Office 3 looks are PREEXISTING public Photo Avatars.
+ * Never conflate outfit suitability with mouth/eye/gesture realism.
+ * No paid provider calls here.
  */
 import {proposedPresenters} from './budget-preflight.mjs';
 
 export const finalCast=Object.freeze({
-  status:'locked-ru-mi-and-kevin-preview-approved-performance-pending',
+  status:'liza-and-lasse-locked-formal-outfits-previewed-motion-qa-pending',
   accountPurchaseAuthorized:false,
-  liveVideoProduced:true, // Prior Araj/Annie clip completed but was rejected; no Rumi+Annie film has been generated.
-  dialogueApprovalPending:true,
+  selectedCastVideoProduced:false,
+  historicOtherCastVideosProduced:true,
+  reviewRequired:true,
   anchor:Object.freeze({
     ...proposedPresenters.ANCHOR,
-    videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/efa5d7cf738a4efd84b1dac501d9aef8/half/2.2/preview_video_target.mp4',
-    sourceWidth:720,sourceHeight:1280,
-    characterDirection:'Warm, poised, clear financial-news presenter; short questions, small expressions, natural pauses, not an advertisement voice.',
-    cameraDirection:'9:16 source preserved inside a branded vertical portrait window in the 16:9 show; no facial stretch or harsh widescreen crop.'
+    videoPreviewUrl:'https://resource2.heygen.ai/public-avatars/Liza/image_videos/office83_p3_a1.mp4',
+    imagePreviewUrl:'https://resource2.heygen.ai/public-avatars/Liza/paos/angles/office83_p3_a1.jpg',
+    sourceWidth:1920,sourceHeight:1080,
+    characterDirection:'Credible professional female financial-news lead wearing the existing grey blazer and white blouse. Annie Lifelike voice. Warm but restrained expression, measured pace, no forced gestures.',
+    cameraDirection:'16:9 Office 6 source; compose in actual SIGNAL V2 anchor panel and render legitimate ticker/headline overlays. Do not imply source is a filmed digital twin.'
   }),
   analyst:Object.freeze({
     ...proposedPresenters.ANALYST,
-    videoPreviewUrl:'https://resource2.heygen.ai/avatar/v3/c8f428c549ea448488fdb2214dbcad57/half/2.2/preview_video_target.mp4',
-    sourceWidth:1280,sourceHeight:720,
-    characterDirection:'Measured market analyst, concise, conversational, thoughtful speech and a distinct cadence from the anchor.',
-    cameraDirection:'16:9 full landscape frame, with chart/data cutaways; no unsupported pointing or theatrical gestures.'
+    videoPreviewUrl:'https://resource2.heygen.ai/public-avatars/Lasse/image_videos/office120_p3_a1.mp4',
+    imagePreviewUrl:'https://resource2.heygen.ai/public-avatars/Lasse/paos/angles/office120_p3_a1.jpg',
+    sourceWidth:1920,sourceHeight:1080,
+    characterDirection:'Mature male markets analyst wearing pre-existing grey business blazer and blue shirt; Orson Firm & Measured voice. Thoughtful, natural cadence.',
+    cameraDirection:'16:9 Office 3 source with blurred corporate background; integrate in professional SIGNAL data board, never fake offscreen reactions.'
   }),
   auditionEngine:'avatar_iii',
-  estimatedEngineUsdPerGeneratedMinute:1,
-  upgradeEngine:'avatar_iv',
-  estimatedUpgradeEngineUsdPerGeneratedMinute:4,
-  avatarVDirectApiPriceConfirmed:false,
+  photoIIIUsdPerGeneratedMinute:1,
+  premiumTrialEngine:'avatar_iv',
+  photoIVUsdPerGeneratedMinute:3,
   sharedRules:Object.freeze([
-    'No extra avatar expressions or motion prompts in the first paid audition.',
-    'Use locked public Starfish voice Annie for Rumi and Orson for Kevin. Never fall back to the original look-assigned default voices.',
-    'No two-person fake listener loops; show active speaker or verified chart.',
-    'Display the programme as AI-presented illustrative footage; do not claim live financial facts.',
-    'Only the user-approved public video preview for Rumi (not HeyGen gender metadata) qualifies for an initial short paid visual test. Further paid footage and final programme need separate quality review, exact hash, account checks and spend limits.'
+    'The user explicitly locked Liza and Lasse. Do not silently substitute Rumi, Kevin, Araj or other faces.',
+    'Annie and Orson are the last user-approved voices, retained unless explicitly changed.',
+    'Never use unapproved default voices simply because the public avatar look advertises one.',
+    'Already-formal public Office 6 and Office 3 images are not evidence of human-quality movement; first render samples must be reviewed.',
+    'No new paid render without same-key authenticated look and Starfish voice availability, immutable script+cast hash and budget.',
+    'Full film must use existing SIGNAL V2 logo/header/headline/lower-third/ticker/charts and correct simulated-data disclosure.'
   ])
 });
 
 export function realismComparison(){
-  const a=finalCast;
+  const {anchor,analyst}=finalCast;
   return {
-    selectedPair:['Rumi','Kevin'],rejectedPriorLook:'425825d6465b4ba4bd261d334d530430',femaleLead:true,maleAnalyst:true,reason:'Rumi and Kevin locked by user after free visual previews; voices Annie and Orson locked independently; no accepted new footage yet',
-    type:'video-trained public digital twins',reviewRequired:['appearance and suitable diversity','American-accent suitability','lip sync and speaker movement','portrait-safe newsroom composition'],
-    avatarIIICostPerMinuteUSD:1,avatarIVCostPerMinuteUSD:4,avatarVDirectApiPriceConfirmed:false,
-    hypothetical45SecondIIIUSD:0.75,hypothetical45SecondIVUSD:3,
-    hypotheticalFiveMinuteSpeakingIIIUSD:5,hypotheticalFiveMinuteSpeakingIVUSD:20,
-    includedInQuotes:'Avatar speech video seconds only.',
-    excluded:'retakes, silent listener footage, standing/matting, editorial/data licensing, hosting, other models and account-level billing',
-    payAsYouGoMinTopUpUSD:5,noSpend:true,readyForPaidRelease:false
+    selectedPair:[anchor.name,analyst.name],femaleLead:true,maleAnalyst:true,
+    selectedVoicePair:[anchor.auditionVoiceName,analyst.auditionVoiceName],
+    type:'pre-existing public HeyGen Photo Avatars wearing photographed business-formal outfits',
+    wardrobeApproved:anchor.wardrobeApprovalStatus==='approved'&&analyst.wardrobeApprovalStatus==='approved',
+    motionQualityApproved:false,
+    reviewRequired:['real speaker facial naturalness','eye movement and blinking','Annie/Orson lip sync','16:9 Signal graphics composition and transitions'],
+    avatarIIIPricePerMinuteUSD:1,avatarIVPhotoPricePerMinuteUSD:3,
+    fortyFiveSecondIIIEstimateUSD:.75,
+    threeMinuteSpeakingIIIEstimateUSD:3,
+    durationAndProviderChargesNotGuaranteed:true,
+    noAutomaticRetakes:true,readyForFullLengthRelease:false
   };
 }
-
 if(process.argv[1]?.endsWith('realism-casting.mjs'))console.log(JSON.stringify(realismComparison(),null,2));
