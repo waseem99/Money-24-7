@@ -4,13 +4,13 @@ import {realismComparison,finalCast} from '../pilot/v2/realism-casting.mjs';
 import {proposedPresenters} from '../pilot/v2/budget-preflight.mjs';
 import {nativeAuditionPlan} from '../pilot/v2/native-audition.mjs';
 
-test('user-rejected male-presenting Araj video is not mislabeled an approved female-anchor pairing',()=>{
+test('user-locked Rumi/Annie and Kevin/Orson are approved for a short QA audition, not final release',()=>{
   const p=realismComparison();
   assert.equal(p.noSpend,true);assert.equal(p.readyForPaidRelease,false);
-  assert.equal(p.selectedPair,null);
-  assert.deepEqual(p.rejectedPair,['Araj','Kevin']);
-  assert.equal(p.femaleLead,false);assert.equal(p.maleAnalyst,true);
-  assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.name),['Araj','Kevin','Araj']);
+  assert.deepEqual(p.selectedPair,['Rumi','Kevin']);
+  assert.equal(p.rejectedPriorLook,'425825d6465b4ba4bd261d334d530430');
+  assert.equal(p.femaleLead,true);assert.equal(p.maleAnalyst,true);
+  assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.name),['Rumi','Kevin','Rumi']);
   assert.equal(finalCast.anchor.lookId,proposedPresenters.ANCHOR.lookId);
   assert.equal(finalCast.analyst.lookId,proposedPresenters.ANALYST.lookId);
   assert.equal(finalCast.anchor.avatarType,'digital_twin');
@@ -19,8 +19,11 @@ test('user-rejected male-presenting Araj video is not mislabeled an approved fem
   assert.equal(finalCast.analyst.preferredAspectRatio,'16:9');
   assert.equal(finalCast.accountPurchaseAuthorized,false);
   assert.equal(finalCast.liveVideoProduced,true);
-  assert.equal(finalCast.status,'visual-casting-rejected-needs-female-anchor-recast');
-  assert.equal(finalCast.anchor.visualApprovalStatus,'rejected');
+  assert.equal(finalCast.status,'locked-ru-mi-and-kevin-preview-approved-performance-pending');
+  assert.equal(finalCast.anchor.visualApprovalStatus,'approved');
+  assert.equal(finalCast.analyst.visualApprovalStatus,'approved');
+  assert.equal(finalCast.anchor.auditionVoiceName,'Annie - Lifelike');
+  assert.equal(finalCast.analyst.auditionVoiceName,'Orson - Firm & Measured');
 });
 
 test('cost comparison uses only published Avatar III and IV digital-twin API rates',()=>{
