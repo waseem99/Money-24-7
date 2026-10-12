@@ -1,7 +1,9 @@
+> **VISUAL CASTING FAILURE / NO-GO (12 October 2026).** Araj is **REJECTED** as lead anchor after the user watched the finished 10.1878-second Annie-voiced clip and reported a male-presenting face with a female voice. HeyGen's avatar gender metadata said female, but its output was not suitable. This is an **avatar-face casting issue**, not a Kevin/Annie ID swap. The user has approved **Annie** as a voice and **Orson** for Kevin, but there is currently **no approved female lead look**. **All further paid renders blocked**, regardless of existing API key or wallet. See [visual casting incident and verified free previews](FEMALE_ANCHOR_VISUAL_RECAST.md). This section supersedes earlier Araj selection below.
+
 # Final casting and zero-spend production gate — Jazz AI Channel
 
 Date: 10 October 2026
-Status: one authorized Araj API render was submitted and **failed voice validation**. No further paid attempts are authorized, no successful real presenter video exists, and this casting PR remains draft. See [first-attempt diagnosis](HEYGEN_ARAJ_VOICE_DIAGNOSIS.md).
+Status: **TWO separate tests occurred**: one failed TTS default-voice validation; the second produced a real Araj + Annie clip which the user **visually rejected** because the presenter looked male. No approved final female presenter exists; no further paid attempts are authorized and this casting PR remains draft. See [first-attempt diagnosis](HEYGEN_ARAJ_VOICE_DIAGNOSIS.md).
 
 ## Selected public video-trained presenters
 
@@ -56,4 +58,4 @@ If separately approved for a new attempt, initialize a new immutable run, verify
 
 The main V2 full programme still requires ElevenLabs for word-timed alignment; this short HeyGen-only audition does not remove that dependency from the full five-minute programme. A moving silent listener, standing matting/alpha, verified source footage, chart sync, real all-in costing, human full-length review, and shared broadcasting remain open. See GitHub issues 24 and 6.
 
-Exactly **one paid-capable API submission** occurred, followed by a failed video status; billed cost is unknown. No successful new presenter film exists. The GitHub PR remains draft and additional spending is blocked pending user approval.
+Exactly **two user-authorized API submissions** occurred (one voice-validation failure, one technically completed 10.1878s clip). The user rejected the second output as an incorrect on-screen female casting. The verified wallet/actual charged cost is not established here. No accepted female-led film exists. The GitHub PR remains draft and additional spending is blocked pending user approval.
