@@ -1,0 +1,30 @@
+name: Stocks R5 — one original Liza and Annie quality take
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-r5-liza-one.yml'
+jobs:
+  once-original-nora:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      STOCKS_ROLE: NORA
+      STOCKS_RECEIPT_PATH: stocks-original-liza-r5-receipt.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: One locked direct API Nora/Liza submission with original Annie voice
+        run: node pilot/stocks/r5/submit-one.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-r5-original-liza-single-submission-receipt
+          path: stocks-original-liza-r5-receipt.json
+          retention-days: 21
