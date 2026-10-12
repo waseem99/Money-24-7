@@ -1,0 +1,126 @@
+name: SIGNAL formal Liza and Lasse 1080p studio duo proof — existing video only
+
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/liza-lasse-signal-duo-proof.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  produce-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install FFmpeg
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core >/dev/null
+      - name: Download two previously completed genuine approved HeyGen video sources (GET ONLY)
+        shell: bash
+        run: |
+          mkdir -p proof
+          node --input-type=module <<'NODE'
+          import {createWriteStream} from 'node:fs';
+          import {pipeline} from 'node:stream/promises';
+          import {Readable} from 'node:stream';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12)throw new Error('Missing encrypted HeyGen API secret');
+          const sources=[
+            {name:'liza',id:'9180a425a289d33d75c4ef82178ce9a8'},
+            {name:'lasse',id:'d69f9b79b86a04dec1dee7473e9cf9db'}
+          ];
+          for(const item of sources){
+            const r=await fetch('https://api.heygen.com/v3/videos/'+item.id,{
+              method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},
+              redirect:'error',signal:AbortSignal.timeout(25000)});
+            if(!r.ok)throw new Error('Video metadata GET failed HTTP '+r.status);
+            const raw=await r.json(),v=raw?.data??raw;
+            if(v.status!=='completed'||v.video_id&&v.video_id!==item.id)
+              throw new Error('Exact final speaker clip was not completed');
+            const fileUrl=v.video_url??v.videoUrl;
+            if(!fileUrl)throw new Error('Provider did not return a download URL');
+            const uri=new URL(fileUrl);
+            if(uri.protocol!=='https:'||!['heygen.ai','heygen.com'].some(x=>uri.hostname===x||uri.hostname.endsWith('.'+x)))
+              throw new Error('Video origin is not recognized');
+            const media=await fetch(fileUrl,{method:'GET',redirect:'follow',signal:AbortSignal.timeout(120000)});
+            if(!media.ok||!media.body)throw new Error('Unable to download existing video');
+            await pipeline(Readable.fromWeb(media.body),createWriteStream('proof/'+item.name+'.mp4'));
+            console.log('PASS: existing completed '+item.name+' clip, '+item.id+', downloaded without generation');
+          }
+          NODE
+      - name: Render established SIGNAL V2 branded 1080p newsroom frames using original renderer
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import sharp from 'sharp';
+          import {exampleProgramme} from './src/broadcast/fixtures.js';
+          import {renderSVG} from './src/broadcast/render.js';
+          import {compileTimeline} from './src/broadcast/timeline.js';
+          const p=exampleProgramme('sample');
+          p.presenters[0].name='Liza';p.presenters[0].role='Lead anchor';
+          p.presenters[1].name='Lasse';p.presenters[1].role='Market analyst';
+          p.scenes[0].headline='BEYOND THE HEADLINE';
+          p.scenes[2].headline='ANALYZE THE MARKET CONTEXT';
+          const timeline=compileTimeline(p,{}, {fixture:true});
+          for(const [name,timestamp] of [['liza',1500],['lasse',15000]]){
+            const frame=renderSVG(p,timestamp,timeline,{fixture:false,reducedMotion:true,overlays:true});
+            await sharp(Buffer.from(frame)).png().toFile('proof/'+name+'-signal-bg.png');
+          }
+          console.log('PASS: official SIGNAL V2 logo/header, headlines, 2 formal presenter lower-thirds, synthetic-data market board and ticker created');
+          NODE
+      - name: Composite real speaking faces with SIGNAL V2 news graphics, concatenate
+        shell: bash
+        run: |
+          ffmpeg -hide_banner -v error -y -loop 1 -framerate 30 \
+            -i proof/liza-signal-bg.png -i proof/liza.mp4 \
+            -filter_complex "[1:v]fps=30,scale=1070:590:force_original_aspect_ratio=increase,crop=1070:590,setsar=1[liza];[0:v][liza]overlay=x=70:y=175:shortest=1:format=auto,format=yuv420p[out]" \
+            -map "[out]" -map 1:a:0 -t 8.12 -r 30 \
+            -c:v libx264 -preset veryfast -crf 22 -pix_fmt yuv420p \
+            -c:a aac -b:a 160k -ar 48000 -movflags +faststart proof/liza-studio.mp4
+          ffmpeg -hide_banner -v error -y -loop 1 -framerate 30 \
+            -i proof/lasse-signal-bg.png -i proof/lasse.mp4 \
+            -filter_complex "[1:v]fps=30,scale=880:590:force_original_aspect_ratio=increase,crop=880:590,setsar=1[lasse];[0:v][lasse]overlay=x=70:y=175:shortest=1:format=auto,format=yuv420p[out]" \
+            -map "[out]" -map 1:a:0 -t 8.85 -r 30 \
+            -c:v libx264 -preset veryfast -crf 22 -pix_fmt yuv420p \
+            -c:a aac -b:a 160k -ar 48000 -movflags +faststart proof/lasse-studio.mp4
+          printf "file 'liza-studio.mp4'\nfile 'lasse-studio.mp4'\n" > proof/concat.txt
+          ffmpeg -hide_banner -v error -y -f concat -safe 0 -i proof/concat.txt \
+            -c:v libx264 -preset veryfast -crf 20 -r 30 \
+            -c:a aac -b:a 192k -ar 48000 -movflags +faststart \
+            proof/SIGNAL-Liza-Lasse-formal-broadcast-QA.mp4
+          ffmpeg -hide_banner -v error -y -ss 2.3 -i proof/SIGNAL-Liza-Lasse-formal-broadcast-QA.mp4 -frames:v 1 -update 1 proof/Liza-studio-frame.png
+          ffmpeg -hide_banner -v error -y -ss 11.5 -i proof/SIGNAL-Liza-Lasse-formal-broadcast-QA.mp4 -frames:v 1 -update 1 proof/Lasse-studio-frame.png
+          ffprobe -v error -show_entries format=duration -show_entries stream=codec_type,width,height -of json proof/SIGNAL-Liza-Lasse-formal-broadcast-QA.mp4
+          printf '%s\n' \
+            'SIGNAL two-presenter studio proof / NOT the final 180-second programme.' \
+            'Liza Office 6 / Annie real rendered speech (HeyGen 9180a425a289d33d75c4ef82178ce9a8).' \
+            'Lasse Office 3 / Orson real rendered speech (HeyGen d69f9b79b86a04dec1dee7473e9cf9db).' \
+            'Existing SIGNAL render.js studio header, headline, presenter lower thirds, ticker, simulated data warning and chart/board panel.' \
+            'Background graphics are STATIC for this proof; full three-minute film still needs animated shot-timed graphics, captions, final audio and quality signoff.' \
+            'Both chosen presenter source images are Photo Avatars; real motion/lip sync remain subject to HUMAN QA.' \
+            'No new paid avatar, voice or AI image jobs were submitted by this workflow.' \
+            > proof/README-QUALITY-NOTE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-Liza-Lasse-formal-studio-2person-preview
+          path: |
+            proof/SIGNAL-Liza-Lasse-formal-broadcast-QA.mp4
+            proof/Liza-studio-frame.png
+            proof/Lasse-studio-frame.png
+            proof/README-QUALITY-NOTE.txt
+          retention-days: 14
+          if-no-files-found: error
