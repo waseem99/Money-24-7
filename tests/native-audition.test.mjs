@@ -17,17 +17,17 @@ const look=(id)=>{
 };
 
 const voiceCatalog=({gender})=>Object.values(proposedPresenters)
-  .filter(p=>(p.id==='araj'?'female':'male')===gender)
+  .filter(p=>(p.id==='rumi'?'female':'male')===gender)
   .map(p=>({voice_id:p.auditionVoiceId,name:p.auditionVoiceName,language:'English',gender}));
 
-test('Araj/Kevin/Araj identities, voices, portrait framing and conservative budget are immutable',()=>{
+test('Rumi/Kevin/Rumi locked visual and voice identities, portrait framing and conservative budget',()=>{
   const a=auditNativePlan();
   assert.equal(a.safeDryRun,true);
-  assert.equal(a.paidRelease,'BLOCKED_VISUAL_APPROVAL');
-  assert.equal(proposedPresenters.ANCHOR.visualApprovalStatus,'rejected');
-  assert.equal(proposedPresenters.ANALYST.visualApprovalStatus,'pending');
+  assert.equal(a.paidRelease,'BLOCKED');
+  assert.equal(proposedPresenters.ANCHOR.visualApprovalStatus,'approved');
+  assert.equal(proposedPresenters.ANALYST.visualApprovalStatus,'approved');
   assert.equal(a.engine,'avatar_iii');
-  assert.deepEqual(a.turns.map(t=>t.presenter),['Araj','Kevin','Araj']);
+  assert.deepEqual(a.turns.map(t=>t.presenter),['Rumi','Kevin','Rumi']);
   assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.aspectRatio),['9:16','16:9','9:16']);
   assert.deepEqual(nativeAuditionPlan.turns.map(t=>t.fit),['contain','cover','contain']);
   assert.equal(a.maximumReservedEstimateUSD,1.02);
@@ -136,32 +136,61 @@ test('read-only look check stores a same-account preflight; mismatched voice blo
   }
 });
 
-test('user-rejected Araj look blocks paid generation even with valid hash, budget, key and free catalog check',async()=>{
-  const dir=await mkdtemp(path.join(os.tmpdir(),'signal-native-visual-hold-'));
+test('Rumi/Annie budget-gated audition requires the exact account preflight and never duplicates a paid job',async()=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'signal-rumi-native-paid-mock-'));
   const old=process.env.PILOT_DATA_DIR;process.env.PILOT_DATA_DIR=dir;
   try{
     const run=await initNative();
-    let paidSubmissions=0;
+    let paidSubmissions=0,reads=0;
+    const env={...testEnv,PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash};
     const provider={
       async avatarLook(id){return look(id);},
       async listVoices(args){return voiceCatalog(args);},
-      async avatarScript(){paidSubmissions++;throw new Error('BILLABLE POST MUST NEVER RUN');},
-      async status(){throw new Error('Provider status must not be called');},
-      async download(){throw new Error('Media download must not be called');}
+      async avatarScript(text,avatarId,voiceId,key,opts){
+        paidSubmissions++;
+        assert.equal(opts.engine,'avatar_iii');
+        assert.equal(opts.aspectRatio,'9:16');
+        assert.equal(opts.fit,'contain');
+        assert.equal(avatarId,'efa5d7cf738a4efd84b1dac501d9aef8');
+        assert.equal(voiceId,'330290724a1b470fb63153f34d4c0183');
+        assert.equal(text,nativeAuditionPlan.turns[0].text);
+        return {videoId:'mock-rumi-video'};
+      },
+      async status(){reads++;return {status:'processing'};},
+      async download(){throw new Error('No download while pending');}
     };
-    const env={...testEnv,PILOT_PAID_RELEASE_EPISODE_HASH:run.manifest.planHash};
-    const result=await lookCheckNative(run,{env,provider});
-    assert.equal(result.billedRenderRequests,0);
-    assert.equal(result.chosenVoiceVerifiedInStarfishCatalog,true);
-    await assert.rejects(produceNativeTurn(run,'araj-open',{env,provider}),/explicit --paid/);
-    await assert.rejects(produceNativeTurn(run,'araj-open',{paid:true,env,provider}),/visually rejected or unapproved/);
-    await assert.rejects(produceNativeTurn(run,'kevin-analysis',{paid:true,env,provider}),/visually rejected or unapproved/);
+    await assert.rejects(produceNativeTurn(run,'rumi-open',{env,provider}),/explicit --paid/);
+    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,env,provider}),/same-key read-only/);
+    const proof=await lookCheckNative(run,{env,provider});
+    assert.equal(proof.billedRenderRequests,0);
+    assert.equal(proof.chosenVoiceVerifiedInStarfishCatalog,true);
+    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,
+      env:{...env,PILOT_PAID_RELEASE_EPISODE_HASH:'unapproved'},provider}),/locked/);
+    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,
+      env:{...env,HEYGEN_API_KEY:'other-valid-key'},provider}),/same-key read-only/);
+    await assert.rejects(produceNativeTurn(run,'rumi-open',{paid:true,
+      env:{...env,PILOT_PAID_RELEASE_MAX_USD:'0.33'},provider}),/locked/);
+    await assert.rejects(produceNativeTurn(run,'not-a-turn',{paid:true,env,provider}),/one approved --turn/);
     assert.equal(paidSubmissions,0);
-    const status=await nativeStatus(run);
-    assert.equal(status.jobs.reservedEstimateUSD,0);
-    assert.equal(status.jobs.jobs.length,0);
+    const first=await produceNativeTurn(run,'rumi-open',{paid:true,env,provider});
+    const second=await produceNativeTurn(run,'rumi-open',{paid:true,env,provider});
+    assert.equal(first.state,'pending');
+    assert.equal(second.state,'pending');
+    assert.equal(paidSubmissions,1);
+    assert.equal(reads,2);
+    const final=await nativeStatus(run);
+    assert.equal(final.jobs.reservedEstimateUSD,.34);
   }finally{
     if(old===undefined)delete process.env.PILOT_DATA_DIR;else process.env.PILOT_DATA_DIR=old;
     await rm(dir,{recursive:true,force:true});
   }
+});
+
+test('rejected historical Araj look and any silently modified voice are excluded from Rumi paid plan',()=>{
+  const oldAvatar=structuredClone(nativeAuditionPlan);
+  oldAvatar.turns[0].avatarId='425825d6465b4ba4bd261d334d530430';
+  assert.throws(()=>auditNativePlan(oldAvatar),/Presenter\/voice changed/);
+  const oldVoice=structuredClone(nativeAuditionPlan);
+  oldVoice.turns[0].voiceId='5769809d7ddd445e8173b3d08c509ae1';
+  assert.throws(()=>auditNativePlan(oldVoice),/Presenter\/voice changed/);
 });
