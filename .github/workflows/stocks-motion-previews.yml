@@ -22,8 +22,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Ensure FFmpeg is available
-        run: ffmpeg -version | head -1
+      - name: Install FFmpeg and fonts
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - name: Verify media tools
+        run: ffmpeg -version | head -1 && ffprobe -version | head -1
       - name: Download only existing public Studio Avatar previews and build review contact sheet
         run: node pilot/stocks/preview-motion-sheet.mjs /tmp/stocks-previews
       - name: Upload non-billable motion preview comparison
