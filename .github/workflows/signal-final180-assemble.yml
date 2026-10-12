@@ -1,0 +1,110 @@
+name: SIGNAL — FINAL 1080p three-minute animated newsroom master
+on:
+  push:
+    branches: [ops/jazz-formal-anchors-20261012]
+    paths: [.github/workflows/signal-final180-assemble.yml]
+permissions:
+  contents: read
+concurrency:
+  group: signal-final-180-v1-asset-download-and-master
+  cancel-in-progress: false
+jobs:
+  fetch_exact_licensed_clips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Download ten exact previously paid avatar clips using GET only (no user code checkout)
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {createWriteStream} from 'node:fs';
+          import {mkdir,writeFile} from 'node:fs/promises';
+          import {Readable} from 'node:stream';
+          import {pipeline} from 'node:stream/promises';
+          const approved=[{"id": "liza_open", "role": "LIZA", "videoId": "9180a425a289d33d75c4ef82178ce9a8"}, {"id": "lasse_open", "role": "LASSE", "videoId": "d69f9b79b86a04dec1dee7473e9cf9db"}, {"id": "liza_board", "role": "LIZA", "videoId": "698a84ee60c2c6cbd1e5e6680ed1e126"}, {"id": "lasse_candles", "role": "LASSE", "videoId": "17dd70331cff7d133a9082798bda0bcd"}, {"id": "liza_question", "role": "LIZA", "videoId": "860e26f26bcb5d4732c53b031f7de2bf"}, {"id": "lasse_volume", "role": "LASSE", "videoId": "03ebd7fc368688e6b2ced74c075efea1"}, {"id": "lasse_momentum", "role": "LASSE", "videoId": "5b14f7dfa28958117b8a18cf23872c18"}, {"id": "liza_evidence", "role": "LIZA", "videoId": "8920d0921c4b87facc673926b4e0717e"}, {"id": "lasse_takeaway", "role": "LASSE", "videoId": "544146ea65fa2f5328a13118744bf65c"}, {"id": "liza_close", "role": "LIZA", "videoId": "4a44f084257c107710cd9265ff5f9c72"}];
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key||key.length<12||process.env.GITHUB_REPOSITORY!=='waseem99/Money-24-7')
+           throw Error('Trusted API key required for read-only asset downloads');
+          await mkdir('signal-demo-output/sources',{recursive:true});
+          const out=[];
+          for(const source of approved){
+           if(!/^[A-Za-z0-9_-]{8,128}$/.test(source.videoId))throw Error('Invalid approved clip ID');
+           const response=await fetch('https://api.heygen.com/v3/videos/'+source.videoId,{
+            method:'GET',headers:{'X-Api-Key':key,Accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(25000)});
+           if(!response.ok)throw Error('Clip GET '+source.id+' HTTP '+response.status);
+           const body=await response.json();if(body?.error)throw Error('Provider clip-read failure');
+           const clip=body.data??body;
+           if(clip.status!=='completed'||clip.video_id&&clip.video_id!==source.videoId)throw Error('Only completed exact sources permitted: '+source.id);
+           const uri=new URL(clip.video_url??clip.videoUrl??'');
+           if(uri.protocol!=='https:'||!['heygen.ai','heygen.com'].some(root=>uri.hostname===root||uri.hostname.endsWith('.'+root)))
+            throw Error('Unexpected provider asset host: '+source.id);
+           const media=await fetch(uri.toString(),{method:'GET',redirect:'follow',signal:AbortSignal.timeout(120000)});
+           if(!media.ok||!media.body)throw Error('Existing speaking clip download failed');
+           const size=Number(media.headers.get('content-length')||0);
+           if(size>150000000)throw Error('Video exceeds bounded download size');
+           await pipeline(Readable.fromWeb(media.body),createWriteStream('signal-demo-output/sources/'+source.id+'.mp4'));
+           out.push({...source,duration:Number(clip.duration)});
+           console.log('VERIFIED_SPEAKER_SOURCE '+source.id+' '+source.videoId+' '+Number(clip.duration).toFixed(2)+'s');
+          }
+          if(out.length!==10)throw Error('Incomplete exact approved clip manifest');
+          await writeFile('signal-demo-output/sources/source-metadata.json',JSON.stringify(out,null,2));
+          console.log('SOURCE_MATERIAL_READY 10/10 completed real Liza and Lasse video assets. GET-only; zero newly paid provider requests.');
+          NODE
+      - name: Share source media with secret-free editor only
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-final180-existing-provider-sources
+          path: signal-demo-output/sources/
+          if-no-files-found: error
+          retention-days: 14
+  build_master_without_provider_secrets:
+    needs: fetch_exact_licensed_clips
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    env:
+      SIGNAL_DEMO_WORKDIR: ${{ github.workspace }}/signal-demo-output
+      SIGNAL_GRAPHICS_FPS: '12'
+    steps:
+      - name: Checkout trusted final reviewed SIGNAL visual engine (NO API secrets in this job)
+        uses: actions/checkout@v4
+        with:
+          ref: prep/jazz-zero-spend-gate-20261010
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install rendering dependencies (no online AI service)
+        run: |
+          npm ci
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core >/dev/null
+      - name: Receive exact generated video source files from isolated authenticated GET-only job
+        uses: actions/download-artifact@v4
+        with:
+          name: signal-final180-existing-provider-sources
+          path: signal-demo-output/sources
+      - name: Validate final storyboard and encode animated fullHD program
+        shell: bash
+        run: |
+          node --test tests/animated-signal-demo.test.mjs
+          node pilot/v2/demo-master-plan.mjs
+          node pilot/v2/assemble-demo.mjs
+          ffprobe -hide_banner -v error \
+            -show_entries format=duration,size -show_entries stream=codec_type,codec_name,width,height,r_frame_rate,sample_rate \
+            -of json signal-demo-output/SIGNAL-Financial-News-3min-1080p-FINAL-DEMO.mp4
+          sha256sum signal-demo-output/SIGNAL-Financial-News-3min-1080p-FINAL-DEMO.mp4 > signal-demo-output/SIGNAL-MP4-SHA256.txt
+      - name: Upload finished 1080p financial newsroom film, captions, frame contacts and production QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIGNAL-FINISHED-1080p-3min-Premium-Demo
+          path: |
+            signal-demo-output/SIGNAL-Financial-News-3min-1080p-FINAL-DEMO.mp4
+            signal-demo-output/SIGNAL-captions.vtt
+            signal-demo-output/SIGNAL-technical-QA.json
+            signal-demo-output/SIGNAL-scene-contact-sheet.png
+            signal-demo-output/SIGNAL-MP4-SHA256.txt
+          if-no-files-found: error
+          retention-days: 30
