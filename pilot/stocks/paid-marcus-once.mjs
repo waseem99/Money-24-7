@@ -11,7 +11,7 @@ try {
   const key=process.env.HEYGEN_API_KEY, token=process.env.GH_TOKEN;
   if(!key||!token||!process.env.GITHUB_REPOSITORY||!process.env.GITHUB_SHA)throw Error('Credentials or repo context unavailable');
   const payload={type:'avatar',avatar_id:id,script:text,voice_id:voice,engine:{type:'avatar_iii'},
-    resolution:'1080p',aspect_ratio:'16:9',output_format:'webm',
+    resolution:'1080p',aspect_ratio:'16:9',output_format:'mp4',
     caption:{file_format:'srt'},title:'Stocks Marcus Orson studio anchor reply — one approved attempt'};
   const payloadHash=createHash('sha256').update(JSON.stringify(payload)).digest('hex');
   const lockName='stocks-marcus-only-'+payloadHash.slice(0,20);
@@ -34,7 +34,8 @@ try {
   receipt.paidRequests=1;receipt.http=res.status;
   receipt.videoId=result.data?.video_id||result.video_id||null;
   receipt.status=res.ok&&receipt.videoId?'SUBMITTED_ONCE':'REJECTED_OR_UNCERTAIN_DO_NOT_RETRY';
-  receipt.providerCode=result.error_code||null;
+  receipt.providerCode=result.error_code||result.error?.code||null;
+  receipt.providerReason=String(result.message||result.error?.message||result.error?.details||'').slice(0,240);
   save();console.log('STOCKS_MARCUS_RECEIPT='+JSON.stringify(receipt));
 } catch(err) {
   receipt.status='STOP_NO_RETRY';
