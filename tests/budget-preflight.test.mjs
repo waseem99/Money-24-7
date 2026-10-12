@@ -3,18 +3,22 @@ import assert from 'node:assert/strict';
 import {budgetPreflight,selectedProgramme,proposedPresenters} from '../pilot/v2/budget-preflight.mjs';
 import {requirePaidRelease} from '../pilot/v2/workflow.mjs';
 
-test('Araj/Kevin profile is valid, retains timings and cannot silently use Maya/Daniel dialogue',()=>{
+test('Rumi/Kevin profile is valid, retains timings and cannot silently use Maya/Daniel dialogue',()=>{
   for(const profile of ['sample','pilot']){
     const p=selectedProgramme(profile);
     assert.equal(p.durationMs,profile==='sample'?45000:300000);
-    assert.deepEqual(p.presenters.map(x=>x.name),['Araj','Kevin']);
-    assert.deepEqual(p.presenters.map(x=>x.id),['araj','kevin']);
+    assert.deepEqual(p.presenters.map(x=>x.name),['Rumi','Kevin']);
+    assert.deepEqual(p.presenters.map(x=>x.id),['rumi','kevin']);
     assert.equal(p.turns.some(t=>/\b(Maya|Daniel)\b/.test(t.text)),false);
     assert.ok(p.turns.every(t=>p.presenters.some(x=>x.id===t.speakerId)));
   }
   assert.equal(proposedPresenters.ANCHOR.defaultVoiceId.length,32);
   assert.equal(proposedPresenters.ANALYST.lookId.length,32);
   assert.equal(proposedPresenters.ANCHOR.avatarType,'digital_twin');
+  assert.equal(proposedPresenters.ANCHOR.lookId,'efa5d7cf738a4efd84b1dac501d9aef8');
+  assert.equal(proposedPresenters.ANCHOR.auditionVoiceId,'330290724a1b470fb63153f34d4c0183');
+  assert.equal(proposedPresenters.ANCHOR.visualApprovalStatus,'approved');
+  assert.equal(proposedPresenters.ANALYST.auditionVoiceId,'00e3d285aba44b27a83c47c02c9c2d9c');
   assert.equal(proposedPresenters.ANALYST.preferredAspectRatio,'16:9');
   assert.equal(proposedPresenters.ANCHOR.preferredAspectRatio,'9:16');
   assert.throws(()=>selectedProgramme('segment'),/Only sample and pilot/);
