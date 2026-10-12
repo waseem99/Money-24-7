@@ -1,0 +1,76 @@
+name: Stocks R5 — recover and matte original Liza Lasse (NO NEW GENERATION)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-r5-recover-and-matte.yml'
+jobs:
+  recover-originals:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install source-inspection and matting dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python3 -c 'import torch,numpy' || pip3 install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Recover only the existing completed source videos via GET
+        shell: bash
+        run: |
+          mkdir -p /tmp/stocks-r5
+          node --input-type=module <<'JS'
+          import {writeFileSync} from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;if(!key)throw Error('No API read credential');
+          const wanted=[['NORA','f0a2771ab6e9cfdd82306b9c4aff5e33'],
+            ['MARCUS','d8808e9850b76dd38d550d5b5f0ccaf7']];
+          const records=[];
+          for(const [role,id] of wanted){
+            const resp=await fetch('https://api.heygen.com/v3/videos/'+id,{headers:{'x-api-key':key},signal:AbortSignal.timeout(18000)});
+            const raw=await resp.json().catch(()=>({}));
+            const v=raw.data??raw;
+            if(!resp.ok||v.status!=='completed'||!v.video_url)throw Error(role+' not finished; no new render attempted');
+            const media=await fetch(v.video_url,{signal:AbortSignal.timeout(120000)});
+            if(!media.ok)throw Error(role+' read-only source download failed');
+            const buf=new Uint8Array(await media.arrayBuffer());
+            if(buf.length<100000||buf.length>65000000)throw Error('Unexpected media size '+role);
+            writeFileSync('/tmp/stocks-r5/'+role+'.mp4',buf);
+            records.push({role,videoId:id,sizeBytes:buf.length,providerDurationSeconds:v.duration||null});
+          }
+          const out={sources:records,newHeyGenVideoPOSTs:0,editedUsingOnlyExistingVideo:true};
+          writeFileSync('/tmp/stocks-r5/source-recovery.json',JSON.stringify(out,null,2));
+          console.log('STOCKS_R5_SOURCES_RECOVERED='+JSON.stringify(out));
+          JS
+      - name: Download public RVM matting model
+        run: |
+          curl -fsSL --retry 2 --max-time 180 'https://github.com/PeterL1n/RobustVideoMatting/releases/download/v1.0.0/rvm_mobilenetv3_fp32.torchscript' -o /tmp/stocks-r5/rvm.torchscript
+      - name: Matte each ORIGINAL source preserving actual moving faces (no HeyGen POST)
+        shell: bash
+        run: |
+          python3 pilot/stocks/matte-marcus.py /tmp/stocks-r5/NORA.mp4 /tmp/stocks-r5/rvm.torchscript /tmp/stocks-r5/NORA-matte.webm
+          python3 pilot/stocks/matte-marcus.py /tmp/stocks-r5/MARCUS.mp4 /tmp/stocks-r5/rvm.torchscript /tmp/stocks-r5/MARCUS-matte.webm
+          ffmpeg -v error -c:v libvpx-vp9 -i /tmp/stocks-r5/NORA-matte.webm -f null -
+          ffmpeg -v error -c:v libvpx-vp9 -i /tmp/stocks-r5/MARCUS-matte.webm -f null -
+          ffprobe -v error -show_entries stream=codec_name,width,height:format=duration -of json /tmp/stocks-r5/NORA.mp4
+          ffprobe -v error -show_entries stream=codec_name,width,height:format=duration -of json /tmp/stocks-r5/MARCUS.mp4
+          ffmpeg -v error -c:v libvpx-vp9 -ss 3 -i /tmp/stocks-r5/NORA-matte.webm -frames:v 1 -update 1 /tmp/stocks-r5/NORA-matte-still.png
+          ffmpeg -v error -c:v libvpx-vp9 -ss 4 -i /tmp/stocks-r5/MARCUS-matte.webm -frames:v 1 -update 1 /tmp/stocks-r5/MARCUS-matte-still.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stocks-r5-original-liza-lasse-real-media
+          path: |
+            /tmp/stocks-r5/NORA.mp4
+            /tmp/stocks-r5/MARCUS.mp4
+            /tmp/stocks-r5/NORA-matte.webm
+            /tmp/stocks-r5/MARCUS-matte.webm
+            /tmp/stocks-r5/NORA-matte-still.png
+            /tmp/stocks-r5/MARCUS-matte-still.png
+            /tmp/stocks-r5/source-recovery.json
+          retention-days: 21
