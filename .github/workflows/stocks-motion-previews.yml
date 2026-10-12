@@ -1,0 +1,32 @@
+name: Stocks — inspect existing provider studio previews (zero spend)
+on:
+  push:
+    branches:
+      - feat/stocks-quality-proof-20261012
+  workflow_dispatch:
+jobs:
+  public-motion-previews:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Ensure FFmpeg is available
+        run: ffmpeg -version | head -1
+      - name: Download only existing public Studio Avatar previews and build review contact sheet
+        run: node pilot/stocks/preview-motion-sheet.mjs /tmp/stocks-previews
+      - name: Upload non-billable motion preview comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: stocks-public-studio-motion-preview
+          path: |
+            /tmp/stocks-previews/STOCKS-VIDEO-TRAINED-CANDIDATE-MOTION-STRIP.jpg
+            /tmp/stocks-previews/STOCKS-EXISTING-STUDIO-PREVIEWS-SIDE-BY-SIDE.mp4
+            /tmp/stocks-previews/STOCKS-MOTION-PREVIEW-QA.json
+          retention-days: 14
