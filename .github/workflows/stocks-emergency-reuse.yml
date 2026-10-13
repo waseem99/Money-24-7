@@ -1,0 +1,82 @@
+name: Stocks emergency newsroom — recover and matte existing financial-news speakers only
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-emergency-reuse.yml'
+jobs:
+  matte-existing-media:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        clip: [global_market, earnings, news_open, rates, oil, cpi]
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    permissions:
+      contents: read
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      SOURCE_ID: ${{ matrix.clip }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install offline media dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python3 -c 'import torch,numpy' || pip3 install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Obtain open-source matting weights
+        run: |
+          curl -fsSL --retry 2 --max-time 120 'https://github.com/PeterL1n/RobustVideoMatting/releases/download/v1.0.0/rvm_mobilenetv3_fp32.torchscript' -o /tmp/rvm.torchscript
+      - name: Download exactly the earlier licensed provider clip (GET only)
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import {writeFileSync} from 'node:fs';
+          const ids={
+            global_market:'dcf2c09287724a14df7f9c587321e305',
+            earnings:'b38e9e26cd529a0607b310217f251cbf',
+            news_open:'2f024a7c545dbfa3a446d422a69af8ff',
+            rates:'ffd161164f25d09e26193f0edc81b343',
+            oil:'17b699ebce13c4ca1d890931a5385bea',
+            cpi:'c75a2070c0b2bc08edd380b64ae6bd52'
+          };
+          const clip=process.env.SOURCE_ID,key=process.env.HEYGEN_API_KEY,id=ids[clip];
+          if(!id||!key)throw Error('No recognized source or private read credential');
+          const p=await fetch('https://api.heygen.com/v3/videos/'+id,{method:'GET',headers:{'x-api-key':key},signal:AbortSignal.timeout(20000)});
+          const result=await p.json().catch(()=>({})),data=result.data??result;
+          if(!p.ok||data.status!=='completed'||!data.video_url)throw Error('Previously licensed source is not retrievable; no generation attempted');
+          const v=await fetch(data.video_url,{signal:AbortSignal.timeout(90000)});
+          if(!v.ok)throw Error('Source GET failed HTTP '+v.status);
+          const file=new Uint8Array(await v.arrayBuffer());
+          if(file.length<150000||file.length>60000000)throw Error('Invalid source bytes');
+          writeFileSync('/tmp/source.mp4',file);
+          console.log('SOURCE_REUSE_CONFIRMED='+JSON.stringify({clip,videoId:id,bytes:file.length,paidGenerationRequests:0}));
+          JS
+      - name: Extract original foreground while preserving video motion (no HeyGen paid calls)
+        run: |
+          python3 pilot/stocks/emergency-matte.py /tmp/source.mp4 /tmp/rvm.torchscript /tmp/stocks-${SOURCE_ID}-alpha.webm
+          ffprobe -v error -show_entries stream=codec_name,width,height:stream_tags=alpha_mode -of json /tmp/stocks-${SOURCE_ID}-alpha.webm
+          ffmpeg -v error -c:v libvpx-vp9 -i /tmp/stocks-${SOURCE_ID}-alpha.webm -f null -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stocks-emergency-matte-${{ matrix.clip }}
+          path: /tmp/stocks-${{ matrix.clip }}-alpha.webm
+          retention-days: 7
+  bundle:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: matte-existing-media
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: stocks-emergency-matte-*
+          merge-multiple: true
+          path: /tmp/all
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stocks-emergency-all-newsroom-foregrounds
+          path: /tmp/all/*.webm
+          retention-days: 7
