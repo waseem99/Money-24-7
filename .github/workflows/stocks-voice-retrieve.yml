@@ -1,0 +1,51 @@
+name: Stocks editorial voices — retrieve 18 existing generated WAVs
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-voice-retrieve.yml'
+jobs:
+  recorded-audio-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install FFprobe
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Download previously generated original news voice clips, GET only
+        run: |
+          mkdir -p /tmp/stocks-voice-clips
+          node --input-type=module <<'JS'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          const raw=JSON.parse(readFileSync('pilot/stocks/voice-150-20261013.json','utf8'));
+          const results=[];
+          for(let i=0;i<raw.segments.length;i+=4) {
+            const batch=raw.segments.slice(i,i+4);
+            const outcomes=await Promise.all(batch.map(async s=>{
+              if(!s.url)throw Error('Missing audio URL: '+s.id);
+              const url=new URL(s.url);
+              if(url.protocol!=='https:'||!url.hostname.endsWith('heygen.ai'))throw Error('Unexpected source domain');
+              const file='/tmp/stocks-voice-clips/voice_'+s.id+'.wav';
+              const r=await fetch(s.url,{signal:AbortSignal.timeout(35000)});
+              if(!r.ok)throw Error('Audio download '+s.id+' HTTP '+r.status);
+              const b=new Uint8Array(await r.arrayBuffer());
+              if(b.length<1000||b.length>20_000_000)throw Error('Source byte-length invalid');
+              writeFileSync(file,b);
+              const actual=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration:stream=sample_rate,channels','-of','json',file],{encoding:'utf8'}));
+              return {id:s.id,role:s.role,file:'voice_'+s.id+'.wav',seconds:Number(actual.format.duration),bytes:b.length};
+            }));
+            results.push(...outcomes);
+          }
+          writeFileSync('/tmp/stocks-voice-clips/recovery.json',JSON.stringify({count:results.length,clips:results,providerPOSTs:0},null,2));
+          console.log('STOCKS_VOICE_RECOVERY='+JSON.stringify({count:results.length,totalSeconds:results.reduce((n,x)=>n+x.seconds,0),providerPOSTs:0}));
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stocks-original-150s-news-voice-tracks
+          path: /tmp/stocks-voice-clips
+          retention-days: 21

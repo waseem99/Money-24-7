@@ -1,0 +1,52 @@
+name: Stocks W6 - six native newsroom speaking shots
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-native-w6.yml'
+jobs:
+  six-real-newsroom-shots:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shot: ['05','09','14','16','18','20']
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      STOCKS_SHOT: ${{ matrix.shot }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Single short exact-script scene with one-time paid generation lock
+        run: node pilot/stocks/native-w6-scene.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-native-shot-${{ matrix.shot }}
+          path: |
+            stocks-w6-${{ matrix.shot }}-review.json
+            stocks-w6-shot-${{ matrix.shot }}.mp4
+          retention-days: 21
+  finished-media-collection:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: six-real-newsroom-shots
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: stocks-native-shot-*
+          merge-multiple: true
+          path: /tmp/stocks-native-media
+      - uses: actions/upload-artifact@v4
+        with:
+          name: STOCKS-W6-all-verified-video-shots
+          path: /tmp/stocks-native-media
+          retention-days: 21

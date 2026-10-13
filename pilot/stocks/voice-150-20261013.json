@@ -1,0 +1,170 @@
+{
+  "programme": "STOCKS 150 Second Financial News Bulletin",
+  "edition": "Monday 12 October 2026",
+  "source_manifest": "STOCKS_150SEC_EXECUTION_MANIFEST.json",
+  "notes": "Original source-backed narration, no celebrity voice cloning, generated with HeyGen TTS",
+  "segments": [
+    {
+      "id": "03",
+      "role": "NORA",
+      "script": "Good morning. Wall Street finished mixed Monday, as oil strengthened and investors looked toward bank earnings.",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 6.478,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=7fb1e73c-d7a2-4392-aaeb-d6411849649b.wav"
+    },
+    {
+      "id": "04",
+      "role": "NORA",
+      "script": "Monday's close: Dow up zero point four percent; S and P five hundred down zero point one; Nasdaq down zero point four.",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 8.229,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=26efb208-9278-4f2c-b3be-793ef170b4d9.wav"
+    },
+    {
+      "id": "05",
+      "role": "MARCUS",
+      "script": "That split matters. Energy helped support the market while technology shares weakened as investors weighed higher costs.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 7.236,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=a171c871-e418-496d-8aac-ed73085e2670.wav"
+    },
+    {
+      "id": "06",
+      "role": "MARCUS",
+      "script": "Underneath those indexes, market leadership is uneven. A positive headline doesn't mean every sector is moving together.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 7.079,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=c0cb4755-5693-4639-bb2b-91febf723cf3.wav"
+    },
+    {
+      "id": "07",
+      "role": "NORA",
+      "script": "Oil is at the center of this story. What changed in energy markets on Monday?",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 4.807,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=5937c573-0c31-4c70-becc-9675e5848525.wav"
+    },
+    {
+      "id": "08",
+      "role": "NORA",
+      "script": "Brent finished at one hundred six dollars and sixty-five cents a barrel, up one point eight percent Monday.",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 5.669,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=530adb63-13b0-47b0-a50f-e278e5d47bd2.wav"
+    },
+    {
+      "id": "09",
+      "role": "MARCUS",
+      "script": "Higher fuel costs can squeeze businesses and households. That's why investors are watching inflation and profits together.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 7.34,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=89fcd9b8-010c-4faa-b2a8-664f8918d46c.wav"
+    },
+    {
+      "id": "10",
+      "role": "MARCUS",
+      "script": "Shipping, production and spending can all feel that pressure. Investors are looking for evidence of resilience.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 6.452,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=58f62827-8e64-42ec-856d-6fcd3d90355d.wav"
+    },
+    {
+      "id": "11",
+      "role": "NORA",
+      "script": "Let's bring in our global markets correspondent for the wider picture ahead of this week's releases.",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 5.094,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=6c84620d-5526-48f5-a863-093b5889cbb7.wav"
+    },
+    {
+      "id": "12",
+      "role": "ALEX",
+      "script": "Energy uncertainty is keeping investors cautious as companies prepare to report. The question now is how resilient earnings will be.",
+      "voice": "Georgia - Lifelike - Broadcaster",
+      "voiceId": "596d780fd5874d7983847b6a0e0c49e6",
+      "providerDuration": 7.184,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/596d780fd5874d7983847b6a0e0c49e6/id=aa20eb19-bb9a-4d8b-84ca-354bf323cb7e.wav"
+    },
+    {
+      "id": "13",
+      "role": "ALEX",
+      "script": "Markets are balancing energy costs, company guidance and interest-rate expectations. Those outcomes are not settled yet.",
+      "voice": "Georgia - Lifelike - Broadcaster",
+      "voiceId": "596d780fd5874d7983847b6a0e0c49e6",
+      "providerDuration": 7.523,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/596d780fd5874d7983847b6a0e0c49e6/id=1ca47205-dc9a-40d6-b835-c21956add55a.wav"
+    },
+    {
+      "id": "14",
+      "role": "NORA",
+      "script": "Back on Wall Street, major banks are next. Marcus, which details matter more than headline profits?",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 5.695,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=03d9309b-f9e8-4b9b-bb68-0507584f79da.wav"
+    },
+    {
+      "id": "15",
+      "role": "MARCUS",
+      "script": "Watch loan demand, credit losses and what executives say about their customers. That's the real test.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 6.217,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=768a4d36-4cbf-4f83-9ece-d6dd3ea488c7.wav"
+    },
+    {
+      "id": "16",
+      "role": "MARCUS",
+      "script": "Those details may tell us more about economic resilience than the headline profit number alone.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 5.381,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=ea675058-76bf-41ad-94c8-b0d3ee8c1b39.wav"
+    },
+    {
+      "id": "17",
+      "role": "NORA",
+      "script": "Then Wednesday, September's consumer-price report arrives at eight-thirty Eastern, according to the Bureau of Labor Statistics.",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 6.949,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=f6e63812-c680-4a82-9555-aa4ef257b6d2.wav"
+    },
+    {
+      "id": "18",
+      "role": "NORA",
+      "script": "A hotter reading could increase rate concerns. A cooler result could help relieve some of that pressure.",
+      "voice": "Annie - Lifelike",
+      "voiceId": "330290724a1b470fb63153f34d4c0183",
+      "providerDuration": 5.721,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/330290724a1b470fb63153f34d4c0183/id=f2ba05e6-190c-4308-8f32-e4b429773796.wav"
+    },
+    {
+      "id": "19",
+      "role": "MARCUS",
+      "script": "Three things to watch next: bank guidance Tuesday, Wednesday's inflation report, and the direction of oil.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 6.609,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=8de0a847-5c18-44fd-a3d4-7997d38ab9f4.wav"
+    },
+    {
+      "id": "20",
+      "role": "MARCUS",
+      "script": "We'll follow the evidence as it comes in. This is Stocks.",
+      "voice": "Orson - Firm & Measured",
+      "voiceId": "00e3d285aba44b27a83c47c02c9c2d9c",
+      "providerDuration": 3.605,
+      "url": "https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/00e3d285aba44b27a83c47c02c9c2d9c/id=33ae028d-d75d-4003-935f-6aa75061e3d8.wav"
+    }
+  ]
+}
