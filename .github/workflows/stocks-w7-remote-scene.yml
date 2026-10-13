@@ -1,0 +1,30 @@
+name: Stocks W7 - remote virtual correspondent reporting
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-w7-remote-scene.yml'
+jobs:
+  native-correspondent-report:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: One native AI-generated global correspondent shot with exact audio
+        run: node pilot/stocks/remote-native-w7.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-w7-remote-global-reporter-video
+          path: |
+            stocks-w7-correspondent-review.json
+            stocks-w7-Alex-remote.mp4
+          retention-days: 21
