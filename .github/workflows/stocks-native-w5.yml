@@ -1,0 +1,29 @@
+name: Stocks W5 - exact narrated AI-native female scene
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-native-w5.yml'
+jobs:
+  one-anchor-performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: One image-and-audio referenced complete native talking anchor shot
+        run: node pilot/stocks/native-w5-female-exact.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-W5-nora-original-native-voice-test
+          path: |
+            stocks-w5-review.json
+            stocks-w5-Nora-spoken-768p.mp4
+          retention-days: 21
