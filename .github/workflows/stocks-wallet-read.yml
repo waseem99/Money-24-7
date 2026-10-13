@@ -1,0 +1,33 @@
+name: Stocks Direct API Wallet — read only
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-wallet-read.yml'
+jobs:
+  inspect-available-credits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Query direct API balance without spending
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key)throw Error('Direct API key not available');
+          const r=await fetch('https://api.heygen.com/v3/users/me',{method:'GET',headers:{'x-api-key':key},signal:AbortSignal.timeout(20000)});
+          const raw=await r.json().catch(()=>({}));
+          const u=raw.data??raw;
+          // Never output personal info, credential or full user response.
+          const safe={http:r.status,plan:u.subscription?.plan??u.plan??null,
+            billing_type:u.billing_type??null,wallet:u.wallet??null,
+            credits:u.credits??u.subscription?.credits??null,
+            balance:u.balance??u.credit_balance??null,
+            availableFields:Object.keys(u).filter(x=>/credit|wallet|balance|billing|subscription/i.test(x))};
+          console.log('STOCKS_DIRECT_WALLET='+JSON.stringify(safe));
+          JS
+
+# October 13 top-up verification rerun; GET-only, never invokes video generation.
