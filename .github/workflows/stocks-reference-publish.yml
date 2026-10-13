@@ -1,0 +1,27 @@
+name: Stocks - publish approved native newsroom frame references
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-reference-publish.yml'
+jobs:
+  publish-original-ai-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: node pilot/stocks/publish-w3-reference.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-native-scene-reference-manifest
+          path: stocks-reference-publish.json
+          retention-days: 14
