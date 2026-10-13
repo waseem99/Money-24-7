@@ -1,0 +1,26 @@
+name: Stocks W7 - original fictional global correspondent
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-remote-alex.yml'
+jobs:
+  one-original-ai-correspondent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node pilot/stocks/remote-alex.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-original-correspondent-portrait-report
+          path: stocks-remote-avatar-audit.json
+          retention-days: 21

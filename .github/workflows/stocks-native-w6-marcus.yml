@@ -1,0 +1,29 @@
+name: Stocks W6 - one original Marcus newsroom narration
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-native-w6-marcus.yml'
+jobs:
+  male-anchor-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      STOCKS_SHOT: '05'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node pilot/stocks/native-news-shot.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-W6-marcus-first-quality-gate
+          path: |
+            stocks-shot-05.json
+            stocks-shot-05.mp4
+          retention-days: 21
