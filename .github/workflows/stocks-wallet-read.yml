@@ -29,3 +29,5 @@ jobs:
             availableFields:Object.keys(u).filter(x=>/credit|wallet|balance|billing|subscription/i.test(x))};
           console.log('STOCKS_DIRECT_WALLET='+JSON.stringify(safe));
           JS
+
+# October 13 top-up verification rerun; GET-only, never invokes video generation.
