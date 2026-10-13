@@ -1,0 +1,25 @@
+name: Stocks native W2 experiment
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-native-w2.yml'
+jobs:
+  generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node pilot/stocks/prompt-characters-w2.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-w2-native-test
+          path: stocks-fictional-character-native-result.json
