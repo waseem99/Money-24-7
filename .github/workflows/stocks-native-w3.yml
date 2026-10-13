@@ -1,0 +1,29 @@
+name: Stocks Native W3 - one integrated scene
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-native-w3.yml'
+jobs:
+  native-camera-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Render once with immutable hash and inspect result
+        run: node pilot/stocks/native-w3-locked.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-w3-native-scene-qa
+          path: |
+            stocks-w3-audit.json
+            stocks-w3-native-integrated-newsroom.mp4
+          retention-days: 14
