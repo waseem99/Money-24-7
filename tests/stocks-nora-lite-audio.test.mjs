@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {float32ToPcm16Binary,audioProofPolicy,LITE_AUDIO} from '../network/streaming/lite-audio.mjs';
+import {float32ToPcm16Binary,audioProofPolicy,pcm16Base64Chunks,LITE_AUDIO} from '../network/streaming/lite-audio.mjs';
 
 test('Signed PCM16 conversion is 24kHz-compatible little endian, bounded and non-synthetic',()=>{
  const pcm=float32ToPcm16Binary(new Float32Array([0,1,-1,.5,-.5]));
@@ -26,9 +26,19 @@ test('Existing Stocks private operator lab has deliberate one-shot source-audio 
  assert.ok(html.includes('NORA-audio-file')&&html.includes('NORA-speak'));
  assert.ok(js.includes('speakNoraOnce()'));
  assert.ok(js.includes('entry.oneSpeechSubmitted=true'));
- assert.ok(js.includes("entry.session.repeatAudio(audio.pcm24kBinary)"));
+ assert.ok(js.includes('entry.session.repeatAudio(packet)'));
  assert.ok(js.includes('entry.mediaReady'));
  assert.ok(js.includes('oneSpeechSubmitted'));
  assert.ok(js.includes("sourceApproved:true"));
  assert.doesNotMatch(js,/fetch\(['"]https:\/\/api\.liveavatar\.com/);
+});
+
+test('Provider requires 1-second chunks of BASE64 PCM16, never raw binary',()=>{
+ const raw=String.fromCharCode(0,0,255,127).repeat(24000);
+ const chunks=pcm16Base64Chunks(raw);
+ assert.equal(chunks.length,2);
+ assert.equal(chunks[0],Buffer.from(raw.slice(0,48000),'binary').toString('base64'));
+ assert.equal(chunks[1],Buffer.from(raw.slice(48000),'binary').toString('base64'));
+ assert.throws(()=>pcm16Base64Chunks('odd'));
+ assert.ok(chunks.every(x=>x.length<1024*1024));
 });
