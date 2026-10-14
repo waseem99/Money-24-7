@@ -72,7 +72,8 @@ export function auditBroadcastItem(item,{release=false,asOfUtc}={}){
  if(item.hasHumanOnAir===true||item.onAirPerformerType==='HUMAN_FILMED_ACTOR'||
     item.onAirPerformerType==='HUMAN_DIGITAL_TWIN')
    errors.push('AI-native channel prohibits human presenters or representatives on air');
- if(item.hasVisiblePresenters===true && item.onAirPerformerType!=='ORIGINAL_RIGGED_3D')
+ if(item.hasVisiblePresenters===true &&
+    !['ORIGINAL_RIGGED_3D','CUSTOM_FICTIONAL_STREAMING_AVATAR'].includes(item.onAirPerformerType))
    errors.push('Visible presenter must render from the original fictional 3D rig');
  if(release && item.hasVisiblePresenters===true &&
      (!isMediaHash(item.aiCastManifestSha256)||!isMediaHash(item.studioAssetSha256)))

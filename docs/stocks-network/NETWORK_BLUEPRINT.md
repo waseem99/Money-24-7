@@ -3,6 +3,8 @@
 
 > **PRECEDENCE: [AI-native on-air mandate](AI_NATIVE_MANDATE.md). The viewer-facing programme has no filmed human actors, spokespeople, presenters or representatives. Nora/Marcus are original fictional rigged digital characters; all multi-camera shots render from a single stable Unreal studio. Human market editors/operators are strictly behind the scenes.**
 
+**Latest build-vs-buy decision (14 Oct): [ADR-002: vendor-first licensed fictional LiveAvatar streams](ADR002_VENDOR_FIRST_STREAMING_AVATARS.md). The original Unreal/MetaHuman actor approach below is an optional fallback, NOT a mandatory upfront investment.**
+
 **Product:** Tamasha × Stocks, US markets exclusively.  
 **Goal:** Operate 180–240 minutes/day of consistently professional, accurately sourced programming, potentially including live, live-to-tape, recorded, explainers and explicitly labelled replays. 30 broadcast days = 90–120 linear hours/month; US trading weekdays and market-closed weekends require separate formats. **Do not confuse linear airtime with new daily original production.**
 

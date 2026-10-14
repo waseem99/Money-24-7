@@ -2,6 +2,8 @@
 **14 October 2026 — supersedes all human-presenter recommendations in the earlier Network Blueprint.**  
 **Status:** Engineering blueprint, not a completed character/studio/render or a transmitted channel.
 
+**Vendor-first update:** fictional AI presenters may be licensed custom streaming avatars (e.g., LiveAvatar LITE) rather than owned Unreal meshes. See [ADR-002](ADR002_VENDOR_FIRST_STREAMING_AVATARS.md). The Unreal audio-to-face workflow in this document remains a fallback if streaming vendor performance, likeness or licensing fails. No filmed human is allowed on-air in either route.
+
 ## Non-negotiable editorial/creative instruction
 The user explicitly requires an **AI-presented** financial television channel, with **NO real human presenter, spokesperson, representative or filmed human actor visible on-air**. The current concept art's Nora and Marcus are fictional digital personas; the visual reference is a character/art-direction target, **not an executable video, animatable mesh or performance licence**.
 
