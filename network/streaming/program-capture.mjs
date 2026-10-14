@@ -109,7 +109,15 @@ export class ProgramRecorder {
     this.camera='C_NORA';this.startClock=null;this.raf=null;this.recorder=null;this.chunks=[];
     this.audioContext=null;this.audioDestination=null;this.mixed=[];
   }
-  cameraCut(camera){if(!CAMERAS.includes(camera))throw Error('Unsupported camera');this.camera=camera}
+  cameraCut(camera){
+    if(!CAMERAS.includes(camera))throw Error('Unsupported camera');
+    this.camera=camera;
+    for(const item of this.mixed){
+      item.gain.gain.value=(camera==='A_WIDE'?item.role==='NORA':
+        camera==='C_NORA'?item.role==='NORA':
+        camera==='B_MARCUS'?item.role==='MARCUS':false)?1:0;
+    }
+  }
   async begin(seconds){
     if(this.recorder)throw Error('Recording already in progress');
     const readiness=validateCaptureInputs({
