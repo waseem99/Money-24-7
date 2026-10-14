@@ -76,8 +76,10 @@ export function auditBroadcastItem(item,{release=false,asOfUtc}={}){
     errors.push('Claim '+(claim?.id||'?')+': '+error);
  }
  if(release){
-  if(!item.asset || !isMediaHash(item.asset.sha256) || !nonempty(item.asset.uri))
-    errors.push('Approved media asset and checksum missing');
+  if(!item.asset || !isMediaHash(item.asset.sha256) || !/^((s3|r2|gs):\/\/)[a-zA-Z0-9_./-]+$/.test(item.asset.uri||''))
+    errors.push('Approved private media URI and checksum missing');
+  if(item.asset && !bool(item.asset.fullDecodeVerified))errors.push('Full video/audio media integrity not verified');
+  if(item.reviewStatus!=='APPROVED')errors.push('Media item not editorially approved for playout');
   if(!item.rights || !bool(item.rights.footage)||!bool(item.rights.broadcast))
     errors.push('Footage/programme broadcast rights missing');
   const q=item.qa||{};
@@ -119,6 +121,8 @@ export function auditDailyRundown(rundown,{release=false,asOfUtc}={}){
    errors.push('Rundown must cover 180–240 minutes for full-network launch');
  if(rundown.durationSec!==seconds)errors.push('Rundown target total mismatch');
  if(release){
+   if(!bool(rundown.broadcastProvisioned)||rundown.runStatus!=='APPROVED_FOR_AIR')
+     errors.push('Channel not provisioned or rundown not approved to air');
    if(!bool(rundown.studioApproved)||!bool(rundown.dataLicensingApproved)||
      !bool(rundown.tamashaIngestAccepted))errors.push('Studio/data/Tamasha upstream acceptance missing');
    if(!bool(rundown.primaryFeedHealthy)||!bool(rundown.backupFeedTested)||
