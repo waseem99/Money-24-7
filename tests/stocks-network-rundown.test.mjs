@@ -70,12 +70,16 @@ test('Release demands studio/feed/source/rights/human and signed media approval,
  d.standbyPlaylistId='rights-cleared-standby-playlist';
  d.producerApproved=true;d.marketEditorApproved=true;d.runSheetApprovalSha256='a'.repeat(64);
  for(const item of d.items){
-  item.asset={sha256:'b'.repeat(64),uri:'s3://verified-private-media/'+item.id+'.mp4'};
+  item.asset={sha256:'b'.repeat(64),uri:'s3://verified-private-media/'+item.id+'.mp4',fullDecodeVerified:true};
+  item.reviewStatus='APPROVED';
   item.rights={footage:true,broadcast:true,marketDataRedistribution:true};
   item.qa={visual:true,editorial:true,audio:true,captions:true,approvalSha256:'c'.repeat(64)};
  }
- assert.equal(auditDailyRundown(d,{release:true}).pass,true,'Requires valid metadata approval; not a real service');
+ assert.equal(auditDailyRundown(d,{release:true}).pass,false,'Metadata alone cannot bypass unprovisioned channel');
  assert.equal(auditDailyRundown(d,{release:true}).ready,false,'Unprovisioned service cannot be called READY');
+ d.broadcastProvisioned=true;d.runStatus='APPROVED_FOR_AIR';
+ assert.equal(auditDailyRundown(d,{release:true}).pass,true,'Synthetic test fixture: policy gate only, not actual source validation');
+ assert.equal(auditDailyRundown(d,{release:true}).ready,true);
  d.items[0].rights.broadcast=false;
  assert.equal(auditDailyRundown(d,{release:true}).pass,false);
 });
