@@ -2,8 +2,55 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#061628"><title>STOCKS | AI Broadcast Operator</title>
-<meta name="description" content="Source-locked operator preview for the Stocks AI television channel. No live feed or paid generation.">
+<meta name="description" content="Source-locked offline operator preview. No live feed or paid avatar generation.">
 </head>
-<body><div id="stocks-console"></div>
-<script type="module" src="/src/stocks-operator.js"></script>
-</body></html>
+<body>
+<div id="stocks-console">
+<header class="ctl-header">
+  <div class="ctl-brand"><div class="mark" aria-hidden="true">T</div><div><strong>STOCKS</strong><small>MARKETS BUSINESS PEOPLE</small></div></div>
+  <div class="ctl-status warn">OFFLINE OPERATOR REHEARSAL · NOT A CLIENT VIDEO · NO PROVIDER SPEND</div>
+</header>
+<div class="dashboard">
+  <section class="panel personas-panel">
+    <div class="panel-heading"><b>4 AI Presenters</b><small>Source connection</small></div>
+    <div class="personas" id="personas"></div>
+    <p class="upload-note">Local videos remain in this browser. They are not licensed broadcast assets or visually certified streaming avatars.</p>
+  </section>
+  <section class="panel central">
+    <div class="panel-heading"><b>Program Monitor</b><small>16:9 · Studio/graphics system preflight only</small></div>
+    <div class="stage-box">
+      <div class="screen" id="program-screen">
+        <div class="logo"><span class="t" aria-hidden="true">T</span><span><strong>STOCKS</strong><em>MARKETS BUSINESS PEOPLE</em></span></div>
+        <div class="screen-label" id="screen-status">OFFLINE · NO LIVE FEED</div>
+        <video id="preview-video" class="stream-video" playsinline preload="metadata"></video>
+        <div class="no-source" id="no-source"><b>NO VERIFIED MOVING AI AVATAR SOURCE</b>
+          <span>Attach a real AI source to test the stage. A static concept image never substitutes for speaking motion.</span></div>
+        <div class="market-board"><strong>U.S. MARKETS</strong><span>Source: awaiting authorised data</span>
+        <span>Quotes: not connected</span><span>Observation time: not connected</span>
+        <span>Earnings &amp; macro: editorial approval pending</span><small>NO GENERATED MARKET PRICES</small></div>
+        <div class="headline"><b id="stage-headline">U.S. MARKET WATCH</b><small id="stage-subtitle">STOCKS · MOVING PRESENTER SOURCE NOT CONNECTED</small></div>
+        <div class="ticker"><strong>US MARKETS</strong><span class="text">VERIFIED DATA FEED REQUIRED · NO SAMPLE QUOTES SHOWN · OFFLINE REHEARSAL</span></div>
+      </div>
+      <div class="transport">
+        <button class="primary" id="start-btn">▶ Start rehearsal</button>
+        <button id="pause-btn">Pause</button>
+        <button id="graphics-btn">Market graphics</button>
+        <button id="standby-btn">Standby slate</button>
+      </div>
+      <div class="timeline"><input id="seek" type="range" min="0" max="155" step="1" value="0" aria-label="Preview programme time">
+      <output id="time">00:00 / 02:35</output></div>
+    </div>
+    <div class="panel-heading"><b>155-second client-demo rundown</b><small>No video assets created</small></div>
+    <div id="rundown" class="rundown"></div>
+    <div class="panel-heading"><b>Approved-script candidate</b><small id="reading-time">Editorial signoff pending</small></div>
+    <div class="transcript" id="script"></div>
+  </section>
+  <section class="panel qa-panel"><div class="panel-heading"><b>Production Readiness</b><small>Release gate</small></div>
+    <ul class="qa-list" id="qa-list"></ul>
+    <div class="panel-heading"><b>Next input</b></div>
+    <p class="note">Two original fictional portraits and two additional roles require provider eligibility, real lip-synced source footage and broadcast approval.</p>
+    <p class="note">Viewer questions are moderated and editorially reviewed before an AI presenter speaks. No autonomous financial claims go to air.</p>
+  </section>
+</div>
+<p class="footer">STOCKS OPERATOR REHEARSAL — graphics and timeline are controllable, presenters are not fabricated. This is not a finished client demonstration or broadcaster-ready feed.</p>
+</div><script type="module" src="/src/stocks-operator.js"></script></body></html>
