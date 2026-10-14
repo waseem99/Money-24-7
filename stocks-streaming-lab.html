@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow,noarchive"/>
+<title>Stocks | Private Streaming Avatar Integration Lab</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#071221;color:#eef6fc;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0}header{padding:20px 4vw;background:#081b2f;border-bottom:1px solid #29475f;display:flex;justify-content:space-between;align-items:center;gap:20px}
+header strong{font-size:22px;letter-spacing:.06em}header small{font-size:12px;color:#a9becf}
+main{display:grid;grid-template-columns:minmax(550px,1.5fr) minmax(340px,.85fr);gap:20px;margin:20px auto;padding:0 2vw;max-width:1800px}
+section,.panel{background:#10243a;border:1px solid #29475f;border-radius:12px;padding:18px}
+h1,h2,h3{margin:0 0 12px}h1{font-size:23px}h2{font-size:18px}p{line-height:1.4;color:#b4cada;font-size:14px;margin:6px 0 14px}
+label{display:block;font-size:12px;color:#c4d2df;margin:13px 0 5px}input,select,button{font:inherit}
+input[type=password],input[type=number],input[type=file]{width:100%;border:1px solid #395b75;background:#081b30;color:#f3faff;padding:10px;border-radius:6px}
+input[type=checkbox]{margin-right:8px}
+button{cursor:pointer;border:1px solid #50718d;border-radius:6px;background:#144363;color:#f4f9fc;padding:9px 13px}
+button[disabled]{opacity:.42;cursor:not-allowed}.danger{background:#5b2735;border-color:#8f3e50}.soft{background:#132c44}
+fieldset{border:1px solid #365a75;border-radius:9px;margin:16px 0;padding:11px}legend{font-size:14px;padding:0 6px;color:#9bd8ec}
+.status{display:inline-block;border:1px solid #59738b;border-radius:6px;padding:3px 8px;margin:4px 0;color:#bad3e5;background:#06182b;font:12px ui-monospace,monospace}
+#theatre{aspect-ratio:16/9;position:relative;overflow:hidden;border:2px solid #3a789d;background:linear-gradient(145deg,#08172a,#0f456b 54%,#071b34)}
+#theatre::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 17%,rgba(174,224,255,.07) 17.2%,transparent 17.5%);pointer-events:none}
+#background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#stage-label{position:absolute;top:14px;right:16px;color:#bfe0ed;font-size:11px;letter-spacing:.06em;background:#092b45d0;padding:7px 9px;z-index:10}
+.bug{position:absolute;top:20px;left:25px;font-weight:bold;font-size:clamp(8px,1.5vw,18px);letter-spacing:.03em;z-index:15;text-shadow:0 1px 3px #001}.bug small{display:block;font-size:.47em;letter-spacing:.3em}
+.actor{position:absolute;top:21%;height:60%;width:38%;z-index:3;overflow:hidden}
+.actor[data-role=NORA]{left:8%}.actor[data-role=MARCUS]{right:20%}
+.actor video,.actor canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.actor video{display:none}.actor canvas{display:none}
+.actor.connected canvas{display:block}
+.actor .empty{display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#071a2abf;border:1px dashed #436883;color:#aec4d5;font-size:12px;text-align:center;padding:20px}
+.actor.connected .empty{display:none}
+.name{position:absolute;bottom:20%;background:#08233de0;border-left:3px solid #22b8ef;padding:7px 20px;z-index:8;font-weight:600;font-size:clamp(9px,1.1vw,15px)}
+.name.nora{left:8%}.name.marcus{right:24%}
+.ticker{position:absolute;bottom:0;left:0;right:0;background:#031022;color:#9dc3d8;padding:9px 20px;font-size:clamp(7px,1vw,13px);font-weight:700;z-index:15}
+.rightboard{position:absolute;right:0;top:17%;width:19%;height:60%;background:#051e37e6;border-left:2px solid #0ca2d3;padding:12px 8px;text-align:center;color:#9fc2d5;font-size:clamp(8px,.95vw,13px);z-index:9}
+.bottom{position:absolute;left:0;right:0;bottom:6%;height:13%;background:#06254ddd;z-index:5;padding:7px 20px;font-size:clamp(9px,1.2vw,16px);font-weight:750}
+#statusText{white-space:pre-wrap;font:12px ui-monospace,monospace;color:#b0d2e5;padding:13px;background:#06182c;border-radius:7px;max-height:180px;overflow-y:auto}
+.controls{display:flex;flex-wrap:wrap;gap:8px}.warning{font-size:12px;color:#e6c6a6}
+@media(max-width:1000px){main{grid-template-columns:1fr}section{min-width:0}.rightboard{font-size:9px}}
+</style>
+</head>
+<body>
+<header><div><strong>T · STOCKS</strong><br/><small>MARKETS  BUSINESS  PEOPLE</small></div>
+<div><strong style="font-size:14px">PRIVATE OPERATOR LAB — NO PUBLIC STREAM</strong><br/><small>Developer composition only · no market data connected</small></div></header>
+<main>
+<section><h1>Source-controlled AI newsroom</h1>
+<p>This operator tool is for testing actual moving LiveAvatar video from your approved fictional anchors against a licensed, clean studio background. It is not a broadcast-ready film or an automatically billable service.</p>
+<div id="theatre">
+<img id="background" alt="Authorized clean newsroom plate" />
+<div class="bug">T · STOCKS <small>MARKETS BUSINESS PEOPLE</small></div><span id="stage-label">OFFLINE · TEST ONLY</span>
+<div class="actor" data-role="NORA"><video id="NORA-video" autoplay playsinline></video><canvas id="NORA-canvas"></canvas><div class="empty">NORA<br/>NO VIDEO SESSION</div></div>
+<div class="actor" data-role="MARCUS"><video id="MARCUS-video" autoplay playsinline></video><canvas id="MARCUS-canvas"></canvas><div class="empty">MARCUS<br/>NO VIDEO SESSION</div></div>
+<div class="rightboard"><strong>U.S. MARKETS</strong><hr/><p>NO LICENSED MARKET FEED</p><small>No illustrative prices will appear here</small></div>
+<div class="name nora">NORA · AI ANCHOR</div><div class="name marcus">MARCUS · AI ANCHOR</div>
+<div class="bottom">STOCKS — NEWSDESK PRODUCTION TEST<br/><small>Correct graphics and sourced headlines will be connected later</small></div>
+<div class="ticker">NO VERIFIED U.S. MARKET DATA SOURCE CONNECTED — NOT LIVE — NOT FOR PUBLIC BROADCAST</div>
+</div>
+<label for="background-file">Clean empty studio background (local file stays in this browser)</label><input type="file" accept="image/png,image/jpeg,image/webp" id="background-file"/>
+<p class="warning">Do not load the finished promotional still containing baked-in people, LIVE labels, or invented stock prices as a broadcast backdrop.</p>
+<div class="controls"><button id="cut-nora">Camera C: Nora</button><button id="cut-marcus">Camera B: Marcus</button><button id="cut-wide">Camera A: Wide</button><button id="cut-charts">Charts / standby</button></div>
+<p>Active programme composition: <span class="status" id="camera-status">WIDE · NO STREAM</span></p>
+<div id="statusText" role="status" aria-live="polite">No provider session established. Offline newsroom stage ready for authorised source-footage tests.</div>
+</section>
+<section><h2>Private provider connections</h2>
+<p>Connections are manual and can consume provider credits. A real provider-issued session token is required for each fictional character. This app cannot create sessions, buy credits, or invent avatar IDs.</p>
+<fieldset><legend>Nora · fictional AI identity</legend>
+<label for="NORA-token">Existing authorised LiveAvatar LITE token</label><input id="NORA-token" type="password" autocomplete="off" placeholder="Private session token — not saved"/>
+<label><input id="NORA-approved" type="checkbox"/>Identity, provider eligibility and commercial test rights verified</label>
+<label><input id="NORA-credit" type="checkbox"/>Explicitly authorised test credit spending for this session</label>
+<div class="controls"><button id="NORA-start">Connect Nora (may bill)</button><button id="NORA-stop" class="danger">Stop Nora</button></div><span class="status" id="NORA-status">DISCONNECTED</span></fieldset>
+<fieldset><legend>Marcus · fictional AI identity</legend>
+<label for="MARCUS-token">Existing authorised LiveAvatar LITE token</label><input id="MARCUS-token" type="password" autocomplete="off" placeholder="Private session token — not saved"/>
+<label><input id="MARCUS-approved" type="checkbox"/>Identity, provider eligibility and commercial test rights verified</label>
+<label><input id="MARCUS-credit" type="checkbox"/>Explicitly authorised test credit spending for this session</label>
+<div class="controls"><button id="MARCUS-start">Connect Marcus (may bill)</button><button id="MARCUS-stop" class="danger">Stop Marcus</button></div><span class="status" id="MARCUS-status">DISCONNECTED</span></fieldset>
+<label for="session-cap">Hard test limit per connection (seconds, maximum 90)</label><input id="session-cap" type="number" min="5" max="90" value="60"/>
+<p class="warning">Automatic stop is best-effort if the browser crashes. A production producer must enforce spend/session limits server-side with a durable billing ledger before live rollout.</p>
+<p><strong>Speech status:</strong> LITE external PCM audio must be tested against the actual custom avatars. Provider connection and facial lip-sync are two separate acceptance gates.</p>
+</section>
+</main>
+<script type="module" src="/network/streaming/operator.js"></script>
+</body>
+</html>
