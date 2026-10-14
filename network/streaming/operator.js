@@ -7,6 +7,7 @@
 import {sessionPreflight,ROLES,STOCKS_STREAM_GATE} from './vendor-policy.mjs';
 import {startGreenKey} from './keyer.js';
 import {ProgramRecorder,validateCaptureInputs} from './program-capture.mjs';
+import {prepareLiteAudioFile,audioProofPolicy} from './lite-audio.mjs';
 
 const $=id=>document.getElementById(id);
 const live=new Map();
@@ -66,6 +67,7 @@ async function stop(role,{byDisconnect=false}={}){
   try{await current.session.stop();}catch{report(role+': provider stop could not be verified; inspect provider session dashboard');}
  }
  try{video.pause();video.srcObject=null;}catch{}
+ if(role==='NORA')$('NORA-speak').disabled=true;
  state(role,'DISCONNECTED');
  report(role+': session ended; verify provider billing stop receipt separately');
 }
@@ -120,6 +122,7 @@ async function connect(role){
    if(live.get(role)===entry)void stop(role,{byDisconnect:true});
   });
   entry.timer=setTimeout(()=>{report(role+': operator test time cap reached; stopping session');void stop(role);},secs*1000);
+  if(role==='NORA')$('NORA-speak').disabled=false;
   await session.start();
   if(live.get(role)!==entry)return;
   if(!entry.mediaReady)state(role,'PROVIDER CONNECTED · WAITING FOR MEDIA');
@@ -206,6 +209,41 @@ async function startProgramCapture(){
   $('record-start').disabled=false;$('record-stop').disabled=true;
  }
 }
+
+// Production test: one short licensed synthetic WAV goes to one pre-authorized LiveAvatar LITE session.
+// Use browser's own File API and OfflineAudioContext; no speech / image regeneration occurs here.
+async function speakNoraOnce(){
+ const entry=live.get('NORA');
+ if(!entry||entry.closed||!entry.mediaReady||!entry.session){
+  report('Nora speaking blocked: no active real moving LiveAvatar LITE video session');return;
+ }
+ if(entry.oneSpeechSubmitted){
+  report('Nora speaking was already submitted in this session; no automatic retry on an unknown provider state');
+  return;
+ }
+ const file=$('NORA-audio-file').files?.[0];
+ if(!file){report('Load Nora 20.9s approved voice WAV using the local input first');return;}
+ if(!$('NORA-approved').checked||!$('NORA-credit').checked){
+  report('Voice send denied: provider eligibility and bounded credit authorizations must be checked');return;
+ }
+ const button=$('NORA-speak');button.disabled=true;
+ try{
+  const audio=await prepareLiteAudioFile(file);
+  const p=audioProofPolicy({...audio,sourceApproved:true});
+  if(!p.pass)throw Error(p.errors.join('; '));
+  if(entry.closed||live.get('NORA')!==entry)throw Error('Nora session ended during local audio conversion');
+  if(typeof entry.session.repeatAudio!=='function')throw Error('SDK does not expose LITE repeatAudio');
+  entry.oneSpeechSubmitted=true;
+  entry.session.repeatAudio(audio.pcm24kBinary);
+  report('Sent exactly one '+audio.durationSeconds.toFixed(2)+'s synthetic-audio take to Nora. This is NOT proof of audible output or lip sync. Verify real provider speech events and complete a moving video recording. No retry if provider state is unknown.');
+ }catch(error){
+  report('Nora speech submission failed. Verify provider status and SDK audio protocol before another attempt. '+String(error?.message||error));
+ }finally{
+  if(!entry.oneSpeechSubmitted && !entry.closed)button.disabled=false;
+ }
+}
+$('NORA-speak').addEventListener('click',()=>void speakNoraOnce());
+
 $('record-start').addEventListener('click',()=>void startProgramCapture());
 $('record-stop').addEventListener('click',()=>recorder?.stop());
 
