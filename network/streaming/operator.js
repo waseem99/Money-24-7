@@ -91,7 +91,7 @@ async function connect(role){
  try{
   const {LiveAvatarSession,SessionEvent}=await import('@heygen/liveavatar-web-sdk');
   const session=new LiveAvatarSession(token,{apiUrl:location.origin+'/api/liveavatar',voiceChat:false});
-  entry={session,closed:false,keyer:null,timer:null,createdAt:Date.now()};
+  entry={session,closed:false,mediaReady:false,keyer:null,timer:null,createdAt:Date.now()};
   live.set(role,entry);
   session.on(SessionEvent.SESSION_STREAM_READY,()=>{
    if(entry.closed||live.get(role)!==entry)return;
@@ -100,6 +100,7 @@ async function connect(role){
    video.play().catch(()=>report(role+': browser autoplay blocked; interact with source player'));
    entry.keyer?.stop();
    entry.keyer=safeSource(video,canvas,role);
+   entry.mediaReady=true;
    document.querySelector('.actor[data-role="'+role+'"]').classList.add('connected');
    state(role,'STREAM CONNECTED · NOT QA APPROVED');
    report(role+': media tracks attached; observe real face motion, background key, audio and glasses/hair edges');
@@ -111,7 +112,7 @@ async function connect(role){
   entry.timer=setTimeout(()=>{report(role+': operator test time cap reached; stopping session');void stop(role);},secs*1000);
   await session.start();
   if(live.get(role)!==entry)return;
-  state(role,'PROVIDER CONNECTED · WAITING FOR MEDIA');
+  if(!entry.mediaReady)state(role,'PROVIDER CONNECTED · WAITING FOR MEDIA');
   // A token is not proof of video: only SESSION_STREAM_READY qualifies as connected media.
  }catch(error){
   if(entry){await stop(role);}
