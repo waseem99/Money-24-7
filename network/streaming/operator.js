@@ -102,7 +102,8 @@ async function connect(role){
   role,mode:'LITE',sourceKind:freePreset?'PROVIDER_PUBLIC_PRESET_FOR_PRIVATE_FREE_TRIAL':'ORIGINAL_FICTIONAL_CUSTOM_AVATAR',
   presetTrial:freePreset,presetName:freePreset?FREE_PRESET_TRIAL[role]:null,activeOtherSessions:live.size,
   sourceApproved:approved,providerEligibilityVerified:approved,
-  commercialTestRightsApproved:approved,
+  privateFreeTestOnly:freePreset&&approved,
+  commercialTestRightsApproved:!freePreset&&approved,
   operatorSession:true,viewerDriven:false,manualStart:true,explicitCreditApproval:credit,
   sessionToken:token,maximumSeconds:secs,
   isCurrentNews:false,rendererOnAirStatus:'TEST ONLY'
