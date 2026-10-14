@@ -7,6 +7,6 @@ const operatorLabEnabled=process.env.STOCKS_BUILD_OPERATOR_LAB==='true';
 export default defineConfig({build:{rollupOptions:{input:{
   main:resolve('index.html'),
   pilot:resolve('pilot.html'),
-  broadcast:resolve('broadcast-preview.html'),
+  broadcast:resolve('broadcast-preview.html'),stocksOperator:resolve('stocks-operator.html'),
   ...(operatorLabEnabled?{stocksOperator:resolve('stocks-streaming-lab.html')}:{})
 }}}});

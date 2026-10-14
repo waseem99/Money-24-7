@@ -36,6 +36,23 @@ test('Reject gaps, overlapping segments, false branding and non-US editorial cov
  assert.equal(auditDailyRundown(missing).pass,false);
 });
 
+test('Audience interaction in the on-air network fails without a verified moderation and rights workflow',()=>{
+ const sample=structuredClone(example.items[5]);
+ assert.equal(sample.viewerInteraction,true);
+ assert.equal(auditBroadcastItem(sample).length,0,'Recorded draft cannot go on air yet');
+ sample.mode='live';sample.onAirLabel='LIVE';
+ sample.liveProof={producerAuthorized:true,sourceHealthy:true,sessionId:'test-real-live-producer'};
+ assert.ok(auditBroadcastItem(sample).some(x=>x.includes('moderation')));
+ sample.moderationEnabled=true;sample.marketEditorApproved=true;sample.questionRightsVerified=true;
+ assert.equal(auditBroadcastItem(sample).length,0);
+});
+test('Live streaming fictional presenter identity and vendor TV rights must be approved at release',()=>{
+ const item=structuredClone(example.items[0]);
+ item.hasVisiblePresenters=true;item.onAirPerformerType='CUSTOM_FICTIONAL_STREAMING_AVATAR';
+ assert.equal(auditBroadcastItem(item).length,0,'Preproduction draft is permitted but not released');
+ const errors=auditBroadcastItem(item,{release:true});
+ assert.ok(errors.some(x=>x.includes('vendor rights')));
+});
 test('Never label recorded footage LIVE or use a nonexistent live feed',()=>{
  const i=copy(example.items[0]);i.onAirLabel='LIVE';
  assert.ok(auditBroadcastItem(i).some(e=>e.includes('Incorrect')));
@@ -72,6 +89,11 @@ test('Release demands studio/feed/source/rights/human and signed media approval,
  for(const item of d.items){
   item.asset={sha256:'b'.repeat(64),uri:'s3://verified-private-media/'+item.id+'.mp4',fullDecodeVerified:true};
   item.reviewStatus='APPROVED';
+  if(item.viewerInteraction===true){
+    item.moderationEnabled=true;
+    item.marketEditorApproved=true;
+    item.questionRightsVerified=true;
+  }
   item.rights={footage:true,broadcast:true,marketDataRedistribution:true};
   item.qa={visual:true,editorial:true,audio:true,captions:true,approvalSha256:'c'.repeat(64)};
  }

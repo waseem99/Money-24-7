@@ -1,4 +1,7 @@
 # STOCKS — AI-NATIVE Digital Television Network (Approved Production Mandate)
+
+> **IMPLEMENTATION PRECEDENCE (14 Oct 2026): [ADR-002 Vendor-First Streaming AI Avatars](ADR002_VENDOR_FIRST_STREAMING_AVATARS.md) is the primary implementation. All Unreal/MetaHuman-specific recommendations below now describe the FALLBACK if licensed commercial real-time fictional avatars fail visual/reliability/cost gates. The AI-only on-air rule remains absolute. See [Client Demo and Current Vendor Costs](CLIENT_DEMO_AND_COST_20261014.md).**
+
 **14 October 2026 — supersedes all human-presenter recommendations in the earlier Network Blueprint.**  
 **Status:** Engineering blueprint, not a completed character/studio/render or a transmitted channel.
 
