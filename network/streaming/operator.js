@@ -4,7 +4,7 @@
  * An operator may connect an ALREADY-issued provider token only after manual approvals.
  * Do not deploy publicly without upstream operator authentication and durable session accounting.
  */
-import {sessionPreflight,ROLES,STOCKS_STREAM_GATE} from './vendor-policy.mjs';
+import {sessionPreflight,ROLES,STOCKS_STREAM_GATE,FREE_PRESET_TRIAL} from './vendor-policy.mjs';
 import {startGreenKey} from './keyer.js';
 import {ProgramRecorder,validateCaptureInputs} from './program-capture.mjs';
 import {prepareLiteAudioFile,audioProofPolicy,pcm16Base64Chunks} from './lite-audio.mjs';
@@ -33,7 +33,14 @@ function safeSource(video,canvas,role){
  }
 }
 function view(camera){
+ if($('free-presets').checked && camera==='A_WIDE'){
+  camera=live.has('NORA')?'C_NORA':live.has('MARCUS')?'B_MARCUS':'D_GRAPHICS';
+  report('Free plan permits one avatar session only. To test both anchors, use separate moving recordings and editorial cuts.');
+ }
  selectedCamera=camera;
+ const presetMode=$('free-presets').checked;
+ document.querySelector('.name.nora').textContent=presetMode?'AMINA · FREE WATERMARKED TEST':'NORA · AI ANCHOR';
+ document.querySelector('.name.marcus').textContent=presetMode?'DEXTER · FREE WATERMARKED TEST':'MARCUS · AI ANCHOR';
  if(recorder)recorder.cameraCut(camera);
  $('camera-status').textContent=camera+' · STREAMING SOURCE TEST (NOT LIVE BROADCAST)';
  const visible=camera==='A_WIDE'?new Set(ROLES):
@@ -73,6 +80,11 @@ async function stop(role,{byDisconnect=false}={}){
 }
 async function connect(role){
  if(live.has(role)){report(role+': already connected; no second session started');return;}
+ const freePreset=$('free-presets').checked;
+ if((freePreset || [...live.values()].some(v=>v.freePreset))&&live.size){
+   report('Free plan permits only one active avatar. Stop the existing preset stream first.');
+   state(role,'BLOCKED · ONE FREE SESSION');return;
+ }
  if(!studioObjectURL){
   report(role+': no clean licensed newsroom background selected. Load a source plate before billable test.');
   state(role,'BLOCKED · NO STUDIO');return;
@@ -85,7 +97,8 @@ async function connect(role){
  const approved=$(role+'-approved').checked;
  const credit=$(role+'-credit').checked;
  const gate=sessionPreflight({
-  role,mode:'LITE',sourceKind:'ORIGINAL_FICTIONAL_CUSTOM_AVATAR',
+  role,mode:'LITE',sourceKind:freePreset?'PROVIDER_PUBLIC_PRESET_FOR_PRIVATE_FREE_TRIAL':'ORIGINAL_FICTIONAL_CUSTOM_AVATAR',
+  presetTrial:freePreset,presetName:freePreset?FREE_PRESET_TRIAL[role]:null,activeOtherSessions:live.size,
   sourceApproved:approved,providerEligibilityVerified:approved,
   commercialTestRightsApproved:approved,
   operatorSession:true,viewerDriven:false,manualStart:true,explicitCreditApproval:credit,
@@ -103,7 +116,7 @@ async function connect(role){
  try{
   const {LiveAvatarSession,SessionEvent}=await import('@heygen/liveavatar-web-sdk');
   const session=new LiveAvatarSession(token,{apiUrl:location.origin+'/api/liveavatar',voiceChat:false});
-  entry={session,closed:false,mediaReady:false,keyer:null,timer:null,createdAt:Date.now()};
+  entry={session,closed:false,mediaReady:false,keyer:null,timer:null,freePreset,createdAt:Date.now()};
   live.set(role,entry);
   session.on(SessionEvent.SESSION_STREAM_READY,()=>{
    if(entry.closed||live.get(role)!==entry)return;
@@ -254,6 +267,16 @@ $('NORA-speak').addEventListener('click',()=>void speakNoraOnce());
 $('record-start').addEventListener('click',()=>void startProgramCapture());
 $('record-stop').addEventListener('click',()=>recorder?.stop());
 
+$('free-presets').addEventListener('change',()=>{
+ if(live.size){
+   $('free-presets').checked=[...live.values()].some(v=>v.freePreset);
+   report('Stop active provider sessions before changing the presenter source category');return;
+ }
+ view(selectedCamera);
+ report($('free-presets').checked
+  ?'Amina and Dexter are public preset STAND-INS on Free. Use one at a time. Watermark is expected.'
+  :'Original fictional Nora/Marcus production identity mode selected');
+});
 $('cut-nora').addEventListener('click',()=>view('C_NORA'));
 $('cut-marcus').addEventListener('click',()=>view('B_MARCUS'));
 $('cut-wide').addEventListener('click',()=>view('A_WIDE'));
@@ -267,4 +290,4 @@ window.addEventListener('pagehide',()=>{
  for(const role of [...live.keys()])void stop(role);
 });
 view('A_WIDE');
-report('NO billable provider work was started at load; manual custom-portrait and session approvals are required.');
+report('Free preset Amina/Dexter may use included LiveAvatar credits, NOT Wayne zero-credit sandbox. Nothing starts automatically.');
