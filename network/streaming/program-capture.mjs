@@ -106,17 +106,16 @@ export class ProgramRecorder {
     if(!this.ctx)throw Error('Browser Canvas2D not supported');
     canvas.width=FRAME.width;canvas.height=FRAME.height;
     this.room=room;this.logo=logo;this.sources=sources;this.status=status;this.onProgress=onProgress;
-    this.camera='C_NORA';this.startClock=null;this.raf=null;this.recorder=null;this.chunks=[];
+    this.camera='C_NORA';this.audioRole='NORA';this.startClock=null;this.raf=null;this.recorder=null;this.chunks=[];
     this.audioContext=null;this.audioDestination=null;this.mixed=[];
   }
   cameraCut(camera){
     if(!CAMERAS.includes(camera))throw Error('Unsupported camera');
     this.camera=camera;
-    for(const item of this.mixed){
-      item.gain.gain.value=(camera==='A_WIDE'?item.role==='NORA':
-        camera==='C_NORA'?item.role==='NORA':
-        camera==='B_MARCUS'?item.role==='MARCUS':false)?1:0;
-    }
+    if(camera==='C_NORA')this.audioRole='NORA';
+    if(camera==='B_MARCUS')this.audioRole='MARCUS';
+    // Keep the last approved narrator active underneath chart cutaways.
+    for(const item of this.mixed)item.gain.gain.value=item.role===this.audioRole?1:0;
   }
   async begin(seconds){
     if(this.recorder)throw Error('Recording already in progress');
@@ -132,7 +131,7 @@ export class ProgramRecorder {
       if(!s?.stream?.getAudioTracks().length)continue;
       const source=this.audioContext.createMediaStreamSource(s.stream);
       const gain=this.audioContext.createGain();
-      gain.gain.value=(this.camera==='A_WIDE'?role==='NORA':this.camera==='C_NORA'?role==='NORA':this.camera==='B_MARCUS'?role==='MARCUS':false)?1:0;
+      gain.gain.value=role===this.audioRole?1:0;
       source.connect(gain).connect(this.audioDestination);
       this.mixed.push({role,source,gain});
     }
