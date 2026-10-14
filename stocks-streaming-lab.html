@@ -84,6 +84,10 @@ fieldset{border:1px solid #365a75;border-radius:9px;margin:16px 0;padding:11px}l
 <label for="NORA-token">Existing authorised LiveAvatar LITE token</label><input id="NORA-token" type="password" autocomplete="off" placeholder="Private session token — not saved"/>
 <label><input id="NORA-approved" type="checkbox"/>Identity, provider eligibility and commercial test rights verified</label>
 <label><input id="NORA-credit" type="checkbox"/>Explicitly authorised test credit spending for this session</label>
+<label for="NORA-audio-file">Approved Nora synthetic speech WAV (use the 20.9-second test audio)</label>
+<input id="NORA-audio-file" type="file" accept=".wav,.mp3,audio/wav,audio/mpeg"/>
+<div class="controls"><button id="NORA-speak" disabled>Send one approved audio take to connected Nora</button></div>
+<p class="warning">Requires a real connected LiveAvatar LITE source; never sends audio automatically or retries an unknown request. Confirm audible delivery and lip motion before approving the video.</p>
 <div class="controls"><button id="NORA-start">Connect Nora (may bill)</button><button id="NORA-stop" class="danger">Stop Nora</button></div><span class="status" id="NORA-status">DISCONNECTED</span></fieldset>
 <fieldset><legend>Marcus · fictional AI identity</legend>
 <label for="MARCUS-token">Existing authorised LiveAvatar LITE token</label><input id="MARCUS-token" type="password" autocomplete="off" placeholder="Private session token — not saved"/>
