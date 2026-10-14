@@ -12,9 +12,10 @@
     "purpose": "CREATIVE_DIRECTION_ONLY",
     "referenceFilename": "u.s._stocks_extend_gains_broadcast.png",
     "referenceSha256": null,
-    "embeddedLiveBadge": false,
-    "embeddedMarketData": false,
-    "note": "The source artwork visually includes illustrative market graphics; asset imported into Unreal must be stripped of all text, live badges, figures and character pixels; those are independently composited."
+    "note": "The source artwork visually includes illustrative market graphics; asset imported into Unreal must be stripped of all text, live badges, figures and character pixels; those are independently composited.",
+    "referenceIsCreativeOnly": true,
+    "referenceContainsIllustrativeMarketGraphics": true,
+    "referenceContainsGeneratedFictionalPeople": true
   },
   "studio": {
     "engine": "UNREAL_ENGINE",
