@@ -4,7 +4,7 @@
   "marketScope": "US_MARKETS",
   "dateET": "2026-10-14",
   "timeZone": "America/New_York",
-  "title": "EXAMPLE ONLY — NOT SCHEDULED FOR AIR",
+  "title": "STOCKS AI Network — 210-minute four-presenter PROGRAMMING DRAFT, not released",
   "runStatus": "DRAFT_NOT_BROADCASTABLE",
   "durationSec": 12600,
   "bug": {
@@ -52,7 +52,10 @@
         "captions": false,
         "approvalSha256": null
       },
-      "liveProof": null
+      "liveProof": null,
+      "assignedPresenterRoles": [
+        "NORA"
+      ]
     },
     {
       "id": "opening-bell",
@@ -82,7 +85,11 @@
         "captions": false,
         "approvalSha256": null
       },
-      "liveProof": null
+      "liveProof": null,
+      "assignedPresenterRoles": [
+        "NORA",
+        "MARCUS"
+      ]
     },
     {
       "id": "sector-radar",
@@ -112,7 +119,11 @@
         "captions": false,
         "approvalSha256": null
       },
-      "liveProof": null
+      "liveProof": null,
+      "assignedPresenterRoles": [
+        "MARCUS",
+        "AVERY"
+      ]
     },
     {
       "id": "earnings-desk",
@@ -142,7 +153,10 @@
         "captions": false,
         "approvalSha256": null
       },
-      "liveProof": null
+      "liveProof": null,
+      "assignedPresenterRoles": [
+        "AVERY"
+      ]
     },
     {
       "id": "fed-macro",
@@ -172,11 +186,15 @@
         "captions": false,
         "approvalSha256": null
       },
-      "liveProof": null
+      "liveProof": null,
+      "assignedPresenterRoles": [
+        "MARCUS",
+        "JORDAN"
+      ]
     },
     {
       "id": "midday-roundup",
-      "title": "Recorded Midday Market Watch",
+      "title": "Viewer Market Clinic — Recorded Moderated US Questions",
       "mode": "replay",
       "onAirLabel": "REPLAY",
       "market": "US",
@@ -202,7 +220,45 @@
         "captions": false,
         "approvalSha256": null
       },
-      "liveProof": null
+      "liveProof": null,
+      "assignedPresenterRoles": [
+        "JORDAN",
+        "NORA"
+      ],
+      "viewerInteraction": true,
+      "moderationEnabled": false,
+      "marketEditorApproved": false,
+      "questionRightsVerified": false,
+      "plannedLiveWhenQualified": true
     }
-  ]
+  ],
+  "presenters": [
+    {
+      "id": "NORA",
+      "role": "Lead AI U.S. Markets Anchor",
+      "approvedVideo": false
+    },
+    {
+      "id": "MARCUS",
+      "role": "AI Markets and Macro Analyst",
+      "approvedVideo": false
+    },
+    {
+      "id": "AVERY",
+      "role": "AI Earnings and Technology Correspondent",
+      "approvedVideo": false
+    },
+    {
+      "id": "JORDAN",
+      "role": "AI U.S. Data and Viewer Interaction Host",
+      "approvedVideo": false
+    }
+  ],
+  "operationalIntent": {
+    "onAirTalent": "FICTIONAL_AI_ONLY",
+    "mediaMethod": "APPROVED_VENDOR_STREAM_OR_OFFLINE_RENDER",
+    "viewerQuestions": "HUMAN_MODERATED_ONLY",
+    "liveSegments": "ONLY_WITH_PROVEN_LIVE_SOURCE_AND_OPERATOR",
+    "streamingAvatarsOwned": false
+  }
 }
