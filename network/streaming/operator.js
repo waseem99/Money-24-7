@@ -67,6 +67,12 @@ async function stop(role,{byDisconnect=false}={}){
 }
 async function connect(role){
  if(live.has(role)){report(role+': already connected; no second session started');return;}
+ if(!studioObjectURL){
+  report(role+': no clean licensed newsroom background selected. Load a source plate before billable test.');
+  state(role,'BLOCKED · NO STUDIO');return;
+ }
+ const capability=document.createElement('canvas').getContext('webgl');
+ if(!capability){report(role+': this machine has no WebGL compositing; refusing to spend for an unusable key test.');state(role,'BLOCKED · GPU');return;}
  const input=$(role+'-token');
  const token=input.value.trim();input.value='';
  const secs=Number($('session-cap').value);
