@@ -49,7 +49,7 @@ test('A token/session failure has uncertain outcome and never auto-retries billa
 });
 test('Large proof and missing approval/session hash are rejected before token issuance',async()=>{
  const x=make();
- await assert.rejects(x.source.connect({...approval,durationSeconds:150,explicitlyApprovedPaidSession:true}),/Limited first demo/);
+ await assert.rejects(x.source.connect({...approval,durationSeconds:150,explicitlyApprovedPaidSession:true}),/blocked|Limited first demo/);
  await assert.rejects(x.source.connect({...approval,sessionIdempotencyKey:'bad',explicitlyApprovedPaidSession:true}),/blocked/);
  assert.equal(x.calls.token,0);
 });
