@@ -31,8 +31,8 @@ export function auditAICast(manifest,{release=false}={}){
   if(manifest.humanOnAir===true)errors.push('Human representatives/actors cannot appear on-air');
   if(manifest.approvedConcept?.purpose!==AI_MANDATE.visualReferencePurpose)
     errors.push('Generated image is reference only, not a character rig or source footage');
-  if(manifest.approvedConcept?.embeddedLiveBadge===true||manifest.approvedConcept?.embeddedMarketData===true)
-    errors.push('Concept art cannot carry broadcast market text or fabricated LIVE labels');
+  if(manifest.approvedConcept?.referenceIsCreativeOnly!==true)
+    errors.push('Illustrative figures/characters in concept art cannot be used as finished broadcast data or frames');
   if(manifest.graphicSystem?.bugCount!==1||
      manifest.graphicSystem?.bugPosition!=='TOP_LEFT_ONLY'||
      manifest.graphicSystem?.marketValuesGeneratedByImageModel===true)
@@ -42,6 +42,7 @@ export function auditAICast(manifest,{release=false}={}){
     errors.push('Newsroom must be one shared Unreal 3D Level');
   if(set.hasBakedPresenters||set.hasBakedMarketFigures||set.hasRepeatedBackWallLogo)
     errors.push('Room contains unapproved 2D baked characters, numbers or duplicate bug');
+  if(!nonempty(set.levelId))errors.push('No stable Unreal newsroom Level identifier');
   const cameras=Array.isArray(set.cameras)?set.cameras:[];
   if(new Set(cameras.map(c=>c.id)).size!==cameras.length)errors.push('Duplicate camera');
   for(const id of REQUIRED_CAMERAS){
