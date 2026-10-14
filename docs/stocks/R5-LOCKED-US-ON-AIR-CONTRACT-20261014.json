@@ -26,7 +26,7 @@
       "duplicate_in_room": false
     },
     "background": {
-      "no_large_T": false,
+      "no_large_T": true,
       "one_blank_room": true,
       "empty_no_people": true,
       "empty_no_generated_graphics": true,
