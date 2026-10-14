@@ -74,12 +74,20 @@ export function auditBroadcastItem(item,{release=false,asOfUtc}={}){
    errors.push('AI-native channel prohibits human presenters or representatives on air');
  if(item.hasVisiblePresenters===true &&
     !['ORIGINAL_RIGGED_3D','CUSTOM_FICTIONAL_STREAMING_AVATAR'].includes(item.onAirPerformerType))
-   errors.push('Visible presenter must render from the original fictional 3D rig');
+   errors.push('Visible presenter must use an approved original fictional AI rig or licensed streaming avatar');
  if(release && item.hasVisiblePresenters===true &&
      (!isMediaHash(item.aiCastManifestSha256)||!isMediaHash(item.studioAssetSha256)))
    errors.push('AI cast and single-room 3D studio lock SHA required');
  if(item.mismatchedPresenterVoice===true||item.falseTwoPresenterInteraction===true)
    errors.push('Face/lip/room identity QA failure');
+ if(item.viewerInteraction===true && (item.mode==='live' || release) &&
+     (item.moderationEnabled!==true||item.marketEditorApproved!==true||
+      item.questionRightsVerified!==true))
+   errors.push('Live or releasable audience interaction requires editor, moderation and audience use rights');
+ if(release && item.hasVisiblePresenters===true && item.onAirPerformerType==='CUSTOM_FICTIONAL_STREAMING_AVATAR' &&
+    (item.syntheticIdentityApproved!==true||item.vendorVideoRightsApproved!==true||
+     item.voiceLipSyncSourceApproved!==true))
+   errors.push('AI streaming presenter vendor rights, fictional identity and exact voice sync are unapproved');
  for(const claim of item.claims||[]){
   for(const error of auditBroadcastClaim(claim,{requireReady:release,asOfUtc}))
     errors.push('Claim '+(claim?.id||'?')+': '+error);
