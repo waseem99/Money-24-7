@@ -27,7 +27,8 @@ const FS=[
  ' float mask=smoothstep(u_key.x,u_key.y,d);',
  ' mask*=step(u_key.z,px.g);',
  ' float alpha=1.0-mask;',
- ' gl_FragColor=vec4(px.rgb*alpha,alpha);',
+ ' vec3 rgb=vec3(px.r,min(px.g,max(px.r,px.b)+0.06),px.b);',
+ ' gl_FragColor=vec4(rgb,alpha);',
  '}'
 ].join('\n');
 function shader(gl,type,src){
