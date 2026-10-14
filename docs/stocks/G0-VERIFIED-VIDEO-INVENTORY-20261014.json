@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "title": "G0 verified source recovery - Stocks",
+  "retrieval_date": "2026-10-14",
+  "repository": "waseem99/Money-24-7",
+  "tracker_url": "https://github.com/waseem99/Money-24-7/issues/37",
+  "stage": "RECOVERED_TECHNICALLY_REVIEW_PENDING",
+  "qa_summary": {
+    "archives_downloaded": 5,
+    "files_in_original_archives": 24,
+    "video_files_verified": 12,
+    "full_decode_pass": 12,
+    "has_verified_offsite_backup": false,
+    "source_visual_approval": false
+  },
+  "source_classification": {
+    "R5": "User-approved Liza/Lasse avatar looks and voices; face/voice recordings from R5; full acting review pending",
+    "W3": "AI-native generated coherent studio using NEW fictional faces; NOT approved substitute for Liza/Lasse",
+    "W5": "W3 fictional newsroom Nora source: Oct 12 closing-edition narration; not original approved cast",
+    "W6": "W3 fictional newsroom voices: Oct 12 closing-edition narration; not original approved cast",
+    "W7": "Generated Alex remote reporter on closing-edition voice; not yet licensed/creative-approved for release"
+  },
+  "source_artifacts": {
+    "R5": {
+      "artifact_id": 11777993913,
+      "run_id": 38318878319,
+      "expires": "2026-11-02T22:52:46Z",
+      "zip": "STOCKS-R5-original.zip"
+    },
+    "W3": {
+      "artifact_id": 11795874332,
+      "run_id": 38364306246,
+      "expires": "2026-10-27T07:45:00Z",
+      "zip": "STOCKS-W3-room.zip"
+    },
+    "W5": {
+      "artifact_id": 11796304828,
+      "run_id": 38366630575,
+      "expires": "2026-11-03T08:08:24Z",
+      "zip": "STOCKS-W5-Nora-native.zip"
+    },
+    "W6": {
+      "artifact_id": 11798612792,
+      "run_id": 38369508823,
+      "expires": "2026-11-03T08:32:54Z",
+      "zip": "STOCKS-W6-five-shots.zip"
+    },
+    "W7": {
+      "artifact_id": 11798493600,
+      "run_id": 38370726377,
+      "expires": "2026-11-03T08:39:53Z",
+      "zip": "STOCKS-W7-remote.zip"
+    }
+  },
+  "files": [
+    {
+      "bank": "R5",
+      "name": "MARCUS-matte.webm",
+      "sha256": "db1c3d33f0b3beff0343a999bee93d97117f5269605cc41dbac63ca429247f01",
+      "duration_seconds": 12.6,
+      "width": 960,
+      "height": 540,
+      "has_audio": false,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "R5 source script - verify exact words before final",
+      "on_air_cast_approved": true
+    },
+    {
+      "bank": "R5",
+      "name": "MARCUS.mp4",
+      "sha256": "4a30fb0ff910ebb7d9175c0470e9f97c919f164a9109cc3c3b874a20af5beb9f",
+      "duration_seconds": 12.6,
+      "width": 1920,
+      "height": 1080,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "R5 source script - verify exact words before final",
+      "on_air_cast_approved": true
+    },
+    {
+      "bank": "R5",
+      "name": "NORA-matte.webm",
+      "sha256": "1dbb6112f9bd379c1daf9d984e39d5798aa33b0bb750c584fcf8893254a36908",
+      "duration_seconds": 7.333,
+      "width": 960,
+      "height": 540,
+      "has_audio": false,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "R5 source script - verify exact words before final",
+      "on_air_cast_approved": true
+    },
+    {
+      "bank": "R5",
+      "name": "NORA.mp4",
+      "sha256": "3dac29bc514eaedadfe724323cf2aa7a21e7bdadc16a4394d84a14468b725d7c",
+      "duration_seconds": 7.34,
+      "width": 1920,
+      "height": 1080,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "R5 source script - verify exact words before final",
+      "on_air_cast_approved": true
+    },
+    {
+      "bank": "W3",
+      "name": "stocks-w3-native-integrated-newsroom.mp4",
+      "sha256": "2710cffe5383008fedae1d4e52a2d7c1b20654595ed354e07ee6df56a7956709",
+      "duration_seconds": 5.056,
+      "width": 1280,
+      "height": 720,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W5",
+      "name": "stocks-w5-Nora-spoken-768p.mp4",
+      "sha256": "368e29220cfee0379d3175dc9486649ac405757c09dc07d730c911b49e3766a5",
+      "duration_seconds": 7.383,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W6",
+      "name": "stocks-w6-shot-05.mp4",
+      "sha256": "b5ba0c2cd15281019f459f24939fae0c4117663ff1c8130844ce3e6148f916ee",
+      "duration_seconds": 8.083,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W6",
+      "name": "stocks-w6-shot-09.mp4",
+      "sha256": "503f01bd9727c432126cfbdc21e07f5049f4fffce0bd77a47a7ce9fdcdd66cd2",
+      "duration_seconds": 8.083,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W6",
+      "name": "stocks-w6-shot-14.mp4",
+      "sha256": "834afb38b98f2d0f0341c1fccb39cee172b920944e7755f8e76b1a2a1a629d93",
+      "duration_seconds": 7.383,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W6",
+      "name": "stocks-w6-shot-16.mp4",
+      "sha256": "b9b39e7660d303f123f0d11a2986055fa2ed8c8d4d2c0fbef0e53eaf8cfa6112",
+      "duration_seconds": 6.667,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W6",
+      "name": "stocks-w6-shot-18.mp4",
+      "sha256": "e8c0f86fba6482985dedb2114395fa5075565a437eb6b4aacde8b65ec2683e54",
+      "duration_seconds": 7.383,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    },
+    {
+      "bank": "W7",
+      "name": "stocks-w7-Alex-remote.mp4",
+      "sha256": "8414761aa527971d31dd28e54955ace67b4462d8403e3d295f27b304c3b29156",
+      "duration_seconds": 8.083,
+      "width": 1344,
+      "height": 768,
+      "has_audio": true,
+      "full_decode": "PASS",
+      "valid_asset": true,
+      "visual_approved": false,
+      "editorial_edition": "2026-10-12 closing edition",
+      "on_air_cast_approved": false
+    }
+  ],
+  "missing": [
+    {
+      "bank": "W6",
+      "expected_name": "stocks-w6-shot-20.mp4",
+      "reason": "Only stocks-w6-20-review.json was recovered (ALREADY_LOCKED_NO_RETRY); no original moving video",
+      "release_status": "BLOCKED"
+    }
+  ],
+  "license_review_required": true,
+  "editorial_version_decision_required": true,
+  "broadcast_release_approved": false,
+  "paid_generation_performed_during_recovery": false,
+  "notes": [
+    "Technical full decode is NOT a human visual quality test.",
+    "W3/W5/W6 face identities are distinct from the R5 cast; never silently mix.",
+    "Sources cannot be committed as raw media into the public GitHub repository without rights and storage review.",
+    "The downloadable recovered archive is presently a conversation attachment, NOT a certified durable offsite backup.",
+    "Original storyboard is October 12 morning; W5/W6/W7 recordings narrate October 12 close.",
+    "Do not declare E01 completed until a durable authorized archive, metadata review and sign-off are recorded."
+  ]
+}
