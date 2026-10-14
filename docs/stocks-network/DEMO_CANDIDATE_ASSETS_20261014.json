@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "sourceMasterSha256": "385aafd5244033a7bb691e17ca5d4807364415ea642e1bd256d8307e5a20029f",
+  "sourceMasterDescription": "User-selected blue Stocks 2-anchor still; illustrative market numbers must never be aired as verified facts",
+  "outputFrame": {
+    "width": 1920,
+    "height": 1080
+  },
+  "privateFolder": "STOCKS — Client Demo Candidate Visual Assets — 2026-10-14",
+  "presenters": {
+    "NORA": {
+      "file": "STOCKS-NORA-PORTRAIT-1920x1080-CANDIDATE.png",
+      "sha256": "21b47ce74553ddd3678638e75bf7a83ab7707d1995ea62b223e6a2c1cec56cbd",
+      "singleFace": true,
+      "frontalPose": true,
+      "neutralClosedMouth": true,
+      "identityApproved": false,
+      "providerEligible": null,
+      "providerAvatarId": null,
+      "sourceVisualStatus": "NEW_GENERATION_DO_NOT_ASSUME_IDENTICAL_TO_MASTER"
+    },
+    "MARCUS": {
+      "file": "STOCKS-MARCUS-PORTRAIT-1920x1080-CANDIDATE.png",
+      "sha256": "cef60b2a096fe1219952883b33aeac78a74baef97f00b96c21c678fd006af266",
+      "singleFace": true,
+      "frontalPose": true,
+      "neutralClosedMouth": true,
+      "identityApproved": false,
+      "providerEligible": null,
+      "providerAvatarId": null,
+      "glassesMayReduceMatteQuality": true,
+      "sourceVisualStatus": "NEW_GENERATION_DO_NOT_ASSUME_IDENTICAL_TO_MASTER"
+    }
+  },
+  "studio": {
+    "file": "STOCKS-EMPTY-NEWSROOM-1920x1080-CANDIDATE.png",
+    "sha256": "35f352bbe4d068a499d1cbb1123f59661fedb03314c78ffef610ab1fda0d8dde",
+    "containsPeople": false,
+    "containsMarketQuotes": false,
+    "containsLiveLabel": false,
+    "marketGraphicSource": "INDEPENDENT_RENDERER",
+    "approved": false
+  },
+  "usage": {
+    "providerTrainingAuthorized": false,
+    "manualVisualApprovalRequired": true,
+    "metadataOnlyInPublicRepo": true,
+    "liveUsageBudgetStatus": "PROJECT_DEMO_BUDGET_APPROVED_VENDOR_ACCOUNT_NOT_CONNECTED"
+  },
+  "experimental": false
+}
