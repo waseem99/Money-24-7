@@ -1,11 +1,10 @@
 name: Stocks R5 — one original Lasse and Orson quality take
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/stocks-r5-lasse-one.yml'
+  workflow_dispatch:
 jobs:
   once-original-marcus:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Explicitly disabled in G0–G3: unlock only in a separate reviewed, budget-authorized change.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     permissions:
