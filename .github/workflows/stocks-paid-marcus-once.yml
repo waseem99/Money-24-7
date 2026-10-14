@@ -1,12 +1,10 @@
 name: Stocks — one Marcus speaking take
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/stocks-paid-marcus-once.yml'
-      - 'pilot/stocks/paid-marcus-once.mjs'
+  workflow_dispatch:
 jobs:
   one-authorized-take:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Explicitly disabled in G0–G3: unlock only in a separate reviewed, budget-authorized change.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     permissions:
