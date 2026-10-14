@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {sessionPreflight,FREE_PRESET_TRIAL,qualityGate} from '../network/streaming/vendor-policy.mjs';
 
 const base={role:'NORA',mode:'LITE',sourceKind:'PROVIDER_PUBLIC_PRESET_FOR_PRIVATE_FREE_TRIAL',
- presetTrial:true,presetName:'Amina',activeOtherSessions:0,
+ presetTrial:true,presetName:'Amina',activeOtherSessions:0,privateFreeTestOnly:true,
  sourceApproved:true,providerEligibilityVerified:true,commercialTestRightsApproved:true,
  operatorSession:true,viewerDriven:false,manualStart:true,explicitCreditApproval:true,
  sessionToken:'fake-token-which-is-at-least-24-characters',maximumSeconds:35,
