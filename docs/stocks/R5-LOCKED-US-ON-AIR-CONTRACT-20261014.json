@@ -1,0 +1,115 @@
+{
+  "version": "R5.1",
+  "updated": "2026-10-14",
+  "workflow": "US-ONLY / REPLAY / APPROVED ORIGINAL CAST",
+  "approved_direction": {
+    "grid": "Reference image 1: two-anchor desk, ONE right-side markets panel, lower-third, ticker",
+    "visual": "Reference image 2: restrained premium blue newsroom, clean background and warm practical lighting",
+    "studio_render_status": "DESIGN CANDIDATE, NOT PHOTO-REAL CERTIFIED"
+  },
+  "nonnegotiable": {
+    "region": "United States equity markets exclusively",
+    "forbidden_geographies": [
+      "Pakistan",
+      "Karachi",
+      "Islamabad",
+      "KSE",
+      "PSX",
+      "Faisal Mosque"
+    ],
+    "top_left_bug": {
+      "source": "User-uploaded Tamasha logo(1).png",
+      "copy": "STOCKS",
+      "tagline": "MARKETS  BUSINESS  PEOPLE",
+      "max_total_width_px_at_1920": 250,
+      "max_height_px_at_1080": 85,
+      "duplicate_in_room": false
+    },
+    "background": {
+      "no_large_T": true,
+      "one_blank_room": true,
+      "empty_no_people": true,
+      "empty_no_generated_graphics": true,
+      "license_or_generator_provenance_required": true,
+      "modern_blue_silver": true,
+      "no_repeated_wall_logo": true
+    },
+    "archive_format": {
+      "type": "PRE-RECORDED / REPLAY",
+      "edition_date": "2026-10-12",
+      "observed_at": "09:40 ET",
+      "live_flag_allowed": false
+    },
+    "ticker": {
+      "screen_zone": "Bottom strip, independent compositor",
+      "must_be_sourced": true,
+      "as_of_required": true,
+      "source_required": true,
+      "may_scroll": true
+    },
+    "on_air_data": {
+      "source_type": "Reuters historical fixed snapshot",
+      "indexes": [
+        {
+          "name": "Dow Jones",
+          "level": "51,761.98",
+          "change": "+0.21%"
+        },
+        {
+          "name": "S&P 500",
+          "level": "7,817.68",
+          "change": "+0.08%"
+        },
+        {
+          "name": "Nasdaq Composite",
+          "level": "27,355.94",
+          "change": "−0.04%"
+        }
+      ],
+      "sector_observations": [
+        {
+          "name": "Energy",
+          "change": "+1.8%"
+        },
+        {
+          "name": "Technology",
+          "change": "−0.2%"
+        }
+      ]
+    },
+    "cast": {
+      "nora": "Liza Office 6 / Annie voice ID previously locked",
+      "marcus": "Lasse Office 3 / Orson previously locked",
+      "third_reporter": "NOT APPROVED",
+      "silent_recasting": false
+    }
+  },
+  "video_QA": {
+    "g1_studio_still": "technical_only",
+    "g2_original_cast_moving": "technical_only",
+    "g3_fully_voiced_60s": "BLOCKED",
+    "final_4m20": "BLOCKED",
+    "no_new_paid_calls": true
+  },
+  "assets_and_artifacts": {
+    "source_backups": "five artifacts uploaded, present and private in Google Drive; content SHA copy verification outstanding",
+    "R5_video_filename": "STOCKS-R5-US-STUDIO-REAL-CAST-TECHNICAL-REVIEW.mp4",
+    "R5_video_sha256": "69f05a1a4134d6e9e46b947c4375bc6ea33111291ef00a8decd16e3cef8baccf",
+    "duration_seconds": 28.066667,
+    "source_voice_seconds_approx": 19.94,
+    "on_air_only_us": true,
+    "clip_full_decode": "PASS",
+    "render_type": "conceptual procedural virtual newsroom, not final"
+  },
+  "next_gate": {
+    "title": "Approved empty photoreal newsroom plate plus R5 moving cast re-composite",
+    "pass_conditions": [
+      "Realistic physical depth and coherent lights",
+      "No fake background numbers, texts or duplicated branding",
+      "Nora/Marcus original faces, proper headroom, no halo",
+      "Grid matches approved sample; Marcus not overzoomed",
+      "Human motion review of exact hash",
+      "Only once approved produce fully voiced 45–65 sec source-accurate golden cut"
+    ]
+  }
+}
