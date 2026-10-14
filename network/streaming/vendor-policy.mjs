@@ -39,7 +39,10 @@ export function sessionPreflight(input) {
     errors.push('Free plan: max one active source, short watermarked PRIVATE test only');
   if (input.sourceApproved !== true) errors.push('Original fictional identity approval missing');
   if (input.providerEligibilityVerified !== true) errors.push('Provider avatar eligibility not verified');
-  if (input.commercialTestRightsApproved !== true) errors.push('Custom avatar/voice test licence not confirmed');
+  if (freePreset && input.privateFreeTestOnly!==true)
+    errors.push('Free preset must remain a private watermarked technical test');
+  if (!freePreset && input.commercialTestRightsApproved !== true)
+    errors.push('Custom avatar/voice test licence not confirmed');
   if (input.operatorSession !== true || input.viewerDriven === true) errors.push('Only one private producer session; no per-viewer paid session');
   if (input.explicitCreditApproval !== true) errors.push('Paid session needs explicit approval');
   if (input.manualStart !== true) errors.push('No automatic startup');
