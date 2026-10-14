@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "1.0.0",
+  "network": "Stocks",
+  "marketScope": "US_MARKETS",
+  "dateET": "2026-10-14",
+  "timeZone": "America/New_York",
+  "title": "EXAMPLE ONLY — NOT SCHEDULED FOR AIR",
+  "runStatus": "DRAFT_NOT_BROADCASTABLE",
+  "durationSec": 12600,
+  "bug": {
+    "count": 1,
+    "position": "TOP_LEFT_ONLY",
+    "tagline": "MARKETS BUSINESS PEOPLE"
+  },
+  "studioApproved": false,
+  "dataLicensingApproved": false,
+  "tamashaIngestAccepted": false,
+  "primaryFeedHealthy": false,
+  "backupFeedTested": false,
+  "monitoringEnabled": false,
+  "standbyPlaylistId": null,
+  "producerApproved": false,
+  "marketEditorApproved": false,
+  "runSheetApprovalSha256": null,
+  "broadcastProvisioned": false,
+  "items": [
+    {
+      "id": "us-pre-market",
+      "title": "Pre-market US market briefing",
+      "mode": "original",
+      "onAirLabel": "RECORDED",
+      "market": "US",
+      "startSec": 0,
+      "durationSec": 1800,
+      "recordedDateET": "2026-10-14",
+      "asset": null,
+      "rights": {
+        "footage": false,
+        "broadcast": false,
+        "marketDataRedistribution": false
+      },
+      "claims": [],
+      "hasExternalMarketQuotes": false,
+      "hasImageGeneratedQuote": false,
+      "hasBakedBackgroundPresenters": false,
+      "mismatchedPresenterVoice": false,
+      "falseTwoPresenterInteraction": false,
+      "qa": {
+        "visual": false,
+        "editorial": false,
+        "audio": false,
+        "captions": false,
+        "approvalSha256": null
+      },
+      "liveProof": null
+    },
+    {
+      "id": "opening-bell",
+      "title": "Opening Bell and Market Watch",
+      "mode": "original",
+      "onAirLabel": "RECORDED",
+      "market": "US",
+      "startSec": 1800,
+      "durationSec": 2700,
+      "recordedDateET": "2026-10-14",
+      "asset": null,
+      "rights": {
+        "footage": false,
+        "broadcast": false,
+        "marketDataRedistribution": false
+      },
+      "claims": [],
+      "hasExternalMarketQuotes": false,
+      "hasImageGeneratedQuote": false,
+      "hasBakedBackgroundPresenters": false,
+      "mismatchedPresenterVoice": false,
+      "falseTwoPresenterInteraction": false,
+      "qa": {
+        "visual": false,
+        "editorial": false,
+        "audio": false,
+        "captions": false,
+        "approvalSha256": null
+      },
+      "liveProof": null
+    },
+    {
+      "id": "sector-radar",
+      "title": "Sector Radar and Mega-Caps explained",
+      "mode": "evergreen",
+      "onAirLabel": "EVERGREEN",
+      "market": "US",
+      "startSec": 4500,
+      "durationSec": 2100,
+      "recordedDateET": "2026-10-12",
+      "asset": null,
+      "rights": {
+        "footage": false,
+        "broadcast": false,
+        "marketDataRedistribution": false
+      },
+      "claims": [],
+      "hasExternalMarketQuotes": false,
+      "hasImageGeneratedQuote": false,
+      "hasBakedBackgroundPresenters": false,
+      "mismatchedPresenterVoice": false,
+      "falseTwoPresenterInteraction": false,
+      "qa": {
+        "visual": false,
+        "editorial": false,
+        "audio": false,
+        "captions": false,
+        "approvalSha256": null
+      },
+      "liveProof": null
+    },
+    {
+      "id": "earnings-desk",
+      "title": "Earnings Desk — recorded analysis",
+      "mode": "replay",
+      "onAirLabel": "REPLAY",
+      "market": "US",
+      "startSec": 6600,
+      "durationSec": 1800,
+      "recordedDateET": "2026-10-13",
+      "asset": null,
+      "rights": {
+        "footage": false,
+        "broadcast": false,
+        "marketDataRedistribution": false
+      },
+      "claims": [],
+      "hasExternalMarketQuotes": false,
+      "hasImageGeneratedQuote": false,
+      "hasBakedBackgroundPresenters": false,
+      "mismatchedPresenterVoice": false,
+      "falseTwoPresenterInteraction": false,
+      "qa": {
+        "visual": false,
+        "editorial": false,
+        "audio": false,
+        "captions": false,
+        "approvalSha256": null
+      },
+      "liveProof": null
+    },
+    {
+      "id": "fed-macro",
+      "title": "Macro, CPI and Federal Reserve educational format",
+      "mode": "evergreen",
+      "onAirLabel": "EVERGREEN",
+      "market": "US",
+      "startSec": 8400,
+      "durationSec": 2400,
+      "recordedDateET": "2026-10-01",
+      "asset": null,
+      "rights": {
+        "footage": false,
+        "broadcast": false,
+        "marketDataRedistribution": false
+      },
+      "claims": [],
+      "hasExternalMarketQuotes": false,
+      "hasImageGeneratedQuote": false,
+      "hasBakedBackgroundPresenters": false,
+      "mismatchedPresenterVoice": false,
+      "falseTwoPresenterInteraction": false,
+      "qa": {
+        "visual": false,
+        "editorial": false,
+        "audio": false,
+        "captions": false,
+        "approvalSha256": null
+      },
+      "liveProof": null
+    },
+    {
+      "id": "midday-roundup",
+      "title": "Recorded Midday Market Watch",
+      "mode": "replay",
+      "onAirLabel": "REPLAY",
+      "market": "US",
+      "startSec": 10800,
+      "durationSec": 1800,
+      "recordedDateET": "2026-10-13",
+      "asset": null,
+      "rights": {
+        "footage": false,
+        "broadcast": false,
+        "marketDataRedistribution": false
+      },
+      "claims": [],
+      "hasExternalMarketQuotes": false,
+      "hasImageGeneratedQuote": false,
+      "hasBakedBackgroundPresenters": false,
+      "mismatchedPresenterVoice": false,
+      "falseTwoPresenterInteraction": false,
+      "qa": {
+        "visual": false,
+        "editorial": false,
+        "audio": false,
+        "captions": false,
+        "approvalSha256": null
+      },
+      "liveProof": null
+    }
+  ]
+}
