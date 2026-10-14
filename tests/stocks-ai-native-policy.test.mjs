@@ -39,6 +39,13 @@ test('All three studio cameras must share a single 3D Level',()=>{
  d.studio.cameras.pop();
  assert.equal(auditAICast(d).pass,false);
 });
+test('AI video billing and hidden human source require explicit safe flags',()=>{
+ const d=clone(doc);d.automaticPaidProviderJobsEnabled=true;
+ assert.equal(auditAICast(d).pass,false);
+ d.automaticPaidProviderJobsEnabled=false;delete d.noHumanRepresentativesVisible;
+ assert.equal(auditAICast(d).pass,false);
+});
+
 test('Studio must be free from AI-generated people, market data and extra marks',()=>{
  const d=clone(doc);d.studio.hasBakedMarketFigures=true;
  assert.equal(auditAICast(d).pass,false);
