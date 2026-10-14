@@ -12,7 +12,7 @@ test('AI-only original fictional anchored project is correctly configured as a D
  assert.equal(result.releaseReady,false);
  assert.equal(result.newPaidGenerationAuthorized,false);
  assert.equal(result.onAirHumansPermitted,false);
- assert.equal(AI_MANDATE.characterMethod,'ORIGINAL_RIGGED_3D');
+ assert.equal(AI_MANDATE.characterMethod,'APPROVED_VENDOR_STREAM_OR_ORIGINAL_RIGGED_3D');
  assert.equal(AI_MANDATE.casting,'FICTIONAL_AI_CHARACTERS_ONLY');
  assert.equal(doc.studio.cameras.length,4);
 });
@@ -21,7 +21,7 @@ test('Unbuilt characters and studio must not be declared broadcast-ready',()=>{
  assert.equal(v.pass,false);
  assert.equal(v.releaseReady,false);
  assert.ok(v.errors.some(x=>x.includes('90-second')));
- assert.ok(v.errors.some(x=>x.includes('Unreal Level')));
+ assert.ok(v.errors.some(x=>x.includes('Studio Level')));
  assert.ok(v.errors.some(x=>x.includes('meshSha256')));
 });
 test('Real human anchor or digital-twin source is prohibited even in DRAFT',()=>{
@@ -60,6 +60,16 @@ test('Modelled 3D character cannot be a clone of a real person and must use synt
  d.characters.MARCUS.isHumanLikenessClone=false;d.characters.MARCUS.voice.kind='HUMAN_RECORDING';
  assert.equal(auditAICast(d).pass,false);
 });
+test('Original fictional licensed real-time image avatars can be staged without a real human actor',()=>{
+ const v=clone(doc);v.studio.engine='WEBRTC_COMPOSITOR';v.studio.sceneMode='ONE_COMPOSITED_STUDIO';
+ for(const role of ['NORA','MARCUS'])v.characters[role].assetSource='CUSTOM_FICTIONAL_STREAMING_AVATAR';
+ const pre=auditAICast(v);
+ assert.equal(pre.pass,true,JSON.stringify(pre.errors));
+ const locked=auditAICast(v,{release:true});
+ assert.equal(locked.pass,false,'Approved source portraits and real moving video still required');
+ assert.ok(locked.errors.some(e=>e.includes('custom streaming avatar')));
+});
+
 test('Broadcast queue rejects human presenters and 2D photo avatars',()=>{
  const item={id:'sample',title:'Example synthetic segment',mode:'original',market:'US',durationSec:180,
    startSec:0,onAirLabel:'RECORDED',recordedDateET:'2026-10-14',claims:[],
@@ -67,6 +77,7 @@ test('Broadcast queue rejects human presenters and 2D photo avatars',()=>{
    aiCastManifestSha256:'a'.repeat(64),studioAssetSha256:'b'.repeat(64),
    hasHumanOnAir:false};
  assert.deepEqual(auditBroadcastItem(item),[]);
+ assert.deepEqual(auditBroadcastItem({...item,onAirPerformerType:'CUSTOM_FICTIONAL_STREAMING_AVATAR'}),[]);
  assert.ok(auditBroadcastItem({...item,hasHumanOnAir:true}).some(e=>e.includes('prohibits human')));
  assert.ok(auditBroadcastItem({...item,onAirPerformerType:'HUMAN_DIGITAL_TWIN'}).some(e=>e.includes('human')));
  assert.ok(auditBroadcastItem({...item,onAirPerformerType:'PHOTO_AVATAR_OFFICE_CLIP'}).some(e=>e.includes('original fictional')));
