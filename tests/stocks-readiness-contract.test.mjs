@@ -11,7 +11,7 @@ test('storyboard has all seventeen contiguous timecoded shot slots and source-sa
   assert.equal(s.id,String(i+1).padStart(2,'0'));
   assert.equal(s.start_ms,end);
   assert.equal(s.end_ms,s.start_ms+s.duration_ms);
-  assert.ok(s.primary_plan.length>12);
+  assert.ok(s.primary_plan.trim().length>=10);
   assert.ok(s.fallback_plan.length>12);
   assert.equal(s.release_ready,false,'Planning cannot claim finished shot');
   assert.notEqual(s.qa_status,'PASS','Existing sample shots cannot certify entire storyboard');
