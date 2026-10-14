@@ -39,6 +39,8 @@ function view(camera){
  }
  selectedCamera=camera;
  const presetMode=$('free-presets').checked;
+ $('NORA-start').textContent=presetMode?'Connect Amina (included credits)':'Connect Nora (may bill)';
+ $('MARCUS-start').textContent=presetMode?'Connect Dexter (included credits)':'Connect Marcus (may bill)';
  document.querySelector('.name.nora').textContent=presetMode?'AMINA · FREE WATERMARKED TEST':'NORA · AI ANCHOR';
  document.querySelector('.name.marcus').textContent=presetMode?'DEXTER · FREE WATERMARKED TEST':'MARCUS · AI ANCHOR';
  if(recorder)recorder.cameraCut(camera);
@@ -201,8 +203,12 @@ async function startProgramCapture(){
  $('record-start').disabled=true;$('record-stop').disabled=false;
  $('program-capture-preview').style.display='block';
  try{
+  const presetTrial=$('free-presets').checked;
   recorder=new ProgramRecorder({canvas:$('program-capture-preview'),room:studioBitmap,
-   logo:brandBitmap,sources,status:'RECORDED DEMO',onProgress:report});
+   logo:brandBitmap,sources,
+   status:presetTrial?'FREE WATERMARKED TEST':'RECORDED DEMO',
+   labels:presetTrial?{NORA:'AMINA · FREE PRESET',MARCUS:'DEXTER · FREE PRESET'}:null,
+   onProgress:report});
   recorder.cameraCut(selectedCamera);
   $('record-status').textContent='CAPTURING VERIFIED MOVING INPUT';
   const result=await recorder.begin(seconds);
