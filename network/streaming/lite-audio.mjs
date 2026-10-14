@@ -25,6 +25,28 @@ export function float32ToPcm16Binary(samples){
  }
  return chunks.join('');
 }
+/**
+ * LiveAvatar official LITE events require Base64-encoded 24kHz PCM16.
+ * Send 1-second chunks, never a 20-second raw binary string or >1MB packet.
+ * SDK repeatAudio accepts the payload string but does not certify speech delivery.
+ */
+export function pcm16Base64Chunks(pcmBinary,{sampleRate=LITE_AUDIO.sampleRate,secondsPerChunk=1,encode=globalThis.btoa}={}){
+ if(typeof pcmBinary!=='string'||pcmBinary.length<2||pcmBinary.length%2)
+   throw Error('PCM16 binary string must contain an even, nonzero number of bytes');
+ if(sampleRate!==LITE_AUDIO.sampleRate||secondsPerChunk!==1)
+   throw Error('Only tested 1-second 24kHz PCM chunks');
+ if(typeof encode!=='function')throw Error('Base64 encoder missing');
+ const chunkBytes=sampleRate*2*secondsPerChunk;
+ const result=[];
+ for(let offset=0;offset<pcmBinary.length;offset+=chunkBytes){
+  const block=pcmBinary.slice(offset,offset+chunkBytes);
+  const payload=encode(block);
+  if(payload.length>1024*1024)throw Error('Provider 1MB WebSocket packet limit exceeded');
+  result.push(payload);
+ }
+ return result;
+}
+
 export function audioProofPolicy({durationSeconds=0,sampleRate=0,channels=0,byteLength=0,sourceApproved=false}={}){
  const errors=[];
  if(!(durationSeconds>=LITE_AUDIO.minSeconds&&durationSeconds<=LITE_AUDIO.maxSeconds))

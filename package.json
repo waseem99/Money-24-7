@@ -15,7 +15,8 @@
     "verify:broadcast": "node pilot/v2/verify.mjs",
     "audition": "node pilot/v2/native-audition-cli.mjs",
     "stocks:doctor": "node network/cli.mjs doctor",
-    "stocks:rundown": "node network/cli.mjs validate docs/stocks-network/daily-rundown.example.json"
+    "stocks:rundown": "node network/cli.mjs validate docs/stocks-network/daily-rundown.example.json",
+    "stocks:liveavatar": "node network/live-avatar/direct-setup.mjs"
   },
   "dependencies": {
     "@heygen/liveavatar-web-sdk": "0.0.19",

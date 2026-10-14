@@ -7,7 +7,7 @@
 import {sessionPreflight,ROLES,STOCKS_STREAM_GATE} from './vendor-policy.mjs';
 import {startGreenKey} from './keyer.js';
 import {ProgramRecorder,validateCaptureInputs} from './program-capture.mjs';
-import {prepareLiteAudioFile,audioProofPolicy} from './lite-audio.mjs';
+import {prepareLiteAudioFile,audioProofPolicy,pcm16Base64Chunks} from './lite-audio.mjs';
 
 const $=id=>document.getElementById(id);
 const live=new Map();
@@ -233,9 +233,16 @@ async function speakNoraOnce(){
   if(!p.pass)throw Error(p.errors.join('; '));
   if(entry.closed||live.get('NORA')!==entry)throw Error('Nora session ended during local audio conversion');
   if(typeof entry.session.repeatAudio!=='function')throw Error('SDK does not expose LITE repeatAudio');
+  const chunks=pcm16Base64Chunks(audio.pcm24kBinary);
   entry.oneSpeechSubmitted=true;
-  entry.session.repeatAudio(audio.pcm24kBinary);
-  report('Sent exactly one '+audio.durationSeconds.toFixed(2)+'s synthetic-audio take to Nora. This is NOT proof of audible output or lip sync. Verify real provider speech events and complete a moving video recording. No retry if provider state is unknown.');
+  for(const packet of chunks){
+    // Official agent.speak audio is Base64 PCM16 24kHz, <= 1 MB per packet.
+    // Each 1-second packet is an intentional chunk of this ONE approved take.
+    entry.session.repeatAudio(packet);
+  }
+  report('Submitted one approved '+audio.durationSeconds.toFixed(2)+'s Nora take as '+chunks.length+
+    ' documented Base64 PCM chunks. This is NOT proof of audible delivery or lip sync: verify '+
+    'provider speak_started/speak_ended, actual video mouth motion and local recording. No automatic retry.');
  }catch(error){
   report('Nora speech submission failed. Verify provider status and SDK audio protocol before another attempt. '+String(error?.message||error));
  }finally{
