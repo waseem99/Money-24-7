@@ -23,7 +23,7 @@ test('No paid generation or synthesized market quotes are introduced by local ch
 test('Photoreal physical newsroom and full narration remain distinct unapproved production gates', () => {
   assert.match(doc, /not a green G3/);
   assert.match(doc, /empty studio plate/);
-  assert.match(doc, /actual approved/);
+  assert.match(doc, /actual Liza\/Lasse/);
   assert.match(doc, /source-media generation/);
   assert.match(doc, /19\.94 seconds/);
 });
