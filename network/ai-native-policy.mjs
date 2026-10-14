@@ -28,7 +28,10 @@ export function auditAICast(manifest,{release=false}={}){
   if(manifest.channel!==AI_MANDATE.channel||manifest.marketScope!=='US_MARKETS')
     errors.push('Non-US or wrong programme');
   if(manifest.castingPolicy!==AI_MANDATE.casting)errors.push('Not explicitly AI-only original fictional talent');
-  if(manifest.humanOnAir===true)errors.push('Human representatives/actors cannot appear on-air');
+  if(manifest.humanOnAir!==false||manifest.noHumanRepresentativesVisible!==true)
+    errors.push('Human representatives/actors cannot appear on-air');
+  if(manifest.automaticPaidProviderJobsEnabled!==false)
+    errors.push('Automatic billable AI video/voice generation is not authorized');
   if(manifest.approvedConcept?.purpose!==AI_MANDATE.visualReferencePurpose)
     errors.push('Generated image is reference only, not a character rig or source footage');
   if(manifest.approvedConcept?.referenceIsCreativeOnly!==true)
@@ -68,6 +71,7 @@ export function auditAICast(manifest,{release=false}={}){
     }
   }
   if(release){
+    if(manifest.broadcastProvisioned!==true)errors.push('A real video/broadcast worker is not provisioned');
     if(!validHash(set.levelSha256)||set.geometryApproved!==true)
       errors.push('Studio Unreal Level and desk geometry not approved');
     if(!validHash(manifest.approvedConcept?.referenceSha256))
