@@ -69,6 +69,14 @@ export function auditBroadcastItem(item,{release=false,asOfUtc}={}){
  if(item.mode==='original' && item.onAirLabel==='LIVE')errors.push('False live label');
  if(item.hasImageGeneratedQuote===true||item.hasBakedBackgroundPresenters===true)
    errors.push('Uncontrolled AI imagery used for broadcast characters/market numerics');
+ if(item.hasHumanOnAir===true||item.onAirPerformerType==='HUMAN_FILMED_ACTOR'||
+    item.onAirPerformerType==='HUMAN_DIGITAL_TWIN')
+   errors.push('AI-native channel prohibits human presenters or representatives on air');
+ if(item.hasVisiblePresenters===true && item.onAirPerformerType!=='ORIGINAL_RIGGED_3D')
+   errors.push('Visible presenter must render from the original fictional 3D rig');
+ if(release && item.hasVisiblePresenters===true &&
+     (!isMediaHash(item.aiCastManifestSha256)||!isMediaHash(item.studioAssetSha256)))
+   errors.push('AI cast and single-room 3D studio lock SHA required');
  if(item.mismatchedPresenterVoice===true||item.falseTwoPresenterInteraction===true)
    errors.push('Face/lip/room identity QA failure');
  for(const claim of item.claims||[]){

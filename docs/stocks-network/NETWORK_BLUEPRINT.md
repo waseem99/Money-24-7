@@ -1,41 +1,37 @@
 # STOCKS Broadcast OS — 3–4 Hours/Day Premium US Financial Television
-**Architecture decision record v1 · 14 October 2026 · Design/engineering plan, NOT a deployed station**
+**Architecture decision record v2 — AI-NATIVE ONLY · 14 October 2026 · Design/engineering plan, NOT a deployed station**
+
+> **PRECEDENCE: [AI-native on-air mandate](AI_NATIVE_MANDATE.md). The viewer-facing programme has no filmed human actors, spokespeople, presenters or representatives. Nora/Marcus are original fictional rigged digital characters; all multi-camera shots render from a single stable Unreal studio. Human market editors/operators are strictly behind the scenes.**
 
 **Product:** Tamasha × Stocks, US markets exclusively.  
 **Goal:** Operate 180–240 minutes/day of consistently professional, accurately sourced programming, potentially including live, live-to-tape, recorded, explainers and explicitly labelled replays. 30 broadcast days = 90–120 linear hours/month; US trading weekdays and market-closed weekends require separate formats. **Do not confuse linear airtime with new daily original production.**
 
-## Decision 1 — A real network pipeline, not text-to-video loops
-For a 3–4h/day premium network, make a **permanent set with repeatable multi-camera capture** and use AI mainly for editorial preparation, fact extraction, shot scheduling, chart generation, subtitles, technical quality assurance and reusable pre-recorded presenter packages. No black-box generative clip engine should be trusted to keep 2 actors, hands, glass desk, backdrop numbers and lighting unchanged for hours. The existing "approved perfect still" is a design reference, NOT a layered rig/camera/performance source.
+## Decision 1 — A single AI-native studio, not text-to-video loops
+The user requires **zero filmed human presenters on screen**. Build a permanent, photoreal **Unreal Engine + MetaHuman** world with two *original fictional rigged* digital anchors (Nora and Marcus) reflecting the client-approved concept image. The digital scene itself produces all camera shots: no pasted office avatars, third-party filmed human source, random text-to-video scene regeneration or altered faces between episodes.
 
-**Default on-air performer path:** two contracted/consenting real presenters filmed in a small, genuine, controllable blue studio or physical foreground + calibrated virtual LED/green-screen back wall. Exactly one master physical/3D room, same furniture/light/camera axes. Consistent multi-camera footage is the most reliable route to an exact, believable shared desk with listener gaze and hand contact.
+Performances are generated as final licensed synthetic speech audio + offline audio-driven MetaHuman facial solve + curated Control Rig listener/gaze/gesture animations + desk IK and shadows. Human production artists and financial editors work only behind the scenes. Test mouth/eye/hand naturalness against moving film before attempting full-length programmes.
 
-**Supplemental on-air path:** separately qualified video-trained/live digital twins for off-hours prerecorded news inserts; always consented/licensed, tested as single-frame medium shots and capped to approved use. Fully 3D MetaHuman/live animation may become a parallel R&D project, NOT the first release bottleneck. Existing Liza/Lasse photo avatars from past runs are not evidence of human-realistic continuous desk performance.
-
-### Options and go/no-go
-| Talent method | Visual reliability for 4h/day | Operational role | Pre-release proof |
+### On-air synthesis methods and go/no-go
+| Method | Decision | Main use | Required proof |
 |---|---|---|---|
-| Actual filmed on-camera anchors + physical desk (RECOMMENDED) | High if properly shot and staffed | Main/flagship programmes and multi-person desk | 90s uninterrupted wide/close/return interview + 2 camera voices |
-| Video-trained AI digital presenter with consent | Varies; can work for one speaking waist-up camera | Secondary updates, pre-recorded explainers or emergency | 60s measured natural lip/eye/wardrobe, same-room integration + rights |
-| Animated MetaHuman/3D actor in one Unreal scene | One room/geometry feasible; facial realism difficult | Parallel scalable R&D for off-hours packages | 2min speaking + 60s listener and multi-camera, no uncanny valley |
-| One-image → 5–15s generative animation | Not stable as a programme source | Opening stings, transitions or visual B-roll only | Art direction; NEVER pass as full presenter footage |
+| Original fictional MetaHuman-compatible 3D anchors in one Unreal level | **PRIMARY**; no human filming | Daily multi-camera programme, same digital room and stable identities | 90s same-scene two-actor speaking/listening and desktop interaction at 1080p30 |
+| Audio-to-face + curated Control Rig body/gesture states | **CORE**; governed by locked speech/animation version | Natural original fictional anchor performance | Original TTS words sync; no teeth/hair/eye/desk artifacts |
+| AI video generation from stills | **LIMITED ONLY** | Original title sting, non-speaking stock footage with source/licensing review | No character drift, no fabricated US market data |
+| Existing Liza/Lasse office photo-avatars and filmed presenter sources | **EXCLUDED FROM NEW ON-AIR PIPELINE** | Historical comparison only | They cannot substitute for the current fictional cast or common set |
 
-## Decision 2 — Visual studio is an immutable production asset
-Design to match approved blue desk style but **do not paste generated figures/heads/market metrics**. Physical layers:
-1. Background: real room or one Unreal Engine level (lighting calibrated, cityscape licensed, no built-in LIVE/title/ticker/quotes).
-2. Physical desk/laptops/chairs/prop geometry; consistent camera optical height, lens metadata, eye-line lines, keys, floor contact, shadow catchers.
-3. Original consenting on-camera presenter feeds; optional licensed/filmed AI clone *only after review*.
-4. Independently drawn broadcast overlays (one *small* real Tamasha T + Stocks, MARKETS BUSINESS PEOPLE, individual names, headline, right source-driven market panel, ticker, replay/recorded/live status).
-5. Deterministic voice/caption/time-code and data overlay; the 16:9 frame is composed live or offline from these same assets.
+## Decision 2 — Immutable 3D scene, characters and broadcast layers
+**Client-approved premium blue newsroom** becomes ONE versioned `Stocks_Newsroom` Unreal Level with actual virtual geometry for glass desk, chairs, skyline, reflections, lights, shadows and camera A/B/C/D. Original Nora and Marcus are rigged *fictional* 3D character assets in that Level. Their identity and clothing lock to hashed `character_id`/`groom`/`wardrobe`/`voice_id` versions, so frames do not mutate as a model invents different people.
 
-Mandatory production camera registry:
-- A: natural wide of both actual people at single physical desk; no stitched cross-actor visual fraud.
-- B: Marcus medium with measured headroom/desk edge, original camera lighting/wardrobe.
-- C: Nora medium matching eye level/perspective.
-- D: chart-screen and presenter picture-in-picture, original own lip/audio.
-- E: desk-to-analyst/vertical board only if physically shot.
-- R: genuine remote SRT/call source with separate editorial fact/source package.
+Render/compose separate layers: (1) 3D room; (2) rigged 3D actors and hand/desk IK; (3) frozen approved audio-to-face + curated listener animation and natural body motion; (4) independent deterministic source-driven on-air overlays; (5) audio, captions, as-of time and recorded/live status. **No baked LIVE or AI-generated stock prices in the Level.**
 
-Minimal set: 2–3 camera lenses, actual desk/chairs, key/fill/rim lights, capture equipment, controlled audio, clean physical backdrop with optional green/LED, switcher operator. For virtual backgrounds, Unreal Composure/Live Link/Virtual Camera can match geometry; it does not automatically create believable actors.
+Mandatory camera registry, all inside ONE 3D scene:
+- **A:** actual rendered 2-character shared desk with tested silent listener animation and arm contacts.
+- **B:** Marcus medium close, stable lens/eye height/lighting/headroom/wardrobe.
+- **C:** Nora medium close, matching the wide desk geometry and fixed character face.
+- **D:** verified-data charts and presenter inset generated in post; on-screen virtual actor is from the locked rig.
+- **R:** digital correspondent *only* after creating a separately approved fictional rig and compatible program source.
+
+Use independent real-time graphics/CasparCG or Remotion overlays, not generative text inside backplates. The earlier still art is the visual reference, not a machine-ready model; a character artist/technical director must sculpt, rig, texture and verify the source-accurate models. See [AI-native mandate](AI_NATIVE_MANDATE.md) for full tests and asset deliverables.
 
 ## Decision 3 — Editorial programme model and US time context
 Suggested **210-minute scheduling pattern** (example ONLY, not yet commissioned):
@@ -63,7 +59,7 @@ flowchart LR
  CL --> AI[AI Research / Script Draft / Graphics Planning]
  AI --> ED[Human Market Editor + Rights Approval]
  ED --> JOB[Durable Production Job Queue]
- JOB --> PRES[Filmed Anchors / Approved Digital Inserts]
+ JOB --> PRES[Locked original AI Nora & Marcus / MetaHuman audio-driven 3D performance]
  JOB --> GFX[Graphics Engine: Remotion / HTML/SVG]
  PRES --> ASSET[Versioned Media Registry + QC]
  GFX --> ASSET
@@ -81,7 +77,7 @@ flowchart LR
 | Operator/approval console | Existing React/Vite/Next app on **Vercel only as control plane** | View data, source provenance, scripts, shot previews, approvals, budget, schedule, editorial history |
 | API + workers | Node/Python on persistent compute; PostgreSQL/Neon, Redis queues | Source snapshots, graph of claims, job state, schedule validation, idempotency, retention |
 | Object storage | Private S3/R2 or enterprise-approved bucket | Approved MP4s, audio, clean studio source, rights docs, per-asset checksums, expiry |
-| 3D studio | **Actual partial set first**; Unreal Engine when camera matching earns value | Consistent set, matched cameras, shadows and desk/lighting geometry |
+| 3D studio + digital cast | **One Unreal Engine Level + two original rigged MetaHuman-compatible fictional anchor characters** | Deterministic same-scene camera/lighting/desk geometry, scripted mouth/eyes/gestures and consistent face ID |
 | Programme render | Remotion/FFmpeg/NVENC; generated sequences for repeatable 15–60min packages | Lower thirds, timestamped charts, subtitles, burned proof, video encode |
 | Live graphics | CasparCG HTML data templates (or vMix GT titles during pilot) | One real brand mark, independent overlay data, live/provenance clocks, PIP |
 | Production switcher | **vMix pilot on dedicated Windows GPU machine**; optionally CasparCG for automated 24/7 playout | 3 camera angles, media playback, program/preview, audio, simultaneous record/stream |
@@ -104,7 +100,7 @@ LLM may summarize and suggest graphics/scripts, but **never invent prices, draw 
 ## Producer workstream (reproducible media factories)
 - Source ingest queue → classify/rank → journalist selects stories → structured fact ledger → AI draft with claim IDs.
 - Editor approves text + pronunciations + footage rights.
-- Real presenter records approved rundown (multicamera ISO + clean audio); synthetic inserts generated only with human approved exact script/voice/likeness and capped billing.
+- Produce the final approved TTS audio using locked fictional voice IDs; run offline MetaHuman audio-driven face solving, schedule curated idle/listener/gaze/body/hand animation in Sequencer, and render approved 3D camera takes; all model inference costs are budget-gated and no human performer is filmed.
 - Editors cut speaker to camera A/B/C; graphics auto-render from claims, never from model-created mockup text.
 - On-air captions from timed transcript; professional audio mix with source-target loudness agreed with Tamasha.
 - Each scene gets SHA256, ingest profile, camera ID, source claims, source audio ID, dialogue/timecodes and approval.
@@ -126,17 +122,17 @@ LLM may summarize and suggest graphics/scripts, but **never invent prices, draw 
 
 **CasparCG**: open-source layered video/HTML playout via AMCP for automation; more engineering/operator integration but better long-term programmability.
 
-**Unreal/MetaHuman**: supports calibrated virtual cameras, compositing and real-time face motion; must be tested for realism and performance, *not treated as an all-in-one human replacement*.
+**Unreal/MetaHuman**: PRIMARY original fictional character rig/3D newsroom pipeline. MetaHuman Animator supports audio-driven facial animation but convincing eyelids, gestures, hands, seated interaction and renderer throughput must still be engineered and visual-QA'd.
 
 **LiveAvatar**: standalone from HeyGen standard plans. As of vendor's published 2026 Help Center: Lite = 1 credit/min, Full = 2 credits/min; Business $475/month for 5,000 credits (up to 5,000 Lite minutes or 2,500 Full minutes), max 60min session, 1080p custom; 3h/day×30 days = 5,400min and 4h/day×30 = 7,200min, exceeding that included Lite allowance even if a single avatar runs continuously. LiveAvatar also requires trained custom source footage and is not cross-compatible with every HeyGen avatar. **This is feasibility math, not a cost quote or recommendation to stream 4h of avatar speech**. Check current entitlements, overage, availability, broadcast license and latency before commitment.
 
 **Cloudflare Stream**: published $5/month per 1,000 stored minutes and $1 per 1,000 viewer-minutes delivered, with ingestion and encoding included. For example 100 average concurrent viewers × 210min/day × 30 days = 630,000 viewer-minutes ≈ $630/month delivery, excluding any separate live playout and talent/licensing; 1,000 viewers ≈ $6,300. Only relevant if Stocks itself pays viewer distribution (Tamasha may instead distribute on its own CDN). Prices may change and need contract validation.
 
-Other financial drivers: broadcast presenter salaries/rights, US finance editors and fact checkers, production crew, licensed exchange data, camera/lighting/desk/LED rentals, GPU workers, playback backup, live monitoring, music/footage rights, maintenance. **Do not propose a confident fixed budget until camera, viewer/concurrency, freshness, and new-minutes/day are decided.**
+Other financial drivers: fictional digital character design and rigging, synthetic voice licence/usage, US finance editors and fact-checkers, virtual production technical artists/animators, licensed exchange data, dedicated GPU rendering and storage, backup playout, live monitoring, music/footage rights and maintenance. **Do not propose a confident fixed budget until camera, viewer/concurrency, freshness, and new-minutes/day are decided.**
 
 ## Indicative rollout gates (dependent on vendor, staffing and rights)
 **G0 (1–2 weeks):** Tamasha integration spec, content/day definition, rights strategy, engineering baseline, script/data proofs, story approvals. No budgeted supplier activated automatically.
-**G1 (2–4 weeks):** real/partial set, cameras, source-trained cast shoot, branded data-driven graphics; continuous *90s two-presenter* proof.
+**G1 (2–5+ weeks estimated, may be longer):** model and rig two original fictional 3D anchors, create one approved Unreal virtual set/cameras, generate audio-driven motion and branded independent graphics; render continuous **90s fully synthetic two-presenter** proof and certify facial/desk realism.
 **G2 (weeks 4–7):** data ledger + editorial CMS, asset warehouse, 10–30min original programme with QA, rehearsal studio dashboard.
 **G3 (weeks 7–9):** live playout/encoder, 30–60min/day supervised UAT, independent capture, failover tests.
 **G4 (weeks 9–12+):** increase schedule through 2h to 3–4h/day; require ≥7 consecutive error-budget-compliant runs, US exchange/news rights and consistent operations roster.
@@ -144,7 +140,7 @@ Other financial drivers: broadcast presenter salaries/rights, US finance editors
 Estimates assume dedicated engineers, creative technical directors and market editors. Real vendor training/moderation or procurement can move these dates.
 
 ## Minimum operational roles
-Executive Producer/Showrunner; US Financial Editor + second checker; 2 lead on-camera presenters and backup; Broadcast Technical Director/Playout Operator; Motion Graphics/Virtual Set TD; Broadcast Audio/Video Engineer; AI+data backend engineer; SRE/monitoring/operator; Rights/Compliance coordinator. Some roles can be combined in lower-volume pilot, but must have *actual coverage and substitutes* for daily 3–4 hour output. A real 4h/day channel is an operating team, not just a software build.
+Executive Producer/Showrunner; US Financial Editor + second checker; **Character Artist/Technical Animator for two fictional 3D anchors**; Unreal Virtual Set TD + GPU Render/Pipeline Engineer; Broadcast Technical Director/Playout Operator; Motion Graphics and Sound Engineer; AI Speech/Data Engineer; SRE/monitoring/operator; Rights/Compliance coordinator. **No real human on-camera presenter roles.** Some roles can be combined in lower-volume pilot, but must have *actual coverage and substitutes* for daily 3–4 hour output. A real 4h/day channel is an operating team, not just a software build.
 
 ## Source documents consulted (official)
 - Epic virtual production and camera calibration: https://dev.epicgames.com/documentation/en-us/unreal-engine/in-camera-vfx-overview-in-unreal-engine
