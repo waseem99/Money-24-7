@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "Stocks AI-native cast/studio creative lock",
+  "stage": "PLANNING_ONLY_NO_UNREAL_ASSETS_YET",
+  "channel": "Stocks",
+  "marketScope": "US_MARKETS",
+  "castingPolicy": "FICTIONAL_AI_CHARACTERS_ONLY",
+  "humanOnAir": false,
+  "userIntent": "NO real human hosts or representatives on screen. All viewer-facing talent is original fictional AI-generated and 3D rigged.",
+  "approvedConcept": {
+    "description": "Client-approved premium blue glass-desk US financial newsroom, fictional Nora on left, fictional Marcus with glasses on right; compact Tamasha T+Stocks corner mark",
+    "purpose": "CREATIVE_DIRECTION_ONLY",
+    "referenceFilename": "u.s._stocks_extend_gains_broadcast.png",
+    "referenceSha256": null,
+    "embeddedLiveBadge": false,
+    "embeddedMarketData": false,
+    "note": "The source artwork visually includes illustrative market graphics; asset imported into Unreal must be stripped of all text, live badges, figures and character pixels; those are independently composited."
+  },
+  "studio": {
+    "engine": "UNREAL_ENGINE",
+    "engineTargetVersion": "5.8 (validate GPU/plugin compatibility)",
+    "sceneMode": "ONE_SHARED_UNREAL_LEVEL",
+    "levelId": "Stocks_Newsroom",
+    "levelSha256": null,
+    "geometryApproved": false,
+    "hasBakedPresenters": false,
+    "hasBakedMarketFigures": false,
+    "hasRepeatedBackWallLogo": false,
+    "cameras": [
+      {
+        "id": "A_WIDE",
+        "purpose": "Both original AI anchors in single 3D desk scene",
+        "levelId": "Stocks_Newsroom",
+        "focalLengthMm": null,
+        "positionMeters": null,
+        "lookAtTarget": null,
+        "lightingContinuityApproved": false,
+        "renderTestSha256": null
+      },
+      {
+        "id": "B_MARCUS",
+        "purpose": "Right presenter close, natural eye height and desk",
+        "levelId": "Stocks_Newsroom",
+        "focalLengthMm": null,
+        "positionMeters": null,
+        "lookAtTarget": null,
+        "lightingContinuityApproved": false,
+        "renderTestSha256": null
+      },
+      {
+        "id": "C_NORA",
+        "purpose": "Left presenter close, natural eye height and desk",
+        "levelId": "Stocks_Newsroom",
+        "focalLengthMm": null,
+        "positionMeters": null,
+        "lookAtTarget": null,
+        "lightingContinuityApproved": false,
+        "renderTestSha256": null
+      },
+      {
+        "id": "D_GRAPHICS",
+        "purpose": "Source-driven market board and matched AI anchor inset",
+        "levelId": "Stocks_Newsroom",
+        "focalLengthMm": null,
+        "positionMeters": null,
+        "lookAtTarget": null,
+        "lightingContinuityApproved": false,
+        "renderTestSha256": null
+      }
+    ]
+  },
+  "graphicSystem": {
+    "bugCount": 1,
+    "bugPosition": "TOP_LEFT_ONLY",
+    "channelLabel": "STOCKS",
+    "tagline": "MARKETS BUSINESS PEOPLE",
+    "marketValuesGeneratedByImageModel": false,
+    "quoteSourceMode": "LICENSED_US_TIME_STAMPED"
+  },
+  "characters": {
+    "NORA": {
+      "characterId": "AI_NORA_V1",
+      "description": "FEMALE_LEFT_ANCHOR",
+      "identityType": "FICTIONAL_ORIGINAL",
+      "assetSource": "ORIGINAL_RIGGED_3D",
+      "isHumanLikenessClone": false,
+      "visualIdentityApproved": false,
+      "meshSha256": null,
+      "groomSha256": null,
+      "wardrobeSha256": null,
+      "rigSha256": null,
+      "voice": {
+        "kind": "SYNTHETIC_TTS",
+        "voiceId": null,
+        "broadcastUsageApproved": false,
+        "financialPronunciationDictionaryVersion": null
+      },
+      "animation": {
+        "facialMethod": "META_HUMAN_AUDIO_DRIVEN",
+        "bodyMethod": "CONTROL_RIG",
+        "deskIKRequired": true,
+        "listenerStateRequired": true
+      }
+    },
+    "MARCUS": {
+      "characterId": "AI_MARCUS_V1",
+      "description": "MALE_RIGHT_MARKET_ANALYST",
+      "identityType": "FICTIONAL_ORIGINAL",
+      "assetSource": "ORIGINAL_RIGGED_3D",
+      "isHumanLikenessClone": false,
+      "visualIdentityApproved": false,
+      "meshSha256": null,
+      "groomSha256": null,
+      "wardrobeSha256": null,
+      "rigSha256": null,
+      "voice": {
+        "kind": "SYNTHETIC_TTS",
+        "voiceId": null,
+        "broadcastUsageApproved": false,
+        "financialPronunciationDictionaryVersion": null
+      },
+      "animation": {
+        "facialMethod": "META_HUMAN_AUDIO_DRIVEN",
+        "bodyMethod": "CONTROL_RIG",
+        "deskIKRequired": true,
+        "listenerStateRequired": true
+      }
+    }
+  },
+  "performanceProof": {
+    "minimumDurationSeconds": 90,
+    "durationSeconds": 0,
+    "renderSha256": null,
+    "twoSpeakerTurnsApproved": false,
+    "listeningReactionApproved": false,
+    "deskAndHandContactApproved": false,
+    "lipsyncApproved": false,
+    "humanCreativeQAApproved": false
+  },
+  "productionRights": {
+    "characterAssets": false,
+    "broadcastUse": false,
+    "studioAssets": false
+  },
+  "broadcastProvisioned": false,
+  "releaseApproved": false,
+  "automaticPaidProviderJobsEnabled": false,
+  "blockedOn": [
+    "Editable UE level and original 3D character assets",
+    "GPU toolchain and Maya/MetaHuman authoring access",
+    "Exact concept reference checksum and asset rights",
+    "Premium fictional character/voice identity QA",
+    "90s source-verified two-person digitally animated film",
+    "Tamasha ingest spec and licensed US-market broadcast data"
+  ],
+  "noHumanRepresentativesVisible": true
+}
