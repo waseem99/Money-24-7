@@ -1,0 +1,128 @@
+{
+  "project": "Stocks AI-Native Client Demonstration",
+  "schemaVersion": 1,
+  "title": "STOCKS — US Markets — Recorded Capability Showcase",
+  "exactRuntimeSeconds": 165,
+  "oneChannelBug": true,
+  "usOnly": true,
+  "sourceLabel": "RECORDED CAPABILITY DEMO (NOT CURRENT FINANCIAL QUOTES)",
+  "fictionalAIHosts": [
+    "NORA",
+    "MARCUS"
+  ],
+  "sourceValuesAreIllustrative": false,
+  "marketQuotesRequirePublisherLicence": true,
+  "voiceIds": {
+    "NORA": null,
+    "MARCUS": null
+  },
+  "providerAvatarIds": {
+    "NORA": null,
+    "MARCUS": null
+  },
+  "creativeApproved": false,
+  "editoriallyApproved": false,
+  "mediaOutputReady": false,
+  "scenes": [
+    {
+      "id": "opening",
+      "sec": 6,
+      "role": "MUSIC_ONLY",
+      "script": "",
+      "visual": "Animated Stocks logo and short original sting; no other channel brand marks",
+      "mode": "RECORDED",
+      "startSec": 0,
+      "endSec": 6
+    },
+    {
+      "id": "nora_intro",
+      "sec": 13,
+      "role": "NORA",
+      "script": "Welcome to Stocks. I'm Nora. We're building a different kind of U.S. financial news experience, combining reliable market reporting, clear visual analysis, and a newsroom designed for the stories that matter.",
+      "visual": "Camera C, genuine Nora talking footage, one small upper-left Tamasha bug, no example numbers",
+      "mode": "RECORDED",
+      "startSec": 6,
+      "endSec": 19
+    },
+    {
+      "id": "market_context",
+      "sec": 18,
+      "role": "NORA",
+      "script": "Every market session begins with the questions investors are asking. What is driving the major indexes? Which industries are moving? And how could upcoming company earnings or economic reports change the outlook? We give each answer context and a clear source.",
+      "visual": "Nora close to dated US index comparison with no unverified current values",
+      "mode": "RECORDED",
+      "startSec": 19,
+      "endSec": 37
+    },
+    {
+      "id": "marcus_turn",
+      "sec": 19,
+      "role": "MARCUS",
+      "script": "I'm Marcus. Our market desk connects price movements with the business fundamentals behind them. We look at corporate earnings, interest-rate expectations, economic releases, and the companies that shape U.S. equities. We distinguish confirmed data from forecasts and market opinion.",
+      "visual": "Camera B genuine Marcus talking footage, deliberate A/B cut",
+      "mode": "RECORDED",
+      "startSec": 37,
+      "endSec": 56
+    },
+    {
+      "id": "macro",
+      "sec": 24,
+      "role": "MARCUS_VOICEOVER",
+      "script": "For example, when the Federal Reserve discusses monetary policy, the effects can be felt through borrowing costs, bond yields, and stock valuations. We'll examine those connections using official data and accessible charts. The objective is not to predict every market move, but to help viewers understand the forces shaping each trading day.",
+      "visual": "Animated diagram Fed policy → Treasury yields → equities; no current yield numbers unless sourced",
+      "mode": "RECORDED",
+      "startSec": 56,
+      "endSec": 80
+    },
+    {
+      "id": "earnings",
+      "sec": 25,
+      "role": "NORA_VOICEOVER",
+      "script": "Our earnings coverage will examine revenue growth, profit margins, business guidance, and the questions analysts raise on conference calls. A headline number rarely tells the whole story. We'll look for what has changed, what management has confirmed, and what remains uncertain, using filings and company statements alongside licensed market information.",
+      "visual": "Company filings / revenue / margins / guidance card; no example ticker gains",
+      "mode": "RECORDED",
+      "startSec": 80,
+      "endSec": 105
+    },
+    {
+      "id": "qa",
+      "sec": 21,
+      "role": "NORA_QUESTION_MARCUS_ANSWER",
+      "script": "Nora: Marcus, why do investors watch Treasury yields so closely? Marcus: Because yields influence the cost of financing and the way future company profits are valued. A change in yields doesn't guarantee a change in stock prices, but it is a useful signal to put alongside earnings and economic data.",
+      "visual": "A labelled scripted Q&A demonstration: Nora question, Marcus response in separate real moving frames; no claim of actual live audience",
+      "mode": "STAGED_INTERACTION",
+      "startSec": 105,
+      "endSec": 126
+    },
+    {
+      "id": "formats",
+      "sec": 21,
+      "role": "MARCUS_VOICEOVER",
+      "script": "Beyond the daily market brief, Stocks is designed for different programmes: pre-market preparation, the opening bell, sector analysis, earnings explainers, technology and energy coverage, and the big stories from the Federal Reserve. Each format will have its own presentation style while maintaining one consistent channel identity.",
+      "visual": "Motion montage of programme titles with the same studio design; do not show nonexistent working extra personas",
+      "mode": "RECORDED",
+      "startSec": 126,
+      "endSec": 147
+    },
+    {
+      "id": "signoff",
+      "sec": 12,
+      "role": "NORA",
+      "script": "This is the direction for Stocks: a consistent, AI-presented U.S. financial news channel, built around verified information, useful context, and programming throughout the market day. Thanks for joining us.",
+      "visual": "Nora real speaking clip with studio/camera continuity, fade to end ident",
+      "mode": "RECORDED",
+      "startSec": 147,
+      "endSec": 159
+    },
+    {
+      "id": "end",
+      "sec": 6,
+      "role": "MUSIC_ONLY",
+      "script": "",
+      "visual": "Animated Stocks branded tail, one original bug/icon",
+      "mode": "RECORDED",
+      "startSec": 159,
+      "endSec": 165
+    }
+  ]
+}

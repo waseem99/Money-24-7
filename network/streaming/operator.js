@@ -6,10 +6,12 @@
  */
 import {sessionPreflight,ROLES,STOCKS_STREAM_GATE} from './vendor-policy.mjs';
 import {startGreenKey} from './keyer.js';
+import {ProgramRecorder,validateCaptureInputs} from './program-capture.mjs';
 
 const $=id=>document.getElementById(id);
 const live=new Map();
 let studioObjectURL=null,selectedCamera='A_WIDE';
+let studioBitmap=null,brandBitmap=null,recorder=null;
 function report(message){
  const el=$('statusText');
  el.textContent=new Date().toLocaleTimeString()+' — '+message+'\n'+el.textContent.slice(0,1800);
@@ -31,6 +33,7 @@ function safeSource(video,canvas,role){
 }
 function view(camera){
  selectedCamera=camera;
+ if(recorder)recorder.cameraCut(camera);
  $('camera-status').textContent=camera+' · STREAMING SOURCE TEST (NOT LIVE BROADCAST)';
  const visible=camera==='A_WIDE'?new Set(ROLES):
    camera==='B_MARCUS'?new Set(['MARCUS']):
@@ -54,6 +57,7 @@ async function stop(role,{byDisconnect=false}={}){
  current.closed=true;
  if(current.timer)clearTimeout(current.timer);
  current.keyer?.stop();
+ if(recorder)recorder.stop();
  const stage=document.querySelector('.actor[data-role="'+role+'"]');
  stage.classList.remove('connected');
  const video=$(role+'-video'),canvas=$(role+'-canvas');
@@ -138,6 +142,73 @@ $('background-file').addEventListener('change',event=>{
  $('background').style.display='block';
  report('Local clean room candidate loaded for camera tests. Not a signed/approved broadcast asset.');
 });
+
+// Local-only original T logo and authorized empty newsroom; neither is transmitted.
+$('brand-file').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ if(file.size>25*1024*1024||!['image/png','image/webp'].includes(file.type)){
+  report('Logo rejected: transparent PNG or WebP under 25MB required');return;
+ }
+ try{
+  brandBitmap?.close?.();brandBitmap=await createImageBitmap(file);
+  report('Tamasha brand source loaded locally. No fake/repeated studio logo is generated.');
+ }catch{report('Original logo could not be decoded; capture remains blocked');}
+});
+$('background-file').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  studioBitmap?.close?.();studioBitmap=await createImageBitmap(file);
+  report('Room source decoded for 1080p compositor; source rights/creative approval still required.');
+ }catch{studioBitmap=null;report('Room could not be decoded for recording');}
+});
+function currentSources(){
+ const result={};
+ for(const role of ROLES){
+  const entry=live.get(role),video=$(role+'-video');
+  const source=video?.srcObject;
+  result[role]={connected:!!entry?.mediaReady,frames:entry?.keyer?.getFrames?.()||0,
+    hasVideoTrack:Boolean(source?.getVideoTracks?.().some(t=>t.readyState==='live')),
+    canvas:$(role+'-canvas'),stream:source};
+ }
+ return result;
+}
+async function startProgramCapture(){
+ if(recorder){report('An authorized real video capture is already running');return;}
+ const sources=currentSources();
+ const seconds=Number($('record-seconds').value);
+ const check=validateCaptureInputs({roomReady:!!studioBitmap,logoReady:!!brandBitmap,
+  camera:selectedCamera,sources,seconds,marketStatus:'RECORDED_DEMO'});
+ if(!check.pass){
+  $('record-status').textContent='BLOCKED · '+check.issues.join(' · ');
+  report('Real-source capture denied: '+check.issues.join('; '));return;
+ }
+ $('record-start').disabled=true;$('record-stop').disabled=false;
+ $('program-capture-preview').style.display='block';
+ try{
+  recorder=new ProgramRecorder({canvas:$('program-capture-preview'),room:studioBitmap,
+   logo:brandBitmap,sources,status:'RECORDED DEMO',onProgress:report});
+  recorder.cameraCut(selectedCamera);
+  $('record-status').textContent='CAPTURING VERIFIED MOVING INPUT';
+  const result=await recorder.begin(seconds);
+  if(result.blob.size<100_000)throw Error('Invalid empty media capture; review required');
+  const url=URL.createObjectURL(result.blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='STOCKS-ACTUAL-LIVEAVATAR-RECORDING-REVIEW.webm';
+  document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),15000);
+  $('record-status').textContent='SOURCE VIDEO FILE SAVED · REVIEW REQUIRED';
+  report('Captured '+result.durationSeconds.toFixed(2)+' sec / '+result.bytes+' bytes. This confirms captured motion only, NOT creative or financial QA.');
+ }catch(error){
+  $('record-status').textContent='RECORD FAILED — NO APPROVAL';
+  report('Capture failed: '+String(error?.message||error));
+ }finally{
+  recorder?.stop();recorder=null;
+  $('record-start').disabled=false;$('record-stop').disabled=true;
+ }
+}
+$('record-start').addEventListener('click',()=>void startProgramCapture());
+$('record-stop').addEventListener('click',()=>recorder?.stop());
+
 $('cut-nora').addEventListener('click',()=>view('C_NORA'));
 $('cut-marcus').addEventListener('click',()=>view('B_MARCUS'));
 $('cut-wide').addEventListener('click',()=>view('A_WIDE'));
