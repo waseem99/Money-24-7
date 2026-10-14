@@ -94,7 +94,7 @@ async function composite(entry,dest,bg){
  const pre=['-hide_banner','-loglevel','error','-y','-i',bg];
  if(entry.trimStart)pre.push('-ss',sec(entry.trimStart),'-t',sec(entry.trimLength));
  pre.push('-i',input);
- const filter=`[1:v]setpts=PTS/${entry.tempo.toFixed(4)},fps=30,scale=772:405:force_original_aspect_ratio=increase,crop=772:405,setsar=1,format=yuv420p[face];`+
+ // Preserve the entire source frame instead of centre-cropping HeyGen faces; dark matte fills width differences.\n const filter=`[1:v]setpts=PTS/${entry.tempo.toFixed(4)},fps=30,scale=772:405:force_original_aspect_ratio=decrease,pad=772:405:(ow-iw)/2:(oh-ih)/2:color=0x113255,setsar=1,format=yuv420p[face];`+
   `[0:v][face]overlay=x=58:y=322:enable='${enable}':eof_action=pass:shortest=0:format=auto,format=yuv420p[v];`+
   `[1:a]aresample=48000,atempo=${entry.tempo.toFixed(4)},highpass=f=75,acompressor=threshold=-20dB:ratio=1.5:attack=10:release=110,volume=1.05,afade=t=in:st=0:d=0.055,afade=t=out:st=${sec(Math.max(.2,entry.audioDuration-.18))}:d=0.14,apad,atrim=duration=${sec(entry.duration)},asetpts=PTS-STARTPTS[a]`;
  await node('ffmpeg',[...pre,'-filter_complex',filter,'-map','[v]','-map','[a]','-t',sec(entry.duration),'-r','30',
