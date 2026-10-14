@@ -12,9 +12,10 @@ export const AI_MANDATE=Object.freeze({
   casting:'FICTIONAL_AI_CHARACTERS_ONLY',
   forbiddenSources:Object.freeze(['HUMAN_FILMED_ACTOR','PHOTO_AVATAR_OFFICE_CLIP','HUMAN_DIGITAL_TWIN','REAL_PERSON_CLONE','GENERATIVE_UNTRACKED_FACE']),
   visualReferencePurpose:'CREATIVE_DIRECTION_ONLY',
-  characterMethod:'ORIGINAL_RIGGED_3D',
-  renderingScene:'ONE_SHARED_UNREAL_LEVEL',
-  audioToFaceMethod:'META_HUMAN_AUDIO_DRIVEN',
+  characterMethod:'APPROVED_VENDOR_STREAM_OR_ORIGINAL_RIGGED_3D',
+  renderingScenes:Object.freeze(['ONE_COMPOSITED_STUDIO','ONE_SHARED_UNREAL_LEVEL']),
+  allowedSources:Object.freeze(['CUSTOM_FICTIONAL_STREAMING_AVATAR','ORIGINAL_RIGGED_3D']),
+  audioToFaceMethod:'LICENSED_REALTIME_AVATAR_OR_META_HUMAN',
   dataGraphicsMode:'DETERMINISTIC_SOURCE_DRIVEN',
   onAirHumansPermitted:false,
   paidAiGenerationAuthorized:false,
@@ -41,11 +42,13 @@ export function auditAICast(manifest,{release=false}={}){
      manifest.graphicSystem?.marketValuesGeneratedByImageModel===true)
      errors.push('Stocks broadcast graphics system does not meet brand/data lock');
   const set=manifest.studio||{};
-  if(set.engine!=='UNREAL_ENGINE'||set.sceneMode!==AI_MANDATE.renderingScene)
-    errors.push('Newsroom must be one shared Unreal 3D Level');
+  const studioOK=(set.engine==='UNREAL_ENGINE'&&set.sceneMode==='ONE_SHARED_UNREAL_LEVEL')||
+    (set.engine==='WEBRTC_COMPOSITOR'&&set.sceneMode==='ONE_COMPOSITED_STUDIO');
+  if(!studioOK)
+    errors.push('Newsroom must be one owned WebRTC compositor or one shared Unreal 3D Level');
   if(set.hasBakedPresenters||set.hasBakedMarketFigures||set.hasRepeatedBackWallLogo)
     errors.push('Room contains unapproved 2D baked characters, numbers or duplicate bug');
-  if(!nonempty(set.levelId))errors.push('No stable Unreal newsroom Level identifier');
+  if(!nonempty(set.levelId))errors.push('No stable newsroom scene identifier');
   const cameras=Array.isArray(set.cameras)?set.cameras:[];
   if(new Set(cameras.map(c=>c.id)).size!==cameras.length)errors.push('Duplicate camera');
   for(const id of REQUIRED_CAMERAS){
@@ -58,13 +61,20 @@ export function auditAICast(manifest,{release=false}={}){
   for(const role of REQUIRED_ROLES){
     const c=chars[role]||{};
     if(!nonempty(c.characterId)||c.identityType!=='FICTIONAL_ORIGINAL'||
-       c.assetSource!=='ORIGINAL_RIGGED_3D'||c.isHumanLikenessClone!==false)
-      errors.push(role+' must be an owned/approved original fictional 3D character');
+       !AI_MANDATE.allowedSources.includes(c.assetSource)||c.isHumanLikenessClone!==false)
+      errors.push(role+' must be an approved original fictional digital character');
     if(c.voice?.kind!=='SYNTHETIC_TTS')errors.push(role+' missing synthetic licensed voice profile');
     if(AI_MANDATE.forbiddenSources.includes(c.assetSource))errors.push(role+' uses forbidden source class');
     if(release){
-      for(const field of ['meshSha256','groomSha256','wardrobeSha256','rigSha256'])
-        if(!validHash(c[field]))errors.push(role+' missing immutable versioned '+field);
+      if(c.assetSource==='ORIGINAL_RIGGED_3D'){
+        for(const field of ['meshSha256','groomSha256','wardrobeSha256','rigSha256'])
+          if(!validHash(c[field]))errors.push(role+' missing immutable versioned '+field);
+      } else if(c.assetSource==='CUSTOM_FICTIONAL_STREAMING_AVATAR'){
+        if(!nonempty(c.vendor?.name)||!nonempty(c.vendor?.avatarId)||
+           !validHash(c.vendor?.identityReferenceSha256)||c.vendor?.fictionalImageEligibilityApproved!==true||
+           c.vendor?.realMotionQualityApproved!==true||c.vendor?.broadcastRightsApproved!==true)
+          errors.push(role+' custom streaming avatar identity, motion, licence and account are not approved');
+      }
       if(!nonempty(c.voice?.voiceId)||!c.voice?.broadcastUsageApproved)
         errors.push(role+' missing synthetic voice ID/commercial usage approval');
       if(c.visualIdentityApproved!==true)errors.push(role+' fictional appearance not artist/client approved');
@@ -73,14 +83,15 @@ export function auditAICast(manifest,{release=false}={}){
   if(release){
     if(manifest.broadcastProvisioned!==true)errors.push('A real video/broadcast worker is not provisioned');
     if(!validHash(set.levelSha256)||set.geometryApproved!==true)
-      errors.push('Studio Unreal Level and desk geometry not approved');
+      errors.push('Studio Level/compositor design and broadcast geometry not approved');
     if(!validHash(manifest.approvedConcept?.referenceSha256))
       errors.push('Exact approved design still lacks source checksum');
     if(!manifest.performanceProof||!validHash(manifest.performanceProof.renderSha256)||
        manifest.performanceProof.durationSeconds<90||
        !manifest.performanceProof.twoSpeakerTurnsApproved||
        !manifest.performanceProof.listeningReactionApproved||
-       !manifest.performanceProof.deskAndHandContactApproved||
+       !(manifest.performanceProof.deskAndHandContactApproved===true||
+         (manifest.performanceProof.sharedDeskNotClaimed===true&&manifest.performanceProof.professionalSoloCutsApproved===true))||
        !manifest.performanceProof.lipsyncApproved||
        !manifest.performanceProof.humanCreativeQAApproved)
       errors.push('No genuine signed 90-second fully digital two-person motion proof');
