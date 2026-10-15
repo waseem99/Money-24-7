@@ -260,7 +260,6 @@ async function speakNoraOnce(){
   const p=audioProofPolicy({...audio,sourceApproved:true});
   if(!p.pass)throw Error(p.errors.join('; '));
   if(entry.closed||live.get('NORA')!==entry)throw Error('Nora session ended during local audio conversion');
-  if(typeof entry.session.repeatAudio!=='function')throw Error('SDK does not expose LITE repeatAudio');
   if(!entry.speechEvents)throw Error('No provider event observer; stop before submitting audio');
   if(entry.speechEvents.status.providerError)
     throw Error('Provider already reported audio error; do not send');
