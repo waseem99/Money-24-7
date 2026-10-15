@@ -83,7 +83,7 @@ export async function listTargetFreePresets({fetchImpl=fetch}={}){
   const data=await providerCall('/v1/avatars/public?page='+page+'&page_size=100',{fetchImpl});
   const entries=Array.isArray(data?.results)?data.results:[];
   for(const a of entries){
-   if(FREE_PRESETS.some(name=>name.toLowerCase()===String(a.name||'').toLowerCase()))
+   if(FREE_PRESETS.some(name=>(String(a.name||'').toLowerCase()===name.toLowerCase() || String(a.name||'').toLowerCase().startsWith(name.toLowerCase()+' '))))
     found.push({id:a.id,name:a.name,status:a.status,hasError:Boolean(a.error_message),is1080p:a.is_1080p});
   }
   if(!data?.next || !entries.length)break;
