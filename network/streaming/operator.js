@@ -42,6 +42,7 @@ function view(camera){
  const presetMode=$('free-presets').checked;
  $('NORA-start').textContent=presetMode?'Connect Amina (included credits)':'Connect Nora (may bill)';
  $('MARCUS-start').textContent=presetMode?'Connect Dexter (included credits)':'Connect Marcus (may bill)';
+ $('NORA-speak').textContent=presetMode?'Send approved speech diagnostic to Amina':'Send one approved audio take to Nora';
  document.querySelector('.name.nora').textContent=presetMode?'AMINA · FREE WATERMARKED TEST':'NORA · AI ANCHOR';
  document.querySelector('.name.marcus').textContent=presetMode?'DEXTER · FREE WATERMARKED TEST':'MARCUS · AI ANCHOR';
  if(recorder)recorder.cameraCut(camera);
@@ -250,7 +251,7 @@ async function speakNoraOnce(){
   return;
  }
  const file=$('NORA-audio-file').files?.[0];
- if(!file){report('Load Nora 20.9s approved voice WAV using the local input first');return;}
+ if(!file){report('Load the approved 20.9s synthetic test WAV (for Amina this is a TECHNICAL diagnostic; it says Nora and is not client-ready).');return;}
  if(!$('NORA-approved').checked||!$('NORA-credit').checked){
   report('Voice send denied: provider eligibility and bounded credit authorizations must be checked');return;
  }
@@ -290,6 +291,13 @@ $('free-presets').addEventListener('change',()=>{
  if(live.size){
    $('free-presets').checked=[...live.values()].some(v=>v.freePreset);
    report('Stop active provider sessions before changing the presenter source category');return;
+ }
+ if($('free-presets').checked){
+  $('session-cap').max='45';$('session-cap').value='35';
+  $('record-seconds').value='30';
+  report('Free included-credit pilot capped to 35 seconds, one avatar at a time and watermarked.');
+ }else{
+  $('session-cap').max='90';$('session-cap').value='60';
  }
  view(selectedCamera);
  report($('free-presets').checked
