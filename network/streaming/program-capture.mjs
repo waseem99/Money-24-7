@@ -54,7 +54,7 @@ function drawSource(ctx,canvas,frame){
   const rw=canvas.width*r,rh=canvas.height*r;
   ctx.drawImage(canvas,x+(w-rw)/2,y+(h-rh)/2,rw,rh);ctx.restore();
 }
-export function drawProgramFrame(ctx,{room,logo,sources={},camera='C_NORA',clockMs=0,headline='U.S. MARKET WATCH',subline='Dated, editor-verified financial reporting',ticker='STOCKS • U.S. MARKETS • RECORDED DEMONSTRATION',status='RECORDED DEMO'}={}){
+export function drawProgramFrame(ctx,{room,logo,sources={},camera='C_NORA',labels=null,clockMs=0,headline='U.S. MARKET WATCH',subline='Dated, editor-verified financial reporting',ticker='STOCKS • U.S. MARKETS • RECORDED DEMONSTRATION',status='RECORDED DEMO'}={}){
   const W=FRAME.width,H=FRAME.height;
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle='#071e3b';ctx.fillRect(0,0,W,H);
@@ -77,13 +77,13 @@ export function drawProgramFrame(ctx,{room,logo,sources={},camera='C_NORA',clock
   const roleStyle={NORA:{x:210,y:140,w:630,h:665},MARCUS:{x:900,y:140,w:630,h:665}};
   if(camera==='C_NORA'){
     if(active.NORA)drawSource(ctx,active.NORA.canvas,{x:375,y:142,w:950,h:666});
-    drawText(ctx,'NORA · AI ANCHOR',95,795,24);
+    drawText(ctx,labels?.NORA||'NORA · AI ANCHOR',95,795,24);
   } else if(camera==='B_MARCUS'){
     if(active.MARCUS)drawSource(ctx,active.MARCUS.canvas,{x:375,y:142,w:950,h:666});
-    drawText(ctx,'MARCUS · AI ANCHOR',95,795,24);
+    drawText(ctx,labels?.MARCUS||'MARCUS · AI ANCHOR',95,795,24);
   } else if(camera==='A_WIDE'){
     for(const [name,frame] of Object.entries(roleStyle))if(active[name])drawSource(ctx,active[name].canvas,frame);
-    drawText(ctx,'NORA',210,795,25);drawText(ctx,'MARCUS',900,795,25);
+    drawText(ctx,labels?.NORA||'NORA',210,795,25);drawText(ctx,labels?.MARCUS||'MARCUS',900,795,25);
   } else {
     drawText(ctx,'SOURCE-VERIFIED',180,490,50,'#addffd');
     drawText(ctx,'MARKET GRAPHICS',180,550,50,'#ffffff');
@@ -100,12 +100,12 @@ export function drawProgramFrame(ctx,{room,logo,sources={},camera='C_NORA',clock
   drawText(ctx,safeTicker,220-pxOffset,1052,25,'#d5edf9',500);
 }
 export class ProgramRecorder {
-  constructor({canvas,room,logo,sources,status='RECORDED DEMO',onProgress=()=>{}}){
+  constructor({canvas,room,logo,sources,labels=null,status='RECORDED DEMO',onProgress=()=>{}}){
     if(!canvas||!room||!logo)throw Error('Programme canvas, licensed room and brand logo are required');
     this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});
     if(!this.ctx)throw Error('Browser Canvas2D not supported');
     canvas.width=FRAME.width;canvas.height=FRAME.height;
-    this.room=room;this.logo=logo;this.sources=sources;this.status=status;this.onProgress=onProgress;
+    this.room=room;this.logo=logo;this.sources=sources;this.status=status;this.labels=labels;this.onProgress=onProgress;
     this.camera='C_NORA';this.audioRole='NORA';this.startClock=null;this.raf=null;this.recorder=null;this.chunks=[];
     this.audioContext=null;this.audioDestination=null;this.mixed=[];
   }
@@ -157,7 +157,7 @@ export class ProgramRecorder {
         resolve(result);
       };
     });
-    const run=()=>{if(!this.recorder)return;drawProgramFrame(this.ctx,{room:this.room,logo:this.logo,sources:this.sources,camera:this.camera,clockMs:performance.now()-this.startClock,status:this.status});this.raf=requestAnimationFrame(run)};
+    const run=()=>{if(!this.recorder)return;drawProgramFrame(this.ctx,{room:this.room,logo:this.logo,sources:this.sources,camera:this.camera,labels:this.labels,clockMs:performance.now()-this.startClock,status:this.status});this.raf=requestAnimationFrame(run)};
     run();recorder.start(1000);
     this.timer=setTimeout(()=>this.stop(),Math.min(MAX_RECORD_SECONDS,seconds)*1000);
     this.onProgress('Recording real provider stream for '+seconds+'s');

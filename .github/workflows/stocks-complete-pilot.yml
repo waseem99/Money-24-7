@@ -1,0 +1,61 @@
+name: Stocks complete pilot capture
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: stocks-liveavatar-one-session
+  cancel-in-progress: false
+jobs:
+  production:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      LIVEAVATAR_API_KEY: ${{ secrets.LIVE_AVATAR_KEY_JAZZ }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: stocks-behind-move-speech
+          path: pilot-runs/behind-move
+          github-token: ${{ github.token }}
+          run-id: 38730914678
+      - run: node network/live-avatar/behind-move-remaining.mjs
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python3 network/live-avatar/behind-move-prepare.py
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.56.1 esbuild@0.28.2
+          npx playwright install --with-deps chrome
+          mkdir -p public
+          cp pilot-runs/behind-move/*.wav public/
+          npx esbuild node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js --bundle --format=esm --platform=browser --alias:events=./node_modules/events/events.js --outfile=public/stocks-capture-sdk.js
+          sed -i 's/maxSeconds:35/maxSeconds:110/' network/streaming/lite-audio.mjs
+          sed -i 's/const SESSION_DURATION=45/const SESSION_DURATION=120/' network/live-avatar/direct-setup.mjs
+      - name: Capture authorized performances sequentially once
+        run: |
+          node --input-type=module <<'JS'
+          import {spawnSync} from 'node:child_process';import {readFileSync} from 'node:fs';
+          const timing=JSON.parse(readFileSync('pilot-runs/behind-move/timing.json'));
+          for(const speaker of ['Amina','Dexter','Correspondent']){
+           const env={...process.env,STOCKS_CAPTURE_PRESENTER:speaker==='Dexter'?'Dexter':'Amina',STOCKS_CAPTURE_SANDBOX:speaker==='Correspondent'?'true':'false',STOCKS_CAPTURE_OUT:'pilot-runs/behind-move/'+speaker,STOCKS_CAPTURE_MS:String(Math.ceil((timing[speaker+'Duration']+5)*1000)),STOCKS_APPROVED_AUDIO_URL:'http://127.0.0.1:3000/'+speaker+'.wav',STOCKS_APPROVED_AUDIO_LABEL:speaker+' pilot narration'};
+           // Serve audio separately because capture fetches it before starting its dev server.
+           const server=(await import('node:child_process')).spawn('python3',['-m','http.server','3010','--directory','public'],{stdio:'ignore'});
+           await new Promise(r=>setTimeout(r,500));env.STOCKS_APPROVED_AUDIO_URL='http://127.0.0.1:3010/'+speaker+'.wav';
+           const child=spawnSync('node',['network/live-avatar/capture-behind-move.mjs'],{env,stdio:'inherit'});server.kill();
+           if(child.status!==0)throw Error(speaker+' capture failed; no retries');
+          }
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-complete-pilot-sources
+          path: pilot-runs/behind-move/
+          retention-days: 14

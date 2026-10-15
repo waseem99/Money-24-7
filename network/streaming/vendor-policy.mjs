@@ -18,16 +18,31 @@ export const STOCKS_STREAM_GATE = Object.freeze({
   paidGenerationAuthorized: false,
 });
 export const ROLES = Object.freeze(['NORA', 'MARCUS']);
+export const FREE_PRESET_TRIAL=Object.freeze({
+  NORA:'Amina',MARCUS:'Dexter',
+  maxSimultaneousSources:1,maxSeconds:45,
+  watermarked:true,publicBroadcastApproved:false
+});
 
 export function sessionPreflight(input) {
   const errors=[];
   if (!input || typeof input !== 'object') return {pass:false,errors:['Session preflight missing']};
   if (!ROLES.includes(input.role)) errors.push('Only approved Nora or Marcus role may start');
   if (input.mode !== 'LITE') errors.push('LITE test only; FULL conversational mode is not authorized');
-  if (input.sourceKind !== 'ORIGINAL_FICTIONAL_CUSTOM_AVATAR') errors.push('Unverified source; no human or office avatar may enter test');
+  const freePreset=input.sourceKind==='PROVIDER_PUBLIC_PRESET_FOR_PRIVATE_FREE_TRIAL';
+  if (!freePreset && input.sourceKind !== 'ORIGINAL_FICTIONAL_CUSTOM_AVATAR')
+    errors.push('Unverified source; no human or office avatar may enter test');
+  if (freePreset && (!input.presetTrial || input.presetName!==FREE_PRESET_TRIAL[input.role]))
+    errors.push('Free preset must be Amina for Nora stand-in or Dexter for Marcus stand-in');
+  if (freePreset && (input.maximumSeconds>FREE_PRESET_TRIAL.maxSeconds ||
+      input.activeOtherSessions>0 || input.rendererOnAirStatus!=='TEST ONLY'))
+    errors.push('Free plan: max one active source, short watermarked PRIVATE test only');
   if (input.sourceApproved !== true) errors.push('Original fictional identity approval missing');
   if (input.providerEligibilityVerified !== true) errors.push('Provider avatar eligibility not verified');
-  if (input.commercialTestRightsApproved !== true) errors.push('Custom avatar/voice test licence not confirmed');
+  if (freePreset && input.privateFreeTestOnly!==true)
+    errors.push('Free preset must remain a private watermarked technical test');
+  if (!freePreset && input.commercialTestRightsApproved !== true)
+    errors.push('Custom avatar/voice test licence not confirmed');
   if (input.operatorSession !== true || input.viewerDriven === true) errors.push('Only one private producer session; no per-viewer paid session');
   if (input.explicitCreditApproval !== true) errors.push('Paid session needs explicit approval');
   if (input.manualStart !== true) errors.push('No automatic startup');
@@ -41,6 +56,7 @@ export function sessionPreflight(input) {
   if (input.rendererOnAirStatus === 'LIVE' && input.realTransmissionConfirmed !== true)
     errors.push('No fake LIVE broadcast status');
   return {pass:errors.length===0,errors,approvedForPublicBroadcast:false,
+    sourceCategory:freePreset?'TEMPORARY_WATERMARKED_PRESET_TEST':'APPROVED_CUSTOM_SOURCE',
     noAutomaticPaidSession:true,maximumSeconds:input.maximumSeconds};
 }
 

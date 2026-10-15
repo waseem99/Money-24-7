@@ -1,0 +1,17 @@
+name: Stocks pilot catalog
+on:
+  pull_request:
+    paths: ['.github/workflows/stocks-pilot-catalog.yml']
+permissions:
+  contents: read
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    env:
+      KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - run: |
+          node --input-type=module <<'JS'
+          for(const p of ['/v3/avatars?search_query=Amina&limit=10','/v3/avatars?search_query=Dexter&limit=10','/v3/voices/47211675cf674b82aa4fdbe6a785c9b3','/v3/voices/7a544b76e07648849ed54617f18ea280']){
+          const r=await fetch('https://api.heygen.com'+p,{headers:{'x-api-key':process.env.KEY}});console.log(JSON.stringify({path:p,http:r.status,data:await r.json()}))}
+          JS

@@ -79,19 +79,23 @@ fieldset{border:1px solid #365a75;border-radius:9px;margin:16px 0;padding:11px}l
 </section>
 </section>
 <section><h2>Private provider connections</h2>
-<p>Connections are manual and can consume provider credits. A real provider-issued session token is required for each fictional character. This app cannot create sessions, buy credits, or invent avatar IDs.</p>
-<fieldset><legend>Nora · fictional AI identity</legend>
+<p>Connections are manual and can consume provider credits. A real provider-issued session token is required for each source. This app cannot create sessions, buy credits, or invent avatar IDs.</p>
+<fieldset><legend>Free public-preset technical proof</legend>
+<label><input id="free-presets" type="checkbox"/>Use <strong>Amina</strong> (Nora stand-in) and <strong>Dexter</strong> (Marcus stand-in) with included Free-plan credits.</label>
+<p class="warning">Free is watermarked, has 1 active avatar at a time and 2-minute maximum sessions. This mode is NOT zero-credit sandbox (only Wayne supports that). Amina/Dexter are temporary, not the approved fictional Nora/Marcus faces. Use separate sequential speaking recordings; no artificial simultaneous shared desk.</p>
+</fieldset>
+<fieldset><legend>Nora · production identity / Amina · free trial stand-in</legend>
 <label for="NORA-token">Existing authorised LiveAvatar LITE token</label><input id="NORA-token" type="password" autocomplete="off" placeholder="Private session token — not saved"/>
-<label><input id="NORA-approved" type="checkbox"/>Identity, provider eligibility and commercial test rights verified</label>
+<label><input id="NORA-approved" type="checkbox"/>Private Free-test eligibility or custom-avatar test permission confirmed (not broadcast rights)</label>
 <label><input id="NORA-credit" type="checkbox"/>Explicitly authorised test credit spending for this session</label>
 <label for="NORA-audio-file">Approved Nora synthetic speech WAV (use the 20.9-second test audio)</label>
 <input id="NORA-audio-file" type="file" accept=".wav,.mp3,audio/wav,audio/mpeg"/>
 <div class="controls"><button id="NORA-speak" disabled>Send one approved audio take to connected Nora</button></div>
 <p class="warning">Requires a real connected LiveAvatar LITE source; never sends audio automatically or retries an unknown request. Confirm audible delivery and lip motion before approving the video.</p>
 <div class="controls"><button id="NORA-start">Connect Nora (may bill)</button><button id="NORA-stop" class="danger">Stop Nora</button></div><span class="status" id="NORA-status">DISCONNECTED</span></fieldset>
-<fieldset><legend>Marcus · fictional AI identity</legend>
+<fieldset><legend>Marcus · production identity / Dexter · free trial stand-in</legend>
 <label for="MARCUS-token">Existing authorised LiveAvatar LITE token</label><input id="MARCUS-token" type="password" autocomplete="off" placeholder="Private session token — not saved"/>
-<label><input id="MARCUS-approved" type="checkbox"/>Identity, provider eligibility and commercial test rights verified</label>
+<label><input id="MARCUS-approved" type="checkbox"/>Private Free-test eligibility or custom-avatar test permission confirmed (not broadcast rights)</label>
 <label><input id="MARCUS-credit" type="checkbox"/>Explicitly authorised test credit spending for this session</label>
 <div class="controls"><button id="MARCUS-start">Connect Marcus (may bill)</button><button id="MARCUS-stop" class="danger">Stop Marcus</button></div><span class="status" id="MARCUS-status">DISCONNECTED</span></fieldset>
 <label for="session-cap">Hard test limit per connection (seconds, maximum 90)</label><input id="session-cap" type="number" min="5" max="90" value="60"/>

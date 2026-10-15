@@ -1,0 +1,27 @@
+name: Stocks Behind the Move speech
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: stocks-behind-move-speech
+  cancel-in-progress: false
+jobs:
+  speech:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: node network/live-avatar/behind-move-speech.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-behind-move-speech
+          path: pilot-runs/behind-move/
+          retention-days: 14

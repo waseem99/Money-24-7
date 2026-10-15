@@ -1,0 +1,45 @@
+name: Stocks Amina approved voice V2
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: stocks-liveavatar-one-session
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright@1.56.1 esbuild@0.28.2
+      - run: npx playwright install --with-deps chrome
+      - name: Build browser SDK before any session request
+        run: |
+          mkdir -p public
+          npx esbuild node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js --bundle --format=esm --platform=browser --alias:events=./node_modules/events/events.js --outfile=public/stocks-capture-sdk.js
+          node --check network/live-avatar/capture-amina-once.mjs
+      - name: One authorized included-credit Amina capture, no retry
+        env:
+          STOCKS_CAPTURE_SANDBOX: 'false'
+          STOCKS_APPROVED_AUDIO_URL: https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/47211675cf674b82aa4fdbe6a785c9b3/id=0963fb48-2785-48c4-8d66-208706553cd7.wav
+          STOCKS_APPROVED_AUDIO_LABEL: Amina - IA voice, user approved 15 October 2026
+          LIVEAVATAR_API_KEY: ${{ secrets.LIVE_AVATAR_KEY_JAZZ }}
+        run: node network/live-avatar/capture-amina-once.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-amina-approved-voice-v2
+          path: pilot-runs/liveavatar-capture/
+          retention-days: 7
+          if-no-files-found: warn
+# Capture revision: wait for settled media tracks; reserve seven included credits.
+# Source render diagnostic: visible viewport and combined track attachment.
+# First utterance follows provider-connected event; final success still requires real rendered motion.
+# Sandbox: register visible video attachment for LiveKit adaptive streaming.
+# Sandbox: disable adaptive video suppression in headless capture.
+# Sandbox: inspect inbound RTP and explicitly enable video subscription.
