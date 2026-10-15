@@ -1,0 +1,15 @@
+name: Stop stale capture run
+on:
+  push:
+    branches: [feat/stocks-free-presets-amina-dexter-20261014]
+    paths: [.github/workflows/stocks-cancel-stale-capture.yml]
+permissions:
+  actions: write
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel stale capture commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST repos/waseem99/Money-24-7/actions/runs/38700004035/cancel
