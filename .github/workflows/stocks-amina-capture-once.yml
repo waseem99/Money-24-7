@@ -23,7 +23,7 @@ jobs:
       - name: Build browser SDK before any session request
         run: |
           mkdir -p public
-          npx esbuild node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js --bundle --platform=browser --alias:events=./node_modules/events/events.js --outfile=public/stocks-capture-sdk.js
+          npx esbuild node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js --bundle --format=esm --platform=browser --alias:events=./node_modules/events/events.js --outfile=public/stocks-capture-sdk.js
           node --check network/live-avatar/capture-amina-once.mjs
       - name: One authorized included-credit Amina capture, no retry
         env:
