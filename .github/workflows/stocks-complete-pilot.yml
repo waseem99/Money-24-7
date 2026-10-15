@@ -1,7 +1,6 @@
 name: Stocks complete pilot capture
 on:
-  pull_request:
-    paths: ['.github/workflows/stocks-complete-pilot.yml']
+  workflow_dispatch:
 permissions:
   contents: write
   actions: read
