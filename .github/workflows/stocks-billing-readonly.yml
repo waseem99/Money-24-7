@@ -1,0 +1,27 @@
+name: Stocks read-only HeyGen billing check
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stocks-billing-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  billing:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+    steps:
+      - name: Read account billing without generation
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key){console.log(JSON.stringify({secretPresent:false,generationCalls:0}));process.exit(0)}
+          const r=await fetch('https://api.heygen.com/v3/users/me',{headers:{'x-api-key':key},signal:AbortSignal.timeout(20000)});
+          let d={};try{d=await r.json()}catch{}
+          const u=d.data??d;
+          console.log(JSON.stringify({secretPresent:true,httpStatus:r.status,billing_type:u.billing_type??null,wallet:u.wallet??null,subscription:u.subscription??null,usage_based:u.usage_based??null,generationCalls:0}));
+          JS
