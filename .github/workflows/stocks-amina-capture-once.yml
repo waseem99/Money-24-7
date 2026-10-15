@@ -41,3 +41,4 @@ jobs:
 # Source render diagnostic: visible viewport and combined track attachment.
 # First utterance follows provider-connected event; final success still requires real rendered motion.
 # Sandbox: register visible video attachment for LiveKit adaptive streaming.
+# Sandbox: disable adaptive video suppression in headless capture.
