@@ -36,3 +36,4 @@ jobs:
           path: pilot-runs/liveavatar-amina/
           retention-days: 7
           if-no-files-found: warn
+# Capture revision: wait for settled media tracks; reserve seven included credits.
