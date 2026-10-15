@@ -7,7 +7,7 @@ const sandbox=process.env.STOCKS_CAPTURE_SANDBOX==='true';
 const dexter=process.env.STOCKS_CAPTURE_PRESENTER==='Dexter';
 const out='pilot-runs/liveavatar-capture';
 await mkdir(out,{recursive:true});
-const report={presenter:sandbox?'Wayne zero-credit sandbox':dexter?'Dexter Lawyer':'Amina in Blue Suit',kind:'WATERMARKED TECHNICAL DIAGNOSTIC',audioIdentity:'Approved Nora narration; not client-facing Amina identity',sessionRequested:false,sessionStopped:false,passed:false};
+const report={presenter:sandbox?'Wayne zero-credit sandbox':dexter?'Dexter Lawyer':'Amina in Blue Suit',kind:'WATERMARKED TECHNICAL DIAGNOSTIC',audioIdentity:'Approved Nora narration reused for lip-sync protocol only; presenter name and voice not approved',sessionRequested:false,sessionStopped:false,passed:false};
 const audioUrl='https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/080f8e5cb3ae424989242b0efe5205e6/id=798a6ffc-d122-44fb-9cc1-d386a1855a37.wav';
 let browser,server,sessionToken;
 try{
