@@ -45,7 +45,7 @@ try{
   session.connectWebSocket=async url=>{const pending=connectSocket(url);session._sessionEventSocket.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.type==='session.state_updated'&&m.state==='connected')result.providerConnected=true;}catch{}});await pending;};
   const frame=()=>{result.frames++;video.requestVideoFrameCallback(frame);};
   const deadline=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('Bounded capture timeout')),ms))]);
-  const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{video.srcObject=new MediaStream([session._remoteVideoTrack.mediaStreamTrack,session._remoteAudioTrack.mediaStreamTrack]);resolve();}));
+  const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{session.attach(video);resolve();}));
   watchdog=setTimeout(()=>{void session.stop();},40000);
   try{
    await deadline(session.start(),18000);
@@ -65,7 +65,7 @@ try{
    recorder.start(500);
    sendApprovedLiteAudio(session,prepared.pcm24kBinary,{mediaReady:true,frames:result.frames,sourceApproved:true,providerConnectedForBootstrap:result.providerConnected});
    await new Promise(r=>setTimeout(r,24500));
-   Object.assign(result,{videoWidth:video.videoWidth,videoHeight:video.videoHeight});
+   Object.assign(result,{videoWidth:video.videoWidth,videoHeight:video.videoHeight,videoStats:await session._remoteVideoTrack.getRTCStatsReport().then(stats=>stats?{bytesReceived:stats.bytesReceived,framesDecoded:stats.framesDecoded,framesReceived:stats.framesReceived}:null).catch(()=>null)});
    recorder.stop();await done;
    Object.assign(result,{speechStarted:observer.status.speakStarted,speechEnded:observer.status.speakEnded,providerError:observer.status.providerError});
   }catch(e){result.error=String(e.message);}
