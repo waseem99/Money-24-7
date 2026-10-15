@@ -1,8 +1,6 @@
 name: Stocks Amina approved voice V2
 on:
-  push:
-    branches: [feat/stocks-free-presets-amina-dexter-20261014]
-    paths: [.github/workflows/stocks-amina-approved-voice-v2.yml]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
