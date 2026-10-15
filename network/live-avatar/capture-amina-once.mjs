@@ -23,11 +23,11 @@ try{
  const page=await browser.newPage();
  await page.goto('http://127.0.0.1:3000/stocks-streaming-lab.html');
  // Validate browser and SDK before minting any credit-consuming token.
- await page.evaluate(async()=>{const m=await import('/node_modules/@heygen/liveavatar-web-sdk/dist/index.esm.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
+ await page.evaluate(async()=>{const m=await import('/stocks-capture-sdk.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
  const minted=await executeDirect({command:'free-preset-token',avatarId:'bfed3e3e-7d44-4fdb-b2be-ce9a9fd0b9b5',confirmed:true,confirmIncludedCredits:true});
  sessionToken=minted.token;report.sessionRequested=true;
  const result=await page.evaluate(async({token,audioBase64})=>{
-  const {LiveAvatarSession,SessionEvent}=await import('/node_modules/@heygen/liveavatar-web-sdk/dist/index.esm.js');
+  const {LiveAvatarSession,SessionEvent}=await import('/stocks-capture-sdk.js');
   const {observeLiteSpeechEvents,sendApprovedLiteAudio}=await import('/network/streaming/lite-speech-wire.mjs');
   const {prepareLiteAudioFile}=await import('/network/streaming/lite-audio.mjs');
   const bytes=Uint8Array.from(atob(audioBase64),c=>c.charCodeAt(0));
@@ -76,10 +76,11 @@ try{
  report.passed=proof.frames>100&&proof.speechStarted&&proof.speechEnded&&!proof.providerError&&proof.audioTracks>0&&proof.stopped;
 }catch(e){report.error=String(e.message).replaceAll(sessionToken||'UNUSED_TOKEN','[PRIVATE]');}
 finally{
- if(sessionToken&&!report.sessionStopped){
-  try{const r=await fetch('https://api.liveavatar.com/v1/sessions/stop',{method:'POST',headers:{Authorization:'Bearer '+sessionToken},signal:AbortSignal.timeout(15000)});report.sessionStopped=r.ok;}catch{}
+ if(sessionToken){
+  try{const r=await fetch('https://api.liveavatar.com/v1/sessions/stop',{method:'POST',headers:{Authorization:'Bearer '+sessionToken},signal:AbortSignal.timeout(15000)});const body=await r.json();report.providerStopHttp=r.status;report.sessionStopped=r.ok&&body.code===1000;}catch{}
  }
  await browser?.close();server?.kill();
+ report.passed=report.passed&&report.sessionStopped;
  await writeFile(out+'/capture-report.json',JSON.stringify(report,null,2));
  console.log(JSON.stringify(report));
 }
