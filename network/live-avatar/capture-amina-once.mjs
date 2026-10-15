@@ -64,7 +64,8 @@ try{
   finally{
    observer?.stop();clearTimeout(watchdog);
    if(recorder?.state==='recording'){const done=new Promise(resolve=>recorder.onstop=resolve);recorder.stop();await done;}
-   try{await session.stop();result.stopped=true;}catch{}
+   try{const r=await fetch(location.origin+'/api/liveavatar/v1/sessions/stop',{method:'POST',headers:{Authorization:'Bearer '+token}});const body=await r.json();result.stopped=r.ok&&body.code===1000;}catch{}
+   try{await session.stop();}catch{}
   }
   const buffer=new Uint8Array(await new Blob(chunks,{type:'video/webm'}).arrayBuffer());
   let binary='';for(let p=0;p<buffer.length;p+=8192)binary+=String.fromCharCode(...buffer.subarray(p,p+8192));
@@ -76,7 +77,7 @@ try{
  report.passed=proof.frames>100&&proof.speechStarted&&proof.speechEnded&&!proof.providerError&&proof.audioTracks>0&&proof.stopped;
 }catch(e){report.error=String(e.message).replaceAll(sessionToken||'UNUSED_TOKEN','[PRIVATE]');}
 finally{
- if(sessionToken){
+ if(sessionToken&&!report.sessionStopped){
   try{const r=await fetch('https://api.liveavatar.com/v1/sessions/stop',{method:'POST',headers:{Authorization:'Bearer '+sessionToken},signal:AbortSignal.timeout(15000)});const body=await r.json();report.providerStopHttp=r.status;report.sessionStopped=r.ok&&body.code===1000;}catch{}
  }
  await browser?.close();server?.kill();
