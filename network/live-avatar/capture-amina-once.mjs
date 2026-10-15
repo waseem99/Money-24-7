@@ -37,9 +37,11 @@ try{
   const session=new LiveAvatarSession(token,{apiUrl:location.origin+'/api/liveavatar',voiceChat:false});
   const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
   video.style.cssText='position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:999999!important';document.body.replaceChildren(video);
-  const result={frames:0,speechStarted:false,speechEnded:false,providerError:false,audioTracks:0,videoTracks:0,stopped:false};
+  const result={providerConnected:false,frames:0,speechStarted:false,speechEnded:false,providerError:false,audioTracks:0,videoTracks:0,stopped:false};
   let recorder,observer,watchdog;
   const chunks=[];
+  const connectSocket=session.connectWebSocket.bind(session);
+  session.connectWebSocket=async url=>{const pending=connectSocket(url);session._sessionEventSocket.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.type==='session.state_updated'&&m.state==='connected')result.providerConnected=true;}catch{}});await pending;};
   const frame=()=>{result.frames++;video.requestVideoFrameCallback(frame);};
   const deadline=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('Bounded capture timeout')),ms))]);
   const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{video.srcObject=new MediaStream([session._remoteVideoTrack.mediaStreamTrack,session._remoteAudioTrack.mediaStreamTrack]);resolve();}));
@@ -53,7 +55,8 @@ try{
    video.requestVideoFrameCallback(frame);
    for(let n=0;n<30&&result.frames<10;n++)await new Promise(r=>setTimeout(r,200));
    Object.assign(result,{videoWidth:video.videoWidth,videoHeight:video.videoHeight,readyState:video.readyState,paused:video.paused});
-   if(result.frames<10)throw Error('No genuine incoming video frames');
+   for(let n=0;n<20&&!result.providerConnected;n++)await new Promise(r=>setTimeout(r,100));
+   if(!result.providerConnected)throw Error('Provider connected event not observed; audio blocked');
    const stream=video.srcObject;
    result.audioTracks=stream.getAudioTracks().length;result.videoTracks=stream.getVideoTracks().length;
    observer=observeLiteSpeechEvents(session,()=>{});
@@ -62,8 +65,9 @@ try{
    recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
    const done=new Promise(resolve=>recorder.onstop=resolve);
    recorder.start(500);
-   sendApprovedLiteAudio(session,prepared.pcm24kBinary,{mediaReady:true,frames:result.frames,sourceApproved:true});
+   sendApprovedLiteAudio(session,prepared.pcm24kBinary,{mediaReady:true,frames:result.frames,sourceApproved:true,providerConnectedForBootstrap:result.providerConnected});
    await new Promise(r=>setTimeout(r,24500));
+   Object.assign(result,{videoWidth:video.videoWidth,videoHeight:video.videoHeight});
    recorder.stop();await done;
    Object.assign(result,{speechStarted:observer.status.speakStarted,speechEnded:observer.status.speakEnded,providerError:observer.status.providerError});
   }catch(e){result.error=String(e.message);}
