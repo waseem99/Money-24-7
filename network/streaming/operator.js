@@ -4,10 +4,11 @@
  * An operator may connect an ALREADY-issued provider token only after manual approvals.
  * Do not deploy publicly without upstream operator authentication and durable session accounting.
  */
-import {sessionPreflight,ROLES,STOCKS_STREAM_GATE} from './vendor-policy.mjs';
+import {sessionPreflight,ROLES,STOCKS_STREAM_GATE,FREE_PRESET_TRIAL} from './vendor-policy.mjs';
 import {startGreenKey} from './keyer.js';
 import {ProgramRecorder,validateCaptureInputs} from './program-capture.mjs';
-import {prepareLiteAudioFile,audioProofPolicy,pcm16Base64Chunks} from './lite-audio.mjs';
+import {prepareLiteAudioFile,audioProofPolicy} from './lite-audio.mjs';
+import {sendApprovedLiteAudio,observeLiteSpeechEvents} from './lite-speech-wire.mjs';
 
 const $=id=>document.getElementById(id);
 const live=new Map();
@@ -33,7 +34,17 @@ function safeSource(video,canvas,role){
  }
 }
 function view(camera){
+ if($('free-presets').checked && camera==='A_WIDE'){
+  camera=live.has('NORA')?'C_NORA':live.has('MARCUS')?'B_MARCUS':'D_GRAPHICS';
+  report('Free plan permits one avatar session only. To test both anchors, use separate moving recordings and editorial cuts.');
+ }
  selectedCamera=camera;
+ const presetMode=$('free-presets').checked;
+ $('NORA-start').textContent=presetMode?'Connect Amina (included credits)':'Connect Nora (may bill)';
+ $('MARCUS-start').textContent=presetMode?'Connect Dexter (included credits)':'Connect Marcus (may bill)';
+ $('NORA-speak').textContent=presetMode?'Send approved speech diagnostic to Amina':'Send one approved audio take to Nora';
+ document.querySelector('.name.nora').textContent=presetMode?'AMINA · FREE WATERMARKED TEST':'NORA · AI ANCHOR';
+ document.querySelector('.name.marcus').textContent=presetMode?'DEXTER · FREE WATERMARKED TEST':'MARCUS · AI ANCHOR';
  if(recorder)recorder.cameraCut(camera);
  $('camera-status').textContent=camera+' · STREAMING SOURCE TEST (NOT LIVE BROADCAST)';
  const visible=camera==='A_WIDE'?new Set(ROLES):
@@ -58,6 +69,7 @@ async function stop(role,{byDisconnect=false}={}){
  current.closed=true;
  if(current.timer)clearTimeout(current.timer);
  current.keyer?.stop();
+ current.speechEvents?.stop();
  if(recorder)recorder.stop();
  const stage=document.querySelector('.actor[data-role="'+role+'"]');
  stage.classList.remove('connected');
@@ -73,6 +85,11 @@ async function stop(role,{byDisconnect=false}={}){
 }
 async function connect(role){
  if(live.has(role)){report(role+': already connected; no second session started');return;}
+ const freePreset=$('free-presets').checked;
+ if((freePreset || [...live.values()].some(v=>v.freePreset))&&live.size){
+   report('Free plan permits only one active avatar. Stop the existing preset stream first.');
+   state(role,'BLOCKED · ONE FREE SESSION');return;
+ }
  if(!studioObjectURL){
   report(role+': no clean licensed newsroom background selected. Load a source plate before billable test.');
   state(role,'BLOCKED · NO STUDIO');return;
@@ -85,9 +102,11 @@ async function connect(role){
  const approved=$(role+'-approved').checked;
  const credit=$(role+'-credit').checked;
  const gate=sessionPreflight({
-  role,mode:'LITE',sourceKind:'ORIGINAL_FICTIONAL_CUSTOM_AVATAR',
+  role,mode:'LITE',sourceKind:freePreset?'PROVIDER_PUBLIC_PRESET_FOR_PRIVATE_FREE_TRIAL':'ORIGINAL_FICTIONAL_CUSTOM_AVATAR',
+  presetTrial:freePreset,presetName:freePreset?FREE_PRESET_TRIAL[role]:null,activeOtherSessions:live.size,
   sourceApproved:approved,providerEligibilityVerified:approved,
-  commercialTestRightsApproved:approved,
+  privateFreeTestOnly:freePreset&&approved,
+  commercialTestRightsApproved:!freePreset&&approved,
   operatorSession:true,viewerDriven:false,manualStart:true,explicitCreditApproval:credit,
   sessionToken:token,maximumSeconds:secs,
   isCurrentNews:false,rendererOnAirStatus:'TEST ONLY'
@@ -103,7 +122,7 @@ async function connect(role){
  try{
   const {LiveAvatarSession,SessionEvent}=await import('@heygen/liveavatar-web-sdk');
   const session=new LiveAvatarSession(token,{apiUrl:location.origin+'/api/liveavatar',voiceChat:false});
-  entry={session,closed:false,mediaReady:false,keyer:null,timer:null,createdAt:Date.now()};
+  entry={session,closed:false,mediaReady:false,keyer:null,timer:null,freePreset,createdAt:Date.now()};
   live.set(role,entry);
   session.on(SessionEvent.SESSION_STREAM_READY,()=>{
    if(entry.closed||live.get(role)!==entry)return;
@@ -113,6 +132,7 @@ async function connect(role){
    entry.keyer?.stop();
    entry.keyer=safeSource(video,canvas,role);
    entry.mediaReady=true;
+   if(role==='NORA'&&entry.speechEvents)$('NORA-speak').disabled=false;
    document.querySelector('.actor[data-role="'+role+'"]').classList.add('connected');
    state(role,'STREAM CONNECTED · NOT QA APPROVED');
    report(role+': media tracks attached; observe real face motion, background key, audio and glasses/hair edges');
@@ -122,8 +142,13 @@ async function connect(role){
    if(live.get(role)===entry)void stop(role,{byDisconnect:true});
   });
   entry.timer=setTimeout(()=>{report(role+': operator test time cap reached; stopping session');void stop(role);},secs*1000);
-  if(role==='NORA')$('NORA-speak').disabled=false;
   await session.start();
+  if(live.get(role)!==entry)return;
+  entry.speechEvents=observeLiteSpeechEvents(session,(e)=>{
+   if(e.type==='error')report(role+': LiveAvatar audio protocol error; do not send or retry without diagnosis');
+   else report(role+': received provider '+e.type+(e.state?' / '+e.state:''));
+  });
+  if(role==='NORA'&&entry.mediaReady)$('NORA-speak').disabled=false;
   if(live.get(role)!==entry)return;
   if(!entry.mediaReady)state(role,'PROVIDER CONNECTED · WAITING FOR MEDIA');
   // A token is not proof of video: only SESSION_STREAM_READY qualifies as connected media.
@@ -188,8 +213,12 @@ async function startProgramCapture(){
  $('record-start').disabled=true;$('record-stop').disabled=false;
  $('program-capture-preview').style.display='block';
  try{
+  const presetTrial=$('free-presets').checked;
   recorder=new ProgramRecorder({canvas:$('program-capture-preview'),room:studioBitmap,
-   logo:brandBitmap,sources,status:'RECORDED DEMO',onProgress:report});
+   logo:brandBitmap,sources,
+   status:presetTrial?'FREE WATERMARKED TEST':'RECORDED DEMO',
+   labels:presetTrial?{NORA:'AMINA · FREE PRESET',MARCUS:'DEXTER · FREE PRESET'}:null,
+   onProgress:report});
   recorder.cameraCut(selectedCamera);
   $('record-status').textContent='CAPTURING VERIFIED MOVING INPUT';
   const result=await recorder.begin(seconds);
@@ -222,7 +251,7 @@ async function speakNoraOnce(){
   return;
  }
  const file=$('NORA-audio-file').files?.[0];
- if(!file){report('Load Nora 20.9s approved voice WAV using the local input first');return;}
+ if(!file){report('Load the approved 20.9s synthetic test WAV (for Amina this is a TECHNICAL diagnostic; it says Nora and is not client-ready).');return;}
  if(!$('NORA-approved').checked||!$('NORA-credit').checked){
   report('Voice send denied: provider eligibility and bounded credit authorizations must be checked');return;
  }
@@ -232,17 +261,21 @@ async function speakNoraOnce(){
   const p=audioProofPolicy({...audio,sourceApproved:true});
   if(!p.pass)throw Error(p.errors.join('; '));
   if(entry.closed||live.get('NORA')!==entry)throw Error('Nora session ended during local audio conversion');
-  if(typeof entry.session.repeatAudio!=='function')throw Error('SDK does not expose LITE repeatAudio');
-  const chunks=pcm16Base64Chunks(audio.pcm24kBinary);
-  entry.oneSpeechSubmitted=true;
-  for(const packet of chunks){
-    // Official agent.speak audio is Base64 PCM16 24kHz, <= 1 MB per packet.
-    // Each 1-second packet is an intentional chunk of this ONE approved take.
-    entry.session.repeatAudio(packet);
-  }
-  report('Submitted one approved '+audio.durationSeconds.toFixed(2)+'s Nora take as '+chunks.length+
-    ' documented Base64 PCM chunks. This is NOT proof of audible delivery or lip sync: verify '+
-    'provider speak_started/speak_ended, actual video mouth motion and local recording. No automatic retry.');
+  if(!entry.speechEvents)throw Error('No provider event observer; stop before submitting audio');
+  if(entry.speechEvents.status.providerError)
+    throw Error('Provider already reported audio error; do not send');
+  // Do NOT use SDK repeatAudio: versions 0.0.10–0.0.19 can send raw data
+  // over agent.speak despite server requiring BASE64 PCM16. Emit documented
+  // WebSocket agent.speak directly with ONE utterance ID and speak_end.
+  entry.oneSpeechSubmitted=true; // no retry even after uncertain partial provider send
+  const receipt=sendApprovedLiteAudio(entry.session,audio.pcm24kBinary,{
+    mediaReady:entry.mediaReady,frames:entry.keyer?.getFrames?.()||0,
+    sourceApproved:true
+  });
+  report('Submitted ONE '+receipt.durationSeconds.toFixed(2)+'s approved voice take as '+
+    receipt.packetCount+' documented Base64 provider WS chunks, one speak_end. '+
+    'Wait for agent.speak_started and agent.speak_ended; inspect audio/lip sync '+
+    'and moving recording before approval. Never auto-retry.');
  }catch(error){
   report('Nora speech submission failed. Verify provider status and SDK audio protocol before another attempt. '+String(error?.message||error));
  }finally{
@@ -254,6 +287,23 @@ $('NORA-speak').addEventListener('click',()=>void speakNoraOnce());
 $('record-start').addEventListener('click',()=>void startProgramCapture());
 $('record-stop').addEventListener('click',()=>recorder?.stop());
 
+$('free-presets').addEventListener('change',()=>{
+ if(live.size){
+   $('free-presets').checked=[...live.values()].some(v=>v.freePreset);
+   report('Stop active provider sessions before changing the presenter source category');return;
+ }
+ if($('free-presets').checked){
+  $('session-cap').max='45';$('session-cap').value='35';
+  $('record-seconds').value='30';
+  report('Free included-credit pilot capped to 35 seconds, one avatar at a time and watermarked.');
+ }else{
+  $('session-cap').max='90';$('session-cap').value='60';
+ }
+ view(selectedCamera);
+ report($('free-presets').checked
+  ?'Amina and Dexter are public preset STAND-INS on Free. Use one at a time. Watermark is expected.'
+  :'Original fictional Nora/Marcus production identity mode selected');
+});
 $('cut-nora').addEventListener('click',()=>view('C_NORA'));
 $('cut-marcus').addEventListener('click',()=>view('B_MARCUS'));
 $('cut-wide').addEventListener('click',()=>view('A_WIDE'));
@@ -267,4 +317,4 @@ window.addEventListener('pagehide',()=>{
  for(const role of [...live.keys()])void stop(role);
 });
 view('A_WIDE');
-report('NO billable provider work was started at load; manual custom-portrait and session approvals are required.');
+report('Free preset Amina/Dexter may use included LiveAvatar credits, NOT Wayne zero-credit sandbox. Nothing starts automatically.');

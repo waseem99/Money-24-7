@@ -26,8 +26,9 @@ test('Existing Stocks private operator lab has deliberate one-shot source-audio 
  assert.ok(html.includes('NORA-audio-file')&&html.includes('NORA-speak'));
  assert.ok(js.includes('speakNoraOnce()'));
  assert.ok(js.includes('entry.oneSpeechSubmitted=true'));
- assert.ok(js.includes('entry.session.repeatAudio(packet)'));
+ assert.ok(js.includes('sendApprovedLiteAudio(entry.session,audio.pcm24kBinary'));
  assert.ok(js.includes('entry.mediaReady'));
+ assert.doesNotMatch(js,/\.repeatAudio\(/);
  assert.ok(js.includes('oneSpeechSubmitted'));
  assert.ok(js.includes("sourceApproved:true"));
  assert.doesNotMatch(js,/fetch\(['"]https:\/\/api\.liveavatar\.com/);
