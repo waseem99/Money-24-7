@@ -54,6 +54,42 @@ This call first validates Amina's ID against LiveAvatar's **public-avatar direct
 8. Stop the Amina session; verify that it has fully closed in the dashboard BEFORE any Dexter session starts. Free allows **only one at a time**.
 9. Repeat with the **Dexter** public preset ID in the male/Marcus camera slot, sequentially. Then edit the two accepted takes with professional B/C camera cuts, with verified source-driven US-market graphic panels and ticker. **Do not fake a simultaneous two-presenter shared desk on Free tier**.
 
+
+## macOS / Linux terminal alternative (no Windows or TinyFish required)
+
+If the user is on a Mac with Node.js 22+:
+
+    git clone https://github.com/waseem99/Money-24-7.git
+    cd Money-24-7
+    git fetch origin feat/stocks-free-presets-amina-dexter-20261014
+    git checkout feat/stocks-free-presets-amina-dexter-20261014
+    npm ci
+    npm run stocks:liveavatar -- presets
+
+Obtain the LiveAvatar API key directly from the user's own LiveAvatar account, then save it in the local ignored file:
+
+    nano .stocks-liveavatar.local.key
+    chmod 600 .stocks-liveavatar.local.key
+    npm run stocks:liveavatar -- doctor
+    npm run stocks:liveavatar -- credits
+
+Only when the account has positive included credits and Amina/Dexter actual IDs are shown, create one intentionally included-credit 45-second token. The **operator lab defaults to a 35-second Free test** to avoid consuming the whole allowance. The trial may be watermarked; do not attempt to obscure provider watermarks.
+
+    npm run stocks:liveavatar -- free-preset-token --avatar-id ACTUAL_AMINA_ID --confirm-one-session --confirm-use-included-credits
+    STOCKS_BUILD_OPERATOR_LAB=true npm run dev
+
+Then open http://localhost:3000/stocks-streaming-lab.html, enable the Amina/Dexter Free mode, select the studio/brand files, enter the private token locally and connect Amina. Stop and confirm account session closed before trying Dexter.
+
+## Critical LITE speech transport correction
+
+The installed LiveAvatar SDK can silently send the wrong raw binary format via \`repeatAudio()\` for LITE and produce no speaking/lip movement. **We no longer use \`repeatAudio()\` in Stage 3.** \`network/streaming/lite-speech-wire.mjs\` reads the SDK's existing authenticated provider WebSocket, checks OPEN state plus actual moving video, and emits documented **Base64-encoded 24kHz PCM16 mono** \`agent.speak\` chunks (~1s) with one \`agent.speak_end\`. A provider \`agent.speak_started\` and \`agent.speak_ended\` plus actual audible lip-synced footage are required for success.
+
+The session WebSocket field is an SDK internal and may change on a later SDK release. If absent, the operator FAILS closed rather than spending credits and silently producing an invalid recording. This integration is not considered certified until a real free preset session passes.
+
+The saved approved 20.9s narration says "I'm Nora." **If used on Amina, it is a lip-sync diagnostic only, never a client-facing depiction of Amina's own identity.** For a client-ready demo, create a name-consistent script/audio after this technical validation and keep Nora/Marcus custom identities as the final artistic direction.
+
+Vendor references: https://docs.liveavatar.com/docs/lite-mode/events and https://github.com/heygen-com/liveavatar-web-sdk/issues/92 .
+
 ## Prohibited claims
 - No custom Nora/Marcus LiveAvatars have yet been trained/created by this temporary test.
 - Free plan watermarks cannot be removed. Client presentation should be labelled a **watermarked technical prototype**, not the finalized premium branded AI broadcast.
