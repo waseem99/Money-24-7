@@ -40,3 +40,4 @@ jobs:
 # Capture revision: wait for settled media tracks; reserve seven included credits.
 # Source render diagnostic: visible viewport and combined track attachment.
 # First utterance follows provider-connected event; final success still requires real rendered motion.
+# Sandbox: register visible video attachment for LiveKit adaptive streaming.
