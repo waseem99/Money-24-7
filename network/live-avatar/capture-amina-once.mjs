@@ -3,9 +3,10 @@ import {spawn} from 'node:child_process';
 import {chromium} from 'playwright';
 import {executeDirect} from './direct-setup.mjs';
 
-const out='pilot-runs/liveavatar-amina';
+const sandbox=process.env.STOCKS_CAPTURE_SANDBOX==='true';
+const out='pilot-runs/liveavatar-capture';
 await mkdir(out,{recursive:true});
-const report={presenter:'Amina in Blue Suit',kind:'WATERMARKED TECHNICAL DIAGNOSTIC',audioIdentity:'Approved Nora narration; not client-facing Amina identity',sessionRequested:false,sessionStopped:false,passed:false};
+const report={presenter:sandbox?'Wayne zero-credit sandbox':'Amina in Blue Suit',kind:'WATERMARKED TECHNICAL DIAGNOSTIC',audioIdentity:'Approved Nora narration; not client-facing Amina identity',sessionRequested:false,sessionStopped:false,passed:false};
 const audioUrl='https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/080f8e5cb3ae424989242b0efe5205e6/id=798a6ffc-d122-44fb-9cc1-d386a1855a37.wav';
 let browser,server,sessionToken;
 try{
@@ -25,8 +26,8 @@ try{
  // Validate browser and SDK before minting any credit-consuming token.
  await page.evaluate(async()=>{const m=await import('/stocks-capture-sdk.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
  const balance=await executeDirect({command:'credits'});report.creditsBefore=balance.creditsLeft;
- if(Number(balance.creditsLeft)<7)throw Error('Credit reserve reached; no further session');
- const minted=await executeDirect({command:'free-preset-token',avatarId:'bfed3e3e-7d44-4fdb-b2be-ce9a9fd0b9b5',confirmed:true,confirmIncludedCredits:true});
+ if(!sandbox&&Number(balance.creditsLeft)<7)throw Error('Credit reserve reached; no further session');
+ const minted=await executeDirect({command:sandbox?'sandbox-token':'free-preset-token',avatarId:sandbox?'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a':'bfed3e3e-7d44-4fdb-b2be-ce9a9fd0b9b5',confirmed:true,confirmIncludedCredits:!sandbox});
  sessionToken=minted.token;report.sessionRequested=true;
  const result=await page.evaluate(async({token,audioBase64})=>{
   const {LiveAvatarSession,SessionEvent}=await import('/stocks-capture-sdk.js');
@@ -49,13 +50,10 @@ try{
   try{
    await deadline(session.start(),18000);
    await deadline(ready,8000);
-   // LiveKit attaches audio and video separately; let its load settle before play.
-   await new Promise(r=>setTimeout(r,750));
-   try{await video.play();}catch(e){if(e.name!=='AbortError')throw e;await new Promise(r=>setTimeout(r,500));await video.play();}
+   // Do not await video playback before first LITE audio: provider may expose a placeholder until speaking.
    video.requestVideoFrameCallback(frame);
-   for(let n=0;n<30&&result.frames<10;n++)await new Promise(r=>setTimeout(r,200));
-   Object.assign(result,{videoWidth:video.videoWidth,videoHeight:video.videoHeight,readyState:video.readyState,paused:video.paused});
-   for(let n=0;n<20&&!result.providerConnected;n++)await new Promise(r=>setTimeout(r,100));
+   void video.play().catch(()=>{});
+   for(let n=0;n<30&&!result.providerConnected;n++)await new Promise(r=>setTimeout(r,100));
    if(!result.providerConnected)throw Error('Provider connected event not observed; audio blocked');
    const stream=video.srcObject;
    result.audioTracks=stream.getAudioTracks().length;result.videoTracks=stream.getVideoTracks().length;
@@ -83,7 +81,7 @@ try{
  },{token:sessionToken,audioBase64:audio.toString('base64')});
  await page.screenshot({path:out+'/source-inspection.png'});
  const {webm,...proof}=result;
- if(webm)await writeFile(out+'/amina-source.webm',Buffer.from(webm,'base64'));
+ if(webm)await writeFile(out+'/source.webm',Buffer.from(webm,'base64'));
  Object.assign(report,proof,{sessionStopped:proof.stopped});
  report.passed=proof.frames>100&&proof.speechStarted&&proof.speechEnded&&!proof.providerError&&proof.audioTracks>0&&proof.stopped;
 }catch(e){report.error=String(e.message).replaceAll(sessionToken||'UNUSED_TOKEN','[PRIVATE]');}
