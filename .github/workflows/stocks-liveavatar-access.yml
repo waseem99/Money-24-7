@@ -1,0 +1,22 @@
+name: Stocks LiveAvatar access check
+on:
+  push:
+    branches: [feat/stocks-free-presets-amina-dexter-20261014]
+    paths: [.github/workflows/stocks-liveavatar-access.yml]
+permissions:
+  contents: read
+jobs:
+  access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read-only authentication and preset check
+        env:
+          LIVEAVATAR_API_KEY: ${{ secrets.LIVEAVATAR_API_KEY || secrets.HEYGEN_API_KEY }}
+        run: |
+          node network/live-avatar/direct-setup.mjs credits
+          node network/live-avatar/direct-setup.mjs presets
