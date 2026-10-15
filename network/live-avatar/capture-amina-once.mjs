@@ -4,9 +4,10 @@ import {chromium} from 'playwright';
 import {executeDirect} from './direct-setup.mjs';
 
 const sandbox=process.env.STOCKS_CAPTURE_SANDBOX==='true';
+const dexter=process.env.STOCKS_CAPTURE_PRESENTER==='Dexter';
 const out='pilot-runs/liveavatar-capture';
 await mkdir(out,{recursive:true});
-const report={presenter:sandbox?'Wayne zero-credit sandbox':'Amina in Blue Suit',kind:'WATERMARKED TECHNICAL DIAGNOSTIC',audioIdentity:'Approved Nora narration; not client-facing Amina identity',sessionRequested:false,sessionStopped:false,passed:false};
+const report={presenter:sandbox?'Wayne zero-credit sandbox':dexter?'Dexter Lawyer':'Amina in Blue Suit',kind:'WATERMARKED TECHNICAL DIAGNOSTIC',audioIdentity:'Approved Nora narration; not client-facing Amina identity',sessionRequested:false,sessionStopped:false,passed:false};
 const audioUrl='https://resource2.heygen.ai/text_to_speech/71bf0d29eee949f398aaa5204fce059e/080f8e5cb3ae424989242b0efe5205e6/id=798a6ffc-d122-44fb-9cc1-d386a1855a37.wav';
 let browser,server,sessionToken;
 try{
@@ -29,8 +30,8 @@ try{
  if(!report.videoCodecs.some(c=>c.toLowerCase()==='video/h264'))throw Error('Browser lacks required H264 decoder; no session requested');
  await page.evaluate(async()=>{const m=await import('/stocks-capture-sdk.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
  const balance=await executeDirect({command:'credits'});report.creditsBefore=balance.creditsLeft;
- if(!sandbox&&Number(balance.creditsLeft)<7)throw Error('Credit reserve reached; no further session');
- const minted=await executeDirect({command:sandbox?'sandbox-token':'free-preset-token',avatarId:sandbox?'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a':'bfed3e3e-7d44-4fdb-b2be-ce9a9fd0b9b5',confirmed:true,confirmIncludedCredits:!sandbox});
+ if(!sandbox&&Number(balance.creditsLeft)<5)throw Error('Credit reserve reached; no further session');
+ const minted=await executeDirect({command:sandbox?'sandbox-token':'free-preset-token',avatarId:sandbox?'dd73ea75-1218-4ef3-92ce-606d5f7fbc0a':dexter?'0930fd59-c8ad-434d-ad53-b391a1768720':'bfed3e3e-7d44-4fdb-b2be-ce9a9fd0b9b5',confirmed:true,confirmIncludedCredits:!sandbox});
  sessionToken=minted.token;report.sessionRequested=true;
  const result=await page.evaluate(async({token,audioBase64})=>{
   const {LiveAvatarSession,SessionEvent}=await import('/stocks-capture-sdk.js');
