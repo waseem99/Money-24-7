@@ -24,6 +24,8 @@ try{
  await page.goto('http://127.0.0.1:3000/stocks-streaming-lab.html');
  // Validate browser and SDK before minting any credit-consuming token.
  await page.evaluate(async()=>{const m=await import('/stocks-capture-sdk.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
+ const balance=await executeDirect({command:'credits'});report.creditsBefore=balance.creditsLeft;
+ if(Number(balance.creditsLeft)<7)throw Error('Credit reserve reached; no further session');
  const minted=await executeDirect({command:'free-preset-token',avatarId:'bfed3e3e-7d44-4fdb-b2be-ce9a9fd0b9b5',confirmed:true,confirmIncludedCredits:true});
  sessionToken=minted.token;report.sessionRequested=true;
  const result=await page.evaluate(async({token,audioBase64})=>{
@@ -44,7 +46,9 @@ try{
   try{
    await deadline(session.start(),18000);
    await deadline(ready,8000);
-   await video.play();
+   // LiveKit attaches audio and video separately; let its load settle before play.
+   await new Promise(r=>setTimeout(r,750));
+   try{await video.play();}catch(e){if(e.name!=='AbortError')throw e;await new Promise(r=>setTimeout(r,500));await video.play();}
    video.requestVideoFrameCallback(frame);
    await new Promise(r=>setTimeout(r,1200));
    if(result.frames<10)throw Error('No genuine incoming video frames');
