@@ -36,12 +36,15 @@ export function observeLiteSpeechEvents(session,onEvent=()=>{}){
   return {status,stop:()=>socket.removeEventListener('message',fn)};
 }
 export function sendApprovedLiteAudio(session,pcmBinary,{
-  mediaReady=false,frames=0,sourceApproved=false,
+  mediaReady=false,frames=0,sourceApproved=false,providerConnectedForBootstrap=false,
   uuid=()=>globalThis.crypto?.randomUUID?.(),
   encode=globalThis.btoa
 }={}){
-  if(!mediaReady||frames<10||sourceApproved!==true)
-    throw Error('Require approved TTS and at least 10 actual moving video frames before any speaking command');
+  const bootstrapReady=providerConnectedForBootstrap===true &&
+    session?._remoteVideoTrack?.mediaStreamTrack?.readyState==='live' &&
+    session?._remoteAudioTrack?.mediaStreamTrack?.readyState==='live';
+  if(!mediaReady||(!bootstrapReady&&frames<10)||sourceApproved!==true)
+    throw Error('Require approved TTS and rendered frames or provider-connected live A/V tracks for the first utterance');
   if(typeof pcmBinary!=='string'||!pcmBinary.length||pcmBinary.length%2)
     throw Error('PCM16 audio source is empty or damaged');
   const durationSeconds=pcmBinary.length/(LITE_AUDIO.sampleRate*2);
