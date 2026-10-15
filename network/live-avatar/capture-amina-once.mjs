@@ -36,11 +36,15 @@ try{
   const bytes=Uint8Array.from(atob(audioBase64),c=>c.charCodeAt(0));
   const prepared=await prepareLiteAudioFile(new File([bytes],'approved.wav',{type:'audio/wav'}));
   const session=new LiveAvatarSession(token,{apiUrl:location.origin+'/api/liveavatar',voiceChat:false});
+  session.room.options.adaptiveStream=false;
   const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
   video.style.cssText='position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:999999!important';document.body.replaceChildren(video);
   const result={providerConnected:false,frames:0,speechStarted:false,speechEnded:false,providerError:false,audioTracks:0,videoTracks:0,stopped:false};
   let recorder,observer,watchdog;
   const chunks=[];
+  const startedAt=Date.now();result.samples=[];
+  session.on(SessionEvent.SESSION_DISCONNECTED,()=>{result.disconnectedAfterMs=Date.now()-startedAt;});
+  const probe=setInterval(async()=>{const track=session._remoteVideoTrack;let stats=null;try{const all=await track?.receiver?.getStats();if(all)for(const x of all.values())if(x.type==='inbound-rtp')stats={bytes:x.bytesReceived,frames:x.framesDecoded,packets:x.packetsReceived};}catch{}result.samples.push({ms:Date.now()-startedAt,width:video.videoWidth,height:video.videoHeight,paused:video.paused,videoState:track?.mediaStreamTrack?.readyState,stats});},2000);
   const connectSocket=session.connectWebSocket.bind(session);
   session.connectWebSocket=async url=>{const pending=connectSocket(url);session._sessionEventSocket.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.type==='session.state_updated'&&m.state==='connected')result.providerConnected=true;}catch{}});await pending;};
   const frame=()=>{result.frames++;video.requestVideoFrameCallback(frame);};
@@ -70,7 +74,7 @@ try{
    Object.assign(result,{speechStarted:observer.status.speakStarted,speechEnded:observer.status.speakEnded,providerError:observer.status.providerError});
   }catch(e){result.error=String(e.message);}
   finally{
-   observer?.stop();clearTimeout(watchdog);
+   observer?.stop();clearTimeout(watchdog);clearInterval(probe);
    if(recorder?.state==='recording'){const done=new Promise(resolve=>recorder.onstop=resolve);recorder.stop();await done;}
    try{const r=await fetch(location.origin+'/api/liveavatar/v1/sessions/stop',{method:'POST',headers:{Authorization:'Bearer '+token}});const body=await r.json();result.stopped=r.ok&&body.code===1000;}catch{}
    try{await session.stop();}catch{}
