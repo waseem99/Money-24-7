@@ -17,3 +17,6 @@ Capture workflows are manual-only after this authorized run. Code pushes no long
 The narration is the user's previously approved Nora/Ceecee take, reused for protocol diagnostics. It says “I'm Nora”; this is not Amina/Dexter identity or final voice approval, especially for the male preset. Technical previews explicitly disclose this. Do not present them as a finished client bulletin.
 Native source is 720p. A 1920x1080 branded composition is an output canvas, not newly generated 1080p facial detail.
 Final presenter-specific scripts/voices, editorial content, and the full 2–3-minute bulletin remain unfinished.
+
+## Studio-background check
+Amina's selected preset supplies a green background and supports a keyed newsroom diagnostic. Dexter Lawyer retains a baked office background. Its labelled source window is a protocol preview only; it does not pass clean shared-studio compositing. Do not claim that both presets have transparent newsroom-ready source.
