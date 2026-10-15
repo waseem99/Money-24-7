@@ -22,6 +22,7 @@ try{
  }
  browser=await chromium.launch({headless:true,args:['--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
  const page=await browser.newPage();
+ await page.addInitScript(()=>{globalThis.__capturePeers=[];const Original=globalThis.RTCPeerConnection;globalThis.RTCPeerConnection=class extends Original{constructor(...args){super(...args);globalThis.__capturePeers.push(this);}};});
  await page.goto('http://127.0.0.1:3000/stocks-streaming-lab.html');
  // Validate browser and SDK before minting any credit-consuming token.
  await page.evaluate(async()=>{const m=await import('/stocks-capture-sdk.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
@@ -44,12 +45,12 @@ try{
   const chunks=[];
   const startedAt=Date.now();result.samples=[];
   session.on(SessionEvent.SESSION_DISCONNECTED,()=>{result.disconnectedAfterMs=Date.now()-startedAt;});
-  const probe=setInterval(async()=>{const track=session._remoteVideoTrack;let stats=null;try{const all=await track?.receiver?.getStats();if(all)for(const x of all.values())if(x.type==='inbound-rtp')stats={bytes:x.bytesReceived,frames:x.framesDecoded,packets:x.packetsReceived};}catch{}result.samples.push({ms:Date.now()-startedAt,width:video.videoWidth,height:video.videoHeight,paused:video.paused,videoState:track?.mediaStreamTrack?.readyState,stats});},2000);
+  const probe=setInterval(async()=>{const track=session._remoteVideoTrack;let stats=null;try{const all=await track?.receiver?.getStats();if(all)for(const x of all.values())if(x.type==='inbound-rtp')stats={bytes:x.bytesReceived,frames:x.framesDecoded,packets:x.packetsReceived};}catch{}result.samples.push({ms:Date.now()-startedAt,width:video.videoWidth,height:video.videoHeight,paused:video.paused,videoState:track?.mediaStreamTrack?.readyState,stats,kind:track?.mediaStreamTrack?.kind,enabled:track?.mediaStreamTrack?.enabled,muted:track?.isMuted,receiver:Boolean(track?.receiver),peers:await Promise.all(globalThis.__capturePeers.map(async pc=>{const stats=await pc.getStats();const inbound=[];for(const x of stats.values())if(x.type==='inbound-rtp')inbound.push({kind:x.kind,bytes:x.bytesReceived,packets:x.packetsReceived,frames:x.framesDecoded});return{ice:pc.iceConnectionState,inbound};}))});},2000);
   const connectSocket=session.connectWebSocket.bind(session);
   session.connectWebSocket=async url=>{const pending=connectSocket(url);session._sessionEventSocket.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.type==='session.state_updated'&&m.state==='connected')result.providerConnected=true;}catch{}});await pending;};
   const frame=()=>{result.frames++;video.requestVideoFrameCallback(frame);};
   const deadline=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('Bounded capture timeout')),ms))]);
-  const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{session.attach(video);resolve();}));
+  const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{session.attach(video);for(const p of session.room.remoteParticipants.values())for(const pub of p.videoTrackPublications.values())pub.setEnabled(true);resolve();}));
   watchdog=setTimeout(()=>{void session.stop();},40000);
   try{
    await deadline(session.start(),18000);
