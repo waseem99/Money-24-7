@@ -14,11 +14,11 @@ const uuid='abcde123-4567-4abc-9999-aabbccddeeff';
 const fakeSession=()=>({_sessionEventSocket:new FakeProviderSocket()});
 const sample=(secs=5)=>String.fromCharCode(0,0,0x3f,0x7f).repeat(12000*secs);
 
-test('Provider LITE source is read-only until REAL moving media exists',()=>{
+test('Provider LITE audio rejects unready or unapproved sources',()=>{
  const s=fakeSession();
  const wav=sample();
- assert.throws(()=>sendApprovedLiteAudio(s,wav,{mediaReady:false,frames:0,sourceApproved:true,uuid:()=>uuid}),/actual moving/);
- assert.throws(()=>sendApprovedLiteAudio(s,wav,{mediaReady:true,frames:9,sourceApproved:true,uuid:()=>uuid}),/actual moving/);
+ assert.throws(()=>sendApprovedLiteAudio(s,wav,{mediaReady:false,frames:0,sourceApproved:true,uuid:()=>uuid}),/rendered frames or provider-connected/);
+ assert.throws(()=>sendApprovedLiteAudio(s,wav,{mediaReady:true,frames:9,sourceApproved:true,uuid:()=>uuid}),/rendered frames or provider-connected/);
  assert.throws(()=>sendApprovedLiteAudio(s,wav,{mediaReady:true,frames:25,sourceApproved:false,uuid:()=>uuid}),/approved TTS/);
  assert.equal(s._sessionEventSocket.sent.length,0);
 });
@@ -69,4 +69,18 @@ test('Missing or not-yet-open SDK provider WebSocket fails closed, never silentl
  const s=fakeSession();s._sessionEventSocket.readyState=0;
  assert.throws(()=>sendApprovedLiteAudio(s,sample(),{mediaReady:true,frames:25,sourceApproved:true,uuid:()=>uuid}),/not OPEN/);
  assert.equal(s._sessionEventSocket.sent.length,0);
+});
+
+test('First utterance requires provider-connected event AND live subscribed audio and video',()=>{
+ const s=fakeSession();
+ const options={mediaReady:true,frames:0,sourceApproved:true,providerConnectedForBootstrap:true,uuid:()=>uuid};
+ assert.throws(()=>sendApprovedLiteAudio(s,sample(),options),/live A\/V/);
+ s._remoteVideoTrack={mediaStreamTrack:{readyState:'live'}};
+ s._remoteAudioTrack={mediaStreamTrack:{readyState:'ended'}};
+ assert.throws(()=>sendApprovedLiteAudio(s,sample(),options),/live A\/V/);
+ s._remoteAudioTrack.mediaStreamTrack.readyState='live';
+ assert.throws(()=>sendApprovedLiteAudio(s,sample(),{...options,providerConnectedForBootstrap:false}),/live A\/V/);
+ const report=sendApprovedLiteAudio(s,sample(),options);
+ assert.equal(report.speakingVerified,false);
+ assert.equal(s._sessionEventSocket.sent.length,6);
 });
