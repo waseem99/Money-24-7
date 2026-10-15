@@ -20,11 +20,13 @@ try{
   if(n===49)throw Error('Local lab did not start');
   await new Promise(r=>setTimeout(r,200));
  }
- browser=await chromium.launch({headless:true,args:['--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
+ browser=await chromium.launch({channel:'chrome',headless:true,args:['--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
  const page=await browser.newPage();
  await page.addInitScript(()=>{globalThis.__capturePeers=[];const Original=globalThis.RTCPeerConnection;globalThis.RTCPeerConnection=class extends Original{constructor(...args){super(...args);globalThis.__capturePeers.push(this);}};});
  await page.goto('http://127.0.0.1:3000/stocks-streaming-lab.html');
- // Validate browser and SDK before minting any credit-consuming token.
+ // Validate browser video decoder and SDK before minting any token.
+ report.videoCodecs=await page.evaluate(()=>RTCRtpReceiver.getCapabilities('video').codecs.map(c=>c.mimeType));
+ if(!report.videoCodecs.some(c=>c.toLowerCase()==='video/h264'))throw Error('Browser lacks required H264 decoder; no session requested');
  await page.evaluate(async()=>{const m=await import('/stocks-capture-sdk.js');if(!m.LiveAvatarSession)throw Error('SDK unavailable');});
  const balance=await executeDirect({command:'credits'});report.creditsBefore=balance.creditsLeft;
  if(!sandbox&&Number(balance.creditsLeft)<7)throw Error('Credit reserve reached; no further session');
