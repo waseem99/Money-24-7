@@ -1,4 +1,4 @@
-name: Stocks Amina real capture once
+name: Stocks sandbox capture diagnostic
 on:
   push:
     branches: [feat/stocks-free-presets-amina-dexter-20261014]
@@ -27,13 +27,14 @@ jobs:
           node --check network/live-avatar/capture-amina-once.mjs
       - name: One authorized included-credit Amina capture, no retry
         env:
+          STOCKS_CAPTURE_SANDBOX: 'true'
           LIVEAVATAR_API_KEY: ${{ secrets.LIVE_AVATAR_KEY_JAZZ }}
         run: node network/live-avatar/capture-amina-once.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: amina-real-source-and-report
-          path: pilot-runs/liveavatar-amina/
+          name: stocks-sandbox-source-and-report
+          path: pilot-runs/liveavatar-capture/
           retention-days: 7
           if-no-files-found: warn
 # Capture revision: wait for settled media tracks; reserve seven included credits.
