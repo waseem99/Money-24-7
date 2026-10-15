@@ -7,7 +7,8 @@
 import {sessionPreflight,ROLES,STOCKS_STREAM_GATE,FREE_PRESET_TRIAL} from './vendor-policy.mjs';
 import {startGreenKey} from './keyer.js';
 import {ProgramRecorder,validateCaptureInputs} from './program-capture.mjs';
-import {prepareLiteAudioFile,audioProofPolicy,pcm16Base64Chunks} from './lite-audio.mjs';
+import {prepareLiteAudioFile,audioProofPolicy} from './lite-audio.mjs';
+import {sendApprovedLiteAudio,observeLiteSpeechEvents} from './lite-speech-wire.mjs';
 
 const $=id=>document.getElementById(id);
 const live=new Map();
@@ -67,6 +68,7 @@ async function stop(role,{byDisconnect=false}={}){
  current.closed=true;
  if(current.timer)clearTimeout(current.timer);
  current.keyer?.stop();
+ current.speechEvents?.stop();
  if(recorder)recorder.stop();
  const stage=document.querySelector('.actor[data-role="'+role+'"]');
  stage.classList.remove('connected');
@@ -129,6 +131,7 @@ async function connect(role){
    entry.keyer?.stop();
    entry.keyer=safeSource(video,canvas,role);
    entry.mediaReady=true;
+   if(role==='NORA'&&entry.speechEvents)$('NORA-speak').disabled=false;
    document.querySelector('.actor[data-role="'+role+'"]').classList.add('connected');
    state(role,'STREAM CONNECTED · NOT QA APPROVED');
    report(role+': media tracks attached; observe real face motion, background key, audio and glasses/hair edges');
@@ -138,8 +141,13 @@ async function connect(role){
    if(live.get(role)===entry)void stop(role,{byDisconnect:true});
   });
   entry.timer=setTimeout(()=>{report(role+': operator test time cap reached; stopping session');void stop(role);},secs*1000);
-  if(role==='NORA')$('NORA-speak').disabled=false;
   await session.start();
+  if(live.get(role)!==entry)return;
+  entry.speechEvents=observeLiteSpeechEvents(session,(e)=>{
+   if(e.type==='error')report(role+': LiveAvatar audio protocol error; do not send or retry without diagnosis');
+   else report(role+': received provider '+e.type+(e.state?' / '+e.state:''));
+  });
+  if(role==='NORA'&&entry.mediaReady)$('NORA-speak').disabled=false;
   if(live.get(role)!==entry)return;
   if(!entry.mediaReady)state(role,'PROVIDER CONNECTED · WAITING FOR MEDIA');
   // A token is not proof of video: only SESSION_STREAM_READY qualifies as connected media.
@@ -253,16 +261,21 @@ async function speakNoraOnce(){
   if(!p.pass)throw Error(p.errors.join('; '));
   if(entry.closed||live.get('NORA')!==entry)throw Error('Nora session ended during local audio conversion');
   if(typeof entry.session.repeatAudio!=='function')throw Error('SDK does not expose LITE repeatAudio');
-  const chunks=pcm16Base64Chunks(audio.pcm24kBinary);
-  entry.oneSpeechSubmitted=true;
-  for(const packet of chunks){
-    // Official agent.speak audio is Base64 PCM16 24kHz, <= 1 MB per packet.
-    // Each 1-second packet is an intentional chunk of this ONE approved take.
-    entry.session.repeatAudio(packet);
-  }
-  report('Submitted one approved '+audio.durationSeconds.toFixed(2)+'s Nora take as '+chunks.length+
-    ' documented Base64 PCM chunks. This is NOT proof of audible delivery or lip sync: verify '+
-    'provider speak_started/speak_ended, actual video mouth motion and local recording. No automatic retry.');
+  if(!entry.speechEvents)throw Error('No provider event observer; stop before submitting audio');
+  if(entry.speechEvents.status.providerError)
+    throw Error('Provider already reported audio error; do not send');
+  // Do NOT use SDK repeatAudio: versions 0.0.10–0.0.19 can send raw data
+  // over agent.speak despite server requiring BASE64 PCM16. Emit documented
+  // WebSocket agent.speak directly with ONE utterance ID and speak_end.
+  entry.oneSpeechSubmitted=true; // no retry even after uncertain partial provider send
+  const receipt=sendApprovedLiteAudio(entry.session,audio.pcm24kBinary,{
+    mediaReady:entry.mediaReady,frames:entry.keyer?.getFrames?.()||0,
+    sourceApproved:true
+  });
+  report('Submitted ONE '+receipt.durationSeconds.toFixed(2)+'s approved voice take as '+
+    receipt.packetCount+' documented Base64 provider WS chunks, one speak_end. '+
+    'Wait for agent.speak_started and agent.speak_ended; inspect audio/lip sync '+
+    'and moving recording before approval. Never auto-retry.');
  }catch(error){
   report('Nora speech submission failed. Verify provider status and SDK audio protocol before another attempt. '+String(error?.message||error));
  }finally{
