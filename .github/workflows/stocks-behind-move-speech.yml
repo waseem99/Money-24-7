@@ -1,7 +1,6 @@
 name: Stocks Behind the Move speech
 on:
-  pull_request:
-    paths: ['.github/workflows/stocks-behind-move-speech.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
