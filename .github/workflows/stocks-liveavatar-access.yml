@@ -21,3 +21,4 @@ jobs:
           node network/live-avatar/direct-setup.mjs credits
           node network/live-avatar/direct-setup.mjs presets
 # Final read-only balance after completed sequential presenter captures.
+# Read-only balance after approved Amina matched-voice V2 take.
