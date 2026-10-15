@@ -1,8 +1,6 @@
 name: Stocks Dexter real capture once
 on:
-  push:
-    branches: [feat/stocks-free-presets-amina-dexter-20261014]
-    paths: [.github/workflows/stocks-dexter-capture-once.yml]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
