@@ -1,0 +1,93 @@
+[
+  {
+    "id": "01",
+    "speaker": "Amina",
+    "text": "Everyone sees the AI headlines. But behind every chatbot is a much bigger business story: chips, buildings, electricity—and the race to turn spending into profit. Welcome to Stocks. This is Behind the Move.",
+    "voice_id": "47211675cf674b82aa4fdbe6a785c9b3",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "02",
+    "speaker": "Dexter",
+    "text": "And the key question is who actually gets paid. A company building AI infrastructure is somebody else's customer. But collecting revenue and earning a lasting return are two different things.",
+    "voice_id": "7a544b76e07648849ed54617f18ea280",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "03",
+    "speaker": "Amina",
+    "text": "So let's follow the money. Start with the companies buying computing capacity.",
+    "voice_id": "47211675cf674b82aa4fdbe6a785c9b3",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "04",
+    "speaker": "Dexter",
+    "text": "Their spending reaches chip and networking suppliers, construction firms, and the businesses running data centers. Cloud providers then sell access to that computing power. Each link has different costs, customers and risks.",
+    "voice_id": "7a544b76e07648849ed54617f18ea280",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "05",
+    "speaker": "Amina",
+    "text": "And the physical infrastructure matters just as much as the software. Our AI infrastructure correspondent has been reviewing the energy picture. What stands out?",
+    "voice_id": "47211675cf674b82aa4fdbe6a785c9b3",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "06",
+    "speaker": "Correspondent",
+    "text": "The scale of the power requirement. The International Energy Agency projects global data-center electricity consumption rising from about four hundred eighty-five terawatt-hours in twenty twenty-five to nine hundred fifty in twenty thirty. That's a projection for all data centers, not AI alone.",
+    "voice_id": "00e3d285aba44b27a83c47c02c9c2d9c",
+    "engine": "starfish"
+  },
+  {
+    "id": "07",
+    "speaker": "Dexter",
+    "text": "Does that mean every electricity supplier benefits?",
+    "voice_id": "7a544b76e07648849ed54617f18ea280",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "08",
+    "speaker": "Correspondent",
+    "text": "No. Location, grid access and equipment availability matter. The IEA identifies constraints across electricity connections and supply chains. A project announcement doesn't tell us when a facility will actually be operating.",
+    "voice_id": "00e3d285aba44b27a83c47c02c9c2d9c",
+    "engine": "starfish"
+  },
+  {
+    "id": "09",
+    "speaker": "Amina",
+    "text": "So there is a difference between announcing investment and delivering capacity.",
+    "voice_id": "47211675cf674b82aa4fdbe6a785c9b3",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "10",
+    "speaker": "Dexter",
+    "text": "Exactly. And capacity still needs paying customers. Microsoft's latest fiscal fourth-quarter call illustrates the tension: it reported strong cloud demand, while saying infrastructure investment and other factors weighed on its cloud gross-margin percentage.",
+    "voice_id": "7a544b76e07648849ed54617f18ea280",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "11",
+    "speaker": "Amina",
+    "text": "Strong demand, but a real cost to serve it.",
+    "voice_id": "47211675cf674b82aa4fdbe6a785c9b3",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "12",
+    "speaker": "Dexter",
+    "text": "That's why we'll track three things: spending commitments, capacity actually delivered, and whether revenue turns into cash. More investment alone doesn't answer that last question.",
+    "voice_id": "7a544b76e07648849ed54617f18ea280",
+    "engine": "heygen_voice"
+  },
+  {
+    "id": "13",
+    "speaker": "Amina",
+    "text": "The AI story reaches far beyond one chipmaker. The next chapter is about execution—and returns. That's Behind the Move, on Stocks.",
+    "voice_id": "47211675cf674b82aa4fdbe6a785c9b3",
+    "engine": "heygen_voice"
+  }
+]
