@@ -1,5 +1,9 @@
 # Stocks Stage 3 — Direct LiveAvatar setup, no TinyFish
 
+**Current recommended no-purchase trial:** [Free Amina/Dexter walkthrough](FREE_PRESET_AMINA_DEXTER_TEST.md). Important correction: the **zero-credit sandbox is WAYNE ONLY**; custom Nora and public Amina/Dexter cannot be tested with `is_sandbox:true`. Amina/Dexter are tested under the **Free PLAN's included credits** with `is_sandbox:false`, 1 session at a time, watermarks. Never confuse Free and Sandbox.
+
+
+
 Client requirement: no browser-automation fees or TinyFish top-up. This setup runs the official LiveAvatar API from the user's workstation, with a zero-network doctor, read-only credits/avatars checks, and explicit one-shot token creation.
 
 ## One-time LiveAvatar dashboard setup
@@ -27,9 +31,9 @@ Copy the API key into the ignored local file .stocks-liveavatar.local.key (one k
 Doctor makes ZERO network requests. Credits and avatars use GET requests to LiveAvatar only; they do not start a session or spend avatar minutes. If no READY custom Nora appears, return to provider's dashboard and finish enrollment.
 
 ## Free LiveAvatar sandbox test (not TinyFish)
-A free public test avatar may work in sandbox. For the approved Nora character, the account must allow that avatar. Run with the ACTUAL ID obtained from the provider:
+The official zero-credit sandbox supports ONLY Wayne (ID shown below), not Amina, Dexter or our custom Nora. To use the Amina/Dexter Free plan credits instead, follow [the free-preset walkthrough](FREE_PRESET_AMINA_DEXTER_TEST.md). Sandbox command:
 
-    npm run stocks:liveavatar -- sandbox-token --avatar-id YOUR_ACTUAL_ID --confirm-one-session
+    npm run stocks:liveavatar -- sandbox-token --avatar-id dd73ea75-1218-4ef3-92ce-606d5f7fbc0a --confirm-one-session
 
 This mints exactly one LITE/is_sandbox=true session token, capped to 45 seconds, and prints it to the LOCAL terminal. It does NOT itself start video. Paste it only in the private operator lab; never into chat. The sandbox costs no streaming credits where the account is eligible, but creating a custom avatar can still require a paid LiveAvatar plan.
 
