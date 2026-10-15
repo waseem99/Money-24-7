@@ -35,14 +35,15 @@ try{
   const bytes=Uint8Array.from(atob(audioBase64),c=>c.charCodeAt(0));
   const prepared=await prepareLiteAudioFile(new File([bytes],'approved.wav',{type:'audio/wav'}));
   const session=new LiveAvatarSession(token,{apiUrl:location.origin+'/api/liveavatar',voiceChat:false});
-  const video=document.createElement('video');video.autoplay=true;video.playsInline=true;document.body.append(video);
+  const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
+  video.style.cssText='position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:999999!important';document.body.replaceChildren(video);
   const result={frames:0,speechStarted:false,speechEnded:false,providerError:false,audioTracks:0,videoTracks:0,stopped:false};
   let recorder,observer,watchdog;
   const chunks=[];
   const frame=()=>{result.frames++;video.requestVideoFrameCallback(frame);};
   const deadline=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('Bounded capture timeout')),ms))]);
-  const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{session.attach(video);resolve();}));
-  watchdog=setTimeout(()=>{void session.stop();},35000);
+  const ready=new Promise(resolve=>session.on(SessionEvent.SESSION_STREAM_READY,()=>{video.srcObject=new MediaStream([session._remoteVideoTrack.mediaStreamTrack,session._remoteAudioTrack.mediaStreamTrack]);resolve();}));
+  watchdog=setTimeout(()=>{void session.stop();},40000);
   try{
    await deadline(session.start(),18000);
    await deadline(ready,8000);
@@ -50,7 +51,8 @@ try{
    await new Promise(r=>setTimeout(r,750));
    try{await video.play();}catch(e){if(e.name!=='AbortError')throw e;await new Promise(r=>setTimeout(r,500));await video.play();}
    video.requestVideoFrameCallback(frame);
-   await new Promise(r=>setTimeout(r,1200));
+   for(let n=0;n<30&&result.frames<10;n++)await new Promise(r=>setTimeout(r,200));
+   Object.assign(result,{videoWidth:video.videoWidth,videoHeight:video.videoHeight,readyState:video.readyState,paused:video.paused});
    if(result.frames<10)throw Error('No genuine incoming video frames');
    const stream=video.srcObject;
    result.audioTracks=stream.getAudioTracks().length;result.videoTracks=stream.getVideoTracks().length;
@@ -75,6 +77,7 @@ try{
   let binary='';for(let p=0;p<buffer.length;p+=8192)binary+=String.fromCharCode(...buffer.subarray(p,p+8192));
   return {...result,webm:btoa(binary)};
  },{token:sessionToken,audioBase64:audio.toString('base64')});
+ await page.screenshot({path:out+'/source-inspection.png'});
  const {webm,...proof}=result;
  if(webm)await writeFile(out+'/amina-source.webm',Buffer.from(webm,'base64'));
  Object.assign(report,proof,{sessionStopped:proof.stopped});
