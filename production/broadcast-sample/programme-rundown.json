@@ -1,0 +1,13 @@
+{
+  "title": "The Business Brief",
+  "ticker": "EARNINGS CHECKLIST    /    REVENUE    /    OPERATING MARGIN    /    CASH FLOW    /    MANAGEMENT OUTLOOK    /    EDUCATIONAL DEMO    /    ",
+  "segments": [
+    {"kind":"opener","duration":5,"audio":"program-package/open.mp3"},
+    {"kind":"studio","duration":8,"source":"full-frame-review/source.mp4","headline":"What matters beyond revenue?","strap":"THE BUSINESS BRIEF","topics":"MARGINS  /  CASH FLOW  /  OUTLOOK"},
+    {"kind":"studio","duration":12.25,"source":"segment-review/scene-1.mp4","headline":"What operating margin tells us","strap":"MARCUS  /  PROFITABILITY","topics":"OPERATING PROFIT DIVIDED BY REVENUE"},
+    {"kind":"studio","duration":12.25,"source":"segment-review/scene-2.mp4","headline":"Profit and cash flow can differ","strap":"NORA  /  CASH GENERATION","topics":"EARNINGS EXPLAINER  /  BUSINESS FUNDAMENTALS"},
+    {"kind":"studio","duration":12.25,"source":"segment-review/scene-3.mp4","headline":"The earnings checklist","strap":"MARCUS  /  THE TAKEAWAY","topics":"REVENUE  /  MARGINS  /  CASH FLOW  /  OUTLOOK"},
+    {"kind":"handoff","duration":8.875,"audio":"program-package/handoff.mp3"},
+    {"kind":"next","duration":5.25,"audio":"program-package/next.mp3"}
+  ]
+}
