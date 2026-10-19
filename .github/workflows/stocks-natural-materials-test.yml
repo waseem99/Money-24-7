@@ -1,0 +1,43 @@
+name: Stocks natural materials test
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/stocks-natural-materials-test.yml']
+permissions:
+  contents: read
+concurrency:
+  group: stocks-natural-materials-test
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Prepare worker
+        run: |
+          cat > test.mjs <<'NODE'
+          import fs from 'node:fs';
+          fs.mkdirSync('test-output',{recursive:true});
+          async function api(path,body){const r=await fetch('https://api.heygen.com'+path,{method:body?'POST':'GET',headers:{'X-Api-Key':process.env.HEYGEN_API_KEY,...(body?{'Content-Type':'application/json','Idempotency-Key':'stocks-natural-master-test-20261019-v1'}:{})},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(90000)});if(!r.ok)throw Error('HTTP '+r.status+'; do not blindly retry');const j=await r.json();return j.data??j;}
+          const before=await api('/v3/users/me');console.log(JSON.stringify({balanceBefore:before.wallet?.remaining_balance}));
+          if(before.wallet?.currency!=='usd'||before.wallet.remaining_balance<1.8)throw Error('Budget gate');
+          const ledger={state:'submitting',masterAsset:'a6bd64f0ff0d4e66aa3a483a342f7de9',reviewStatus:'unreviewed',mode:'image_to_video'};
+          const save=()=>fs.writeFileSync('test-output/ledger.json',JSON.stringify(ledger,null,2));save();
+          const job=await api('/v3/models/videos',{"model":"heygen-video-1","mode":"image_to_video","image":{"type":"asset_id","asset_id":"a6bd64f0ff0d4e66aa3a483a342f7de9"},"duration":8,"resolution":"1080p","prompt_enhancement":"disabled","seed":641019,"prompt":"Stocks approved natural-material speaking test. Start from the supplied image and preserve both people's exact facial fullness, proportions, age, hair and matte navy wool clothing throughout. Locked tripod camera, identical framing for all eight seconds. Soft broad frontal lighting and gentle fill, constant exposure. Visible natural fine pores and fine lines; matte woven wool with subtle fabric grain. No retouching, no beauty filter, no glamour lighting, no smoothing, no sharpened cheekbones, no shiny suit edging, no relighting, no camera movement or cuts. Nora on the left says in a natural professional female newsreader voice: \"The headline gets our attention. The details tell us whether the story holds up.\" Marcus on the right remains silent and listens. Start speech immediately and finish naturally within seven seconds. Precise restrained mouth movement, occasional natural blink. Hands rest on the desk, no gestures. Preserve the complete newsroom, no new charts, lettering, logos or subtitles. No music. Low quiet room tone only."});if(!job.video_id)throw Error('Uncertain outcome');
+          ledger.videoId=job.video_id;ledger.state=job.status;save();console.log(JSON.stringify(ledger));
+          for(let i=0;i<20;i++){await new Promise(r=>setTimeout(r,15000));const v=await api('/v3/models/videos/'+ledger.videoId);ledger.state=v.status;save();if(v.status==='failed'||v.status==='cancelled')throw Error('Terminal failure');if(v.status==='completed'){const r=await fetch(v.video_url);if(!r.ok)throw Error('Download failed');fs.writeFileSync('test-output/Stocks-Natural-Materials-Test.mp4',Buffer.from(await r.arrayBuffer()));const after=await api('/v3/users/me');console.log(JSON.stringify({videoId:ledger.videoId,status:v.status,balanceAfter:after.wallet?.remaining_balance}));process.exit(0);}}
+          throw Error('Existing job pending; recover it, do not submit again');
+          
+          NODE
+      - name: Check balance and generate one test
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: node test.mjs
+      - name: Preserve test and ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stocks-natural-materials-test
+          path: test-output/
+          retention-days: 30
