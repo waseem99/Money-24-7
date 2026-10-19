@@ -1,0 +1,69 @@
+name: Stocks premium news demo
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/stocks-premium-demo.yml']
+permissions:
+  contents: read
+concurrency:
+  group: stocks-premium-demo
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Create worker
+        run: |
+          cat > demo.mjs <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const out='demo-output';fs.mkdirSync(out,{recursive:true});
+          const scenes=[{"id":"01","duration":15,"shot":"Same seated two-shot. Nora speaks, Marcus listens.","text":"Nora says: \"Welcome to Stocks. It's October nineteenth. Technology shares rebounded at the opening bell after last week's selloff. Marcus, what makes this more than a bounce?\""},{"id":"02","duration":15,"shot":"Medium shot of Marcus seated at the same desk, Nora at edge of frame.","text":"Marcus says: \"Earnings. Investors want evidence that artificial intelligence spending is turning into growth. A rising share price gets attention. Revenue, margins and cash flow tell us more.\""},{"id":"03","duration":15,"shot":"Both anchors now standing at the same studio's large market wall. Wide natural shot, same outfits and faces. Nora takes one slow step toward Marcus, then stops before speaking. Wall has abstract teal light only, no text.","text":"Nora says: \"Let's put the opening moves in perspective. The Nasdaq led, the S and P also rose, while the Dow edged lower. This was not an across-the-board rally.\""},{"id":"04","duration":15,"shot":"Medium standing shot of Marcus in same newsroom beside market wall, leave left third clean for graphics.","text":"Marcus says: \"That's why this week's company reports matter. Watch demand, spending and the outlook. A profit beat can still disappoint if management signals slower growth ahead.\""},{"id":"05","duration":15,"shot":"Return to original seated two-shot, identical desk, lighting, clothing and identities. Both alternate naturally.","text":"Nora says: \"And oil prices eased in early trading. Does that change the story?\" Marcus replies: \"It helps the backdrop. But company results still have to justify investor expectations.\""},{"id":"06","duration":15,"shot":"Original seated two-shot, gentle slow camera pullback during closing. Natural professional signoff, both settle still after speaking.","text":"Nora says: \"The takeaway: a rebound is the start of the conversation, not the verdict.\" Marcus replies: \"Watch the results, then the outlook.\" Nora concludes: \"That's Stocks. Thanks for watching.\""}];
+          async function api(path,body,key){
+          const r=await fetch('https://api.heygen.com'+path,{method:body?'POST':'GET',headers:{'X-Api-Key':process.env.HEYGEN_API_KEY,...(body?{'Content-Type':'application/json','Idempotency-Key':key}:{})},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(90000)});
+          if(!r.ok)throw Error('API HTTP '+r.status);let j=await r.json();return j.data??j;
+          }
+          let me=await api('/v3/users/me');let initial=me.wallet?.remaining_balance;
+          console.log(JSON.stringify({initialBalance:initial}));
+          if(typeof initial!=='number'||initial<12)throw Error('Insufficient balance for planned six shots');
+          const ref=await api('/v3/videos/5600a865f6b14d0c87143f00c40a8626');
+          if(!ref.video_url)throw Error('Missing reference');
+          let ledger={initialBalance:initial,scenes:[]};fs.writeFileSync(out+'/ledger.json',JSON.stringify(ledger,null,2));
+          for(const s of scenes){
+          me=await api('/v3/users/me');
+          if(me.wallet.remaining_balance<2.1||initial-me.wallet.remaining_balance>11)throw Error('Budget gate stopped remaining shots');
+          const prompt='Premium Stocks business news. Preserve exactly both anchor identities, voices, clothing and newsroom architecture from <Video 1>. '+s.shot+' '+s.text+' Speak only the quoted dialogue, precise lip sync, natural restrained gestures, no repeated motions. Start within one second, finish by thirteen seconds, hold naturally. No music, no captions, no logos, no readable graphics. Do not announce instructions.';
+          const key='stocks-final-20261019-'+s.id+'-'+crypto.createHash('sha256').update(prompt).digest('hex').slice(0,16);
+          const entry={...s,key,status:'submitting'};ledger.scenes.push(entry);fs.writeFileSync(out+'/ledger.json',JSON.stringify(ledger,null,2));
+          const result=await api('/v3/models/videos',{model:'heygen-video-1',mode:'reference_to_video',prompt,duration:s.duration,resolution:'1080p',aspect_ratio:'16:9',prompt_enhancement:'disabled',reference_videos:[{type:'url',url:ref.video_url}]},key);
+          if(!result.video_id)throw Error('Uncertain submission; do not retry');
+          entry.videoId=result.video_id;entry.status=result.status;fs.writeFileSync(out+'/ledger.json',JSON.stringify(ledger,null,2));console.log(JSON.stringify(entry));
+          let done=false;
+          for(let i=0;i<20;i++){
+          await new Promise(r=>setTimeout(r,15000));
+          const v=await api('/v3/models/videos/'+entry.videoId);entry.status=v.status;
+          fs.writeFileSync(out+'/ledger.json',JSON.stringify(ledger,null,2));
+          if(v.status==='failed'||v.status==='cancelled')throw Error('Scene failed '+s.id);
+          if(v.status==='completed'){
+          const r=await fetch(v.video_url);if(!r.ok)throw Error('Download failed');fs.writeFileSync(out+'/'+s.id+'.mp4',Buffer.from(await r.arrayBuffer()));done=true;break;
+          }
+          }
+          if(!done)throw Error('Pending existing job '+entry.videoId);
+          console.log('Completed '+s.id);
+          }
+          me=await api('/v3/users/me');ledger.finalBalance=me.wallet.remaining_balance;fs.writeFileSync(out+'/ledger.json',JSON.stringify(ledger,null,2));console.log(JSON.stringify({finalBalance:ledger.finalBalance}));
+          
+          NODE
+      - name: Generate six authorized scenes
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: node demo.mjs
+      - name: Preserve results and ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stocks-premium-demo-sources
+          path: demo-output/
+          retention-days: 30
