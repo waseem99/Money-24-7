@@ -65,4 +65,4 @@ if __name__=='__main__':
  for i in [0,1,2,3,5,6]:studio(i,0 if i==0 else 12.5+([1,2,3,5,6].index(i))*15)
  order=['scene-0','open']+[f'scene-{i}' for i in [1,2,3,5,6]]+['end']
  (O/'concat.txt').write_text(''.join(f"file '{s}.mp4'\n" for s in order))
- run(['-f','concat','-safe','0','-i',O/'concat.txt','-c','copy','-movflags','+faststart',O/'Stocks-19-Oct-2026-Final-Demo.mp4'])
+ run(['-f','concat','-safe','0','-i',O/'concat.txt','-c','copy','-movflags','+faststart',O/'Stocks-19-Oct-2026-REVIEW-DRAFT.mp4'])
