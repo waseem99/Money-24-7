@@ -1,0 +1,41 @@
+name: Stocks funded API verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/stocks-api-wallet-check.yml]
+permissions:
+  contents: read
+concurrency:
+  group: stocks-api-wallet-check
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Read funded wallet and approved assets without generating
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key)throw Error('HEYGEN_API_KEY is missing');
+          async function get(path){
+            const r=await fetch('https://api.heygen.com'+path,{headers:{'X-Api-Key':key},redirect:'error',signal:AbortSignal.timeout(20000)});
+            if(!r.ok)throw Error('GET failed: HTTP '+r.status+' at '+path);
+            const j=await r.json();return j.data??j;
+          }
+          const account=await get('/v3/users/me');
+          const report={billing_type:account.billing_type,wallet:account.wallet?{currency:account.wallet.currency,remaining_balance:account.wallet.remaining_balance}:null,assets:[]};
+          for(const [name,id] of [['Nora','0852fdb93d09d8e03143c26179e220f2'],['Marcus','6f83829368a02bd69bf5c03705058d93'],['Alex','e8034da2452a9ee92ae4dcb78c0e4b35']]){
+            const a=await get('/v3/avatars/looks/'+id);
+            report.assets.push({name,status:a.status,engines:a.supported_api_engines});
+          }
+          const v=await get('/v3/videos/5600a865f6b14d0c87143f00c40a8626');
+          report.studio_reference={status:v.status,download_available:typeof v.video_url==='string'};
+          console.log(JSON.stringify(report,null,2));
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## Funded API read-only check\n\n'+JSON.stringify(report,null,2)+'\n\nNo generation requests made. Key and asset URLs omitted.\n');
+          NODE
