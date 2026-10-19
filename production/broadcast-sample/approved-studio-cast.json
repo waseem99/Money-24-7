@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "female": {
+    "provider_name": "Daphne",
+    "avatar_id": "Daphne_public_6",
+    "avatar_type": "studio_avatar",
+    "engine": {
+      "type": "avatar_iii"
+    },
+    "voice_id": "812d4eea4a8442a382dcaf2dbaddbd93",
+    "approval": {
+      "status": "approved_by_user",
+      "date": "2026-10-19",
+      "video_id": "493db57a9b4d887f0ae3654421cbb168",
+      "scope": "presenter realism and speaking test"
+    },
+    "allow_generated_look_replacement": false
+  },
+  "male": {
+    "provider_name": "Albert",
+    "avatar_id": "Albert_public_1",
+    "engine": {
+      "type": "avatar_iii"
+    },
+    "voice_id": "c0590110f2c94e01b349237e78edb7d1",
+    "approval": {
+      "status": "not_rendered_not_approved"
+    }
+  },
+  "production_constraints": {
+    "generate_presenters_separately": true,
+    "full_scene_image_to_video": false,
+    "graphics_composited_separately": true,
+    "lock_voice_ids": true
+  },
+  "observed_test_cost_usd": 0.21,
+  "observed_balance_after_test_usd": 0.17
+}
