@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
 import numpy as np,math,sys,subprocess,base64,re,io,wave
 P=Path(sys.argv[1]);R=Path(__file__).resolve().parent;W,H=1280,720;FPS=24;DURATION=30.25
-GOLD='#dfa733';INK='#111d2b';TEAL='#147e8d';WHITE='#f4f5f5';fonts={}
+GOLD='#bfa36b';INK='#101e30';TEAL='#226b72';WHITE='#f4f1e9';fonts={}
 def font(n,b=False):
  k=(n,b)
  if k not in fonts:fonts[k]=ImageFont.truetype('/usr/share/fonts/opentype/urw-base35/NimbusSans-'+('Bold' if b else 'Regular')+'.otf',n)
@@ -19,16 +19,16 @@ rows=np.clip(((math.pi/2-lat)/math.pi*799).astype(int),0,799)
 def globe(t):
  cols=(((lon+t*.12+.4)%(2*math.pi))/(2*math.pi)*1599).astype(int);mask=land[rows,cols]/255
  rgb=np.empty((SIZE,SIZE,4),dtype=np.uint8)
- for k,(sea,earth) in enumerate(zip([209,221,225],[196,139,36])):
+ for k,(sea,earth) in enumerate(zip([219,225,226],[181,157,105])):
   val=(sea*(1-mask)+earth*mask)*(.5+.5*light)+shine*52
   rgb[:,:,k]=np.clip(val,0,255)
  rgb[:,:,3]=inside.astype(np.uint8)*255
  return Image.fromarray(rgb)
 # Quiet dotted geographic texture, not decorative invented prices.
-bg=Image.new('RGB',(W,H),'#eceff0');bd=ImageDraw.Draw(bg)
+bg=Image.new('RGB',(W,H),'#f0eee8');bd=ImageDraw.Draw(bg)
 for y in range(16,650,8):
  for x in range(0,1280,8):
-  if land[min(799,int(y/650*799)),min(1599,int(x/1280*1599))]>128:bd.ellipse((x,y,x+1,y+1),fill='#d5dade')
+  if land[min(799,int(y/650*799)),min(1599,int(x/1280*1599))]>128:bd.ellipse((x,y,x+1,y+1),fill='#d8d8d2')
 
 def bug(im):
  d=ImageDraw.Draw(im);d.rectangle((1095,24,1253,76),fill=INK);im.alpha_composite(logo,(1106,30));txt(d,(1146,35),'Stocks',29,'white',True)
@@ -62,10 +62,10 @@ def lower(im,u):
  d=ImageDraw.Draw(im);x=int(-1220*(1-ease(u/.6)))
  # Independently animated accent ribbon, opaque headline and smaller context band.
  d.rectangle((x+42,541,x+942,578),fill=GOLD);txt(d,(x+61,550),'THE BUSINESS BRIEF',18,INK,True)
- d.rectangle((x+34,578,x+1238,636),fill='#f9faf9');txt(d,(x+60,588),'What matters beyond revenue?',36,INK,True)
+ d.rectangle((x+34,578,x+1238,636),fill='#faf8f2');txt(d,(x+60,588),'What matters beyond revenue?',36,INK,True)
  d.rectangle((x+42,636,x+1110,664),fill=TEAL);txt(d,(x+61,643),'MARGINS  /  CASH FLOW  /  OUTLOOK',15,'white',True)
  # A small moving sheen remains within the accent stripe.
- sx=x+42+int(u*90)%900;d.rectangle((sx,541,min(sx+32,x+942),545),fill='#f1d890')
+ sx=x+42+int(u*90)%900;d.rectangle((sx,541,min(sx+32,x+942),545),fill='#dfd0af')
 
 def analysis(u,t):
  im=background(t);d=ImageDraw.Draw(im);bug(im)
