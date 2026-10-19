@@ -23,7 +23,7 @@ Scope: read-only provider requests, existing read-only workflow re-runs and repo
 
 ## What remains unverified
 
-- Whether the funded API key can access the exact three private looks enumerated through the ChatGPT connector. Cross-connection visibility must be verified before generation.
+- RESOLVED: funded-key access to all three private looks passed exact-ID checks in run 39232885976, job 117994863786. All completed photo avatars report Avatar IV support. Both exact voice checks also passed; zero generation calls.
 - Final Nora/Marcus voice bindings and suitability for the new reference target. Existing Amina/Dexter narration is an available candidate, not a newly approved character pairing.
 - Other vendor's presenters, studio source files, voice assets and rights. They were not found in the three returned private character entries.
 - Eight-person production cast, natural paired listening, entrances, matting and repeatability. None established by catalog completion.
@@ -31,6 +31,6 @@ Scope: read-only provider requests, existing read-only workflow re-runs and repo
 
 ## Next implementation
 
-Prepare a fixed identity manifest with explicit look/voice/engine and provenance. Repair read-only catalog validation, verify those exact IDs using the funded credential path, and align the speech adapter with the already available approved narration route. Then prepare the bounded paired audition. No new subscription is justified by this audit alone.
+Completed: fixed identity candidate manifest, semantic read-only exact-ID workflow, and offline four-turn audition payload preparation with explicit HeyGen speech/Avatar IV bindings and duration/cost checks. See FIXED_CAST_AUDITION.md. Local suite: 88 tests passed. Alex remains disabled without a voice. Still pending: gated paid submission integrated with the job ledger, main adapter convergence, and real rendered performance/compositing review. No new subscription is justified by this audit alone.
 
 Documentation checked: https://developers.heygen.com/generate-avatar-video and https://developers.heygen.com/transparent-background-videos . Default engine and transparency statements are capability documentation, not proof of the specific assets' output.
