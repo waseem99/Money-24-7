@@ -1,0 +1,44 @@
+{
+  "title": "The Business Brief — Beyond Revenue",
+  "type": "Evergreen educational studio demo",
+  "durationSeconds": 48,
+  "referenceImageAsset": "dc945d4cf6b64e1aa7a458f26942e113",
+  "voiceReferenceAssets": {
+    "Nora": "60fc908734624c779fd5c91818016833",
+    "Marcus": "97d71268420e4d07a8bf39109955209f"
+  },
+  "scenes": [
+    {
+      "title": "01 Opening",
+      "speaker": "Nora",
+      "line": "Welcome to The Business Brief. Revenue tells us how much a company sells. Marcus, what should we examine next?"
+    },
+    {
+      "title": "02 Margins",
+      "speaker": "Marcus",
+      "line": "Start with operating margin: operating profit divided by revenue. Sales can rise while profitability weakens, if costs grow faster. Nora, what about cash?"
+    },
+    {
+      "title": "03 Cash flow",
+      "speaker": "Nora",
+      "line": "Operating cash flow shows cash generated or used by the business. Accounting profit and cash flow can differ, so compare both over time."
+    },
+    {
+      "title": "04 Close",
+      "speaker": "Marcus",
+      "line": "Then read management's outlook and its assumptions. Revenue, margins, cash flow, and guidance belong together. That is your earnings checklist, here on Stocks."
+    }
+  ],
+  "qualityGates": [
+    "No presenter occlusion",
+    "No collage or slide replacement",
+    "Continuous ticker",
+    "Consistent faces and studio across cuts",
+    "Listening review of voice continuity, words and lip sync"
+  ],
+  "limitations": [
+    "Reference audio conditions generated speech; it is not exact TTS voice binding.",
+    "Generated background monitors are decorative, not factual market feeds.",
+    "No current prices or market-news claims."
+  ]
+}
