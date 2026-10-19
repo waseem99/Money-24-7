@@ -1,0 +1,43 @@
+name: Stocks newsroom motion proof
+on:
+  push:
+    branches: [feat/stocks-production-roadmap-20261019]
+    paths: [.github/workflows/stocks-newsroom-motion.yml]
+permissions:
+  contents: write
+concurrency:
+  group: stocks-newsroom-motion-v1
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.repository == 'waseem99/Money-24-7' && github.ref == 'refs/heads/feat/stocks-production-roadmap-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Single-attempt lock
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/waseem99/Money-24-7/git/refs -f ref=refs/tags/stocks-newsroom-motion-20261019-v1 -f sha=${{ github.sha }}
+      - name: Generate one eight-second proof
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          const body={"model":"heygen-video-1","mode":"reference_to_video","duration":8,"resolution":"1080p","aspect_ratio":"16:9","prompt_enhancement":"disabled","seed":20261019,"reference_images":[{"type":"asset_id","asset_id":"201a28c663bd48a0b4c26ddfecde1ae3"}],"reference_audio":[{"type":"asset_id","asset_id":"60fc908734624c779fd5c91818016833"},{"type":"asset_id","asset_id":"97d71268420e4d07a8bf39109955209f"}],"prompt":"Stocks newsroom motion proof. One continuous full-screen two-anchor medium-wide shot, locked eye-level broadcast camera. Picture 1 is a contact sheet: use ONLY its upper large scene as the spatial composition and its lower faces as identity references. NEVER render a collage, split-screen or inset. Preserve Nora left and Marcus right, same exact identities, hair, navy clothes and realistic ages. Preserve glass desk, tablets, newsroom glass railings, editorial desks, light columns and camera positions. Neutral light with restrained amber and cobalt. Editorial staff in background make small independent working movements, one person slowly walks behind distant desks. Monitor feeds subtly change, never flash or become white slides. Architecture must remain fixed. Nora speaks first, matching the female voice timbre and accent of Audio 1, saying exactly: 'Marcus, what matters beyond revenue?' Marcus listens with mouth closed and slight attentive gaze. Then Marcus responds using male voice timbre and accent of Audio 2, saying exactly: 'Margins, cash flow, and whether growth can last.' Nora stops speaking, naturally turns eyes toward Marcus and listens with a single small nod. One speaker at a time, accurate synchronized lips, restrained non-repeating gestures, natural blinking. Hands stay near desk and do not manipulate props. Audio references are voice identity samples, not dialogue to repeat. Clear foreground voices, subtle newsroom room tone, no music, no voiceover, no subtitles, no ticker, no invented logos, no live badge. No beauty retouching, no face changes, no looping idle motion. Eight seconds total."};
+          fs.mkdirSync('motion-output',{recursive:true});
+          async function req(path,b){const r=await fetch('https://api.heygen.com'+path,{method:b?'POST':'GET',headers:{'x-api-key':key,'content-type':'application/json',...(b?{'Idempotency-Key':'stocks-newsroom-motion-20261019-v1'}:{})},body:b?JSON.stringify(b):undefined,signal:AbortSignal.timeout(90000)});const j=await r.json();if(!r.ok){console.log(JSON.stringify({http:r.status,error:j.error?.code,message:j.error?.message}));throw Error('Provider request failed');}return j.data??j;}
+          const v=await req('/v3/models/videos',body);fs.writeFileSync('motion-output/job.json',JSON.stringify(v));console.log(JSON.stringify({videoId:v.video_id,status:v.status}));
+          for(let i=0;i<45;i++){await new Promise(r=>setTimeout(r,20000));const s=await req('/v3/models/videos/'+v.video_id);if(['failed','cancelled'].includes(s.status)){console.log(JSON.stringify({status:s.status,message:s.failure_message}));throw Error('No regeneration');}if(s.status==='completed'){const r=await fetch(s.video_url);if(!r.ok)throw Error('Download failed');fs.writeFileSync('motion-output/Stocks-Newsroom-Motion.mp4',Buffer.from(await r.arrayBuffer()));fs.writeFileSync('motion-output/result.json',JSON.stringify({videoId:v.video_id,status:s.status,duration:s.duration,width:s.width,height:s.height}));console.log(JSON.stringify({videoId:v.video_id,status:s.status}));process.exit(0);}}
+          throw Error('Pending; recover existing job');
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-newsroom-motion-v1
+          path: motion-output/
+          retention-days: 30

@@ -1,0 +1,43 @@
+name: Stocks Nora precision lipsync
+on:
+  push:
+    branches: [feat/stocks-production-roadmap-20261019]
+    paths: [.github/workflows/stocks-nora-lipsync.yml]
+permissions:
+  contents: write
+concurrency:
+  group: stocks-nora-lipsync-v1
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.repository == 'waseem99/Money-24-7' && github.ref == 'refs/heads/feat/stocks-production-roadmap-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Single-attempt lock
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/waseem99/Money-24-7/git/refs -f ref=refs/tags/stocks-nora-lipsync-20261019-v1 -f sha=${{ github.sha }}
+      - name: Repair existing Nora opening
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          const body={"video":{"type":"url","url":"https://resource2.heygen.ai/videos/71bf0d29eee949f398aaa5204fce059e/71bf0d29eee949f398aaa5204fce059e/01a153d7-dfd4-7e95-a921-4c81054aebbe.mp4"},"audio":{"type":"asset_id","asset_id":"80ce96bbf29240f28dd7f975e7f53210"},"mode":"precision","title":"Stocks Nora opening precision repair","enable_dynamic_duration":false,"enable_speech_enhancement":false,"keep_the_same_format":true,"fps_mode":"passthrough"};
+          fs.mkdirSync('motion-output',{recursive:true});
+          async function req(path,b){const r=await fetch('https://api.heygen.com'+path,{method:b?'POST':'GET',headers:{'x-api-key':key,'content-type':'application/json',...(b?{'Idempotency-Key':'stocks-nora-lipsync-20261019-v1'}:{})},body:b?JSON.stringify(b):undefined,signal:AbortSignal.timeout(90000)});const j=await r.json();if(!r.ok){console.log(JSON.stringify({http:r.status,error:j.error?.code,message:j.error?.message}));throw Error('Provider request failed');}return j.data??j;}
+          const v=await req('/v3/lipsyncs',body);fs.writeFileSync('motion-output/job.json',JSON.stringify(v));console.log(JSON.stringify({videoId:v.lipsync_id,status:v.status}));
+          for(let i=0;i<45;i++){await new Promise(r=>setTimeout(r,20000));const s=await req('/v3/lipsyncs/'+v.lipsync_id);if(['failed','cancelled'].includes(s.status)){console.log(JSON.stringify({status:s.status,message:s.failure_message}));throw Error('No regeneration');}if(s.status==='completed'){const r=await fetch(s.video_url);if(!r.ok)throw Error('Download failed');fs.writeFileSync('motion-output/Stocks-Nora-Precision.mp4',Buffer.from(await r.arrayBuffer()));fs.writeFileSync('motion-output/result.json',JSON.stringify({videoId:v.lipsync_id,status:s.status,duration:s.duration,width:s.width,height:s.height}));console.log(JSON.stringify({videoId:v.lipsync_id,status:s.status}));process.exit(0);}}
+          throw Error('Pending; recover existing job');
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-nora-lipsync-v1
+          path: motion-output/
+          retention-days: 30

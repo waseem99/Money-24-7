@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "status": "audition-candidates-not-client-approved",
+  "verificationRun": "https://github.com/waseem99/Money-24-7/actions/runs/39232885976",
+  "videoEngine": "avatar_iv",
+  "speechEngine": "heygen_voice",
+  "characters": {
+    "nora": {"lookId":"0852fdb93d09d8e03143c26179e220f2","voiceId":"47211675cf674b82aa4fdbe6a785c9b3","voiceName":"Amina - IA","enabled":true},
+    "marcus": {"lookId":"6f83829368a02bd69bf5c03705058d93","voiceId":"7a544b76e07648849ed54617f18ea280","voiceName":"Dexter - Professional","enabled":true},
+    "alex": {"lookId":"e8034da2452a9ee92ae4dcb78c0e4b35","voiceId":null,"voiceName":null,"enabled":false}
+  }
+}

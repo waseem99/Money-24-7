@@ -1,0 +1,49 @@
+{
+  "recordedAt": "2026-10-19",
+  "references": [
+    {
+      "id": "REF-1",
+      "name": "WhatsApp Video 2026-10-16 at 12.22.43 PM.mp4",
+      "sha256": "629c5e98353de969a25bddc685cf1fedc3325fe2befcaeb7c9fa789331602769",
+      "durationSeconds": 129.896667,
+      "width": 848,
+      "height": 480,
+      "frameRate": "1167900/38969",
+      "hasAudio": true,
+      "original1080Master": false,
+      "qualityStatus": "metadata only; human audiovisual review required",
+      "approval": "Client approval reported by project owner; source workflow and rights not yet verified"
+    },
+    {
+      "id": "REF-2",
+      "name": "WhatsApp Video 2026-10-19 at 1.39.22 PM.mp4",
+      "sha256": "82749b5d080f6906f3f850c27d1341ee05a21c7b4e4ecce8c73f2dc66c116951",
+      "durationSeconds": 119.486667,
+      "width": 848,
+      "height": 480,
+      "frameRate": "537150/17923",
+      "hasAudio": true,
+      "original1080Master": false,
+      "qualityStatus": "metadata only; human audiovisual review required",
+      "approval": "Client approval reported by project owner; source workflow and rights not yet verified"
+    },
+    {
+      "id": "REF-3",
+      "name": "WhatsApp Video 2026-10-19 at 1.39.21 PM.mp4",
+      "sha256": "7b5b7437d66ce9aa116c911ab2ee7ec48cd135da8e48ce1a0dbfb25218debd12",
+      "durationSeconds": 121.688333,
+      "width": 848,
+      "height": 480,
+      "frameRate": "2188200/73013",
+      "hasAudio": true,
+      "original1080Master": false,
+      "qualityStatus": "metadata only; human audiovisual review required",
+      "approval": "Client approval reported by project owner; source workflow and rights not yet verified"
+    }
+  ],
+  "limitations": [
+    "Metadata and visual frame sampling only; no full audio/lip-sync certification",
+    "Media retained privately; not uploaded to public repository",
+    "Approved visual references do not certify our pipeline"
+  ]
+}

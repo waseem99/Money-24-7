@@ -1,0 +1,46 @@
+name: Stocks earnings segment
+on:
+  push:
+    branches: [feat/stocks-production-roadmap-20261019]
+    paths: [.github/workflows/stocks-earnings-segment.yml]
+permissions:
+  contents: write
+concurrency:
+  group: stocks-earnings-segment-v1
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.repository == 'waseem99/Money-24-7' && github.ref == 'refs/heads/feat/stocks-production-roadmap-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Single-attempt lock
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/waseem99/Money-24-7/git/refs -f ref=refs/tags/stocks-earnings-segment-20261019-v1 -f sha=${{ github.sha }}
+      - name: Generate four twelve-second scenes
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const key=process.env.HEYGEN_API_KEY;
+          const scenes=[{"title":"01 Opening","speaker":"Nora","line":"Welcome to The Business Brief. Revenue tells us how much a company sells. Marcus, what should we examine next?"},{"title":"02 Margins","speaker":"Marcus","line":"Start with operating margin: operating profit divided by revenue. Sales can rise while profitability weakens, if costs grow faster. Nora, what about cash?"},{"title":"03 Cash flow","speaker":"Nora","line":"Operating cash flow shows cash generated or used by the business. Accounting profit and cash flow can differ, so compare both over time."},{"title":"04 Close","speaker":"Marcus","line":"Then read management's outlook and its assumptions. Revenue, margins, cash flow, and guidance belong together. That is your earnings checklist, here on Stocks."}];
+          const base={"model":"heygen-video-1","mode":"reference_to_video","duration":12,"resolution":"1080p","aspect_ratio":"16:9","prompt_enhancement":"disabled","seed":20261019,"reference_images":[{"type":"asset_id","asset_id":"dc945d4cf6b64e1aa7a458f26942e113"}],"reference_audio":[{"type":"asset_id","asset_id":"60fc908734624c779fd5c91818016833"},{"type":"asset_id","asset_id":"97d71268420e4d07a8bf39109955209f"}],"prompt":""};
+          fs.mkdirSync('segment-output',{recursive:true});
+          async function req(path,b,id){const r=await fetch('https://api.heygen.com'+path,{method:b?'POST':'GET',headers:{'x-api-key':key,'content-type':'application/json',...(b?{'Idempotency-Key':id}:{})},body:b?JSON.stringify(b):undefined,signal:AbortSignal.timeout(90000)});const j=await r.json();if(!r.ok)throw Error('Provider HTTP '+r.status+' '+(j.error?.code??''));return j.data??j;}
+          const jobs=[];
+          for(let i=0;i<scenes.length;i++){const scene=scenes[i];const prompt='Stocks earnings explainer scene '+(i+1)+'. One continuous full-screen locked medium-wide camera matching Picture 1 exactly. Same Nora left and Marcus right, same faces, navy clothing, shared glass desk, editorial newsroom and neutral amber/cobalt lighting. Both heads and hands visible, lower 15 percent safe for graphics. No collage, no cuts, no zoom. Only '+scene.speaker+' speaks this exact dialogue at a natural broadcast pace: "'+scene.line+'". Nora uses female voice Audio 1; Marcus uses male voice Audio 2. Audio references define voices, never repeat their sample words. Other presenter listens with mouth closed, subtle natural gaze, no repeated gestures. Allow a short natural pause at beginning and end. Background staff make small working movements, monitors change gently. Fixed architecture and desk. No subtitles, no logos, no ticker, no music. Clean dialogue and subdued newsroom ambience. Twelve seconds.';
+          const job=await req('/v3/models/videos',{...base,prompt},'stocks-earnings-20261019-v1-'+i);jobs.push({index:i,...scene,videoId:job.video_id});fs.writeFileSync('segment-output/jobs.json',JSON.stringify(jobs,null,2));console.log(JSON.stringify({index:i,videoId:job.video_id}));}
+          const results=await Promise.allSettled(jobs.map(async job=>{for(let n=0;n<45;n++){await new Promise(r=>setTimeout(r,20000));const v=await req('/v3/models/videos/'+job.videoId);if(['failed','cancelled'].includes(v.status))throw Error('Scene '+job.index+' '+v.status);if(v.status==='completed'){const r=await fetch(v.video_url);if(!r.ok)throw Error('Download failed');fs.writeFileSync('segment-output/scene-'+job.index+'.mp4',Buffer.from(await r.arrayBuffer()));const record={...job,status:v.status,url:v.video_url,duration:v.duration};fs.writeFileSync('segment-output/scene-'+job.index+'.json',JSON.stringify(record));console.log(JSON.stringify(record));return record;}}throw Error('Pending scene '+job.index+'; recover existing job');}));
+          fs.writeFileSync('segment-output/results.json',JSON.stringify(results,null,2));if(results.some(r=>r.status==='rejected'))process.exitCode=1;
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-earnings-segment-v1
+          path: segment-output/
+          retention-days: 30

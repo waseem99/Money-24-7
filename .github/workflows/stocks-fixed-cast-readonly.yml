@@ -1,0 +1,52 @@
+name: Stocks fixed cast read-only verification
+on:
+  push:
+    branches: [feat/stocks-production-roadmap-20261019]
+    paths: [.github/workflows/stocks-fixed-cast-readonly.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'waseem99/Money-24-7' && github.ref == 'refs/heads/feat/stocks-production-roadmap-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify fixed look and voice IDs without generating media
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          const key=process.env.HEYGEN_API_KEY;
+          if(!key) throw new Error('Configured key unavailable');
+          const looks=[
+            ['Nora','0852fdb93d09d8e03143c26179e220f2'],
+            ['Marcus','6f83829368a02bd69bf5c03705058d93'],
+            ['Alex','e8034da2452a9ee92ae4dcb78c0e4b35']
+          ];
+          const voices=[
+            ['Amina','47211675cf674b82aa4fdbe6a785c9b3'],
+            ['Dexter','7a544b76e07648849ed54617f18ea280']
+          ];
+          let failures=0;
+          async function read(path){
+            const r=await fetch('https://api.heygen.com'+path,{method:'GET',redirect:'error',headers:{'x-api-key':key},signal:AbortSignal.timeout(20000)});
+            if(!r.ok) return {http:r.status,value:null};
+            const j=await r.json();return {http:r.status,value:j.data??j};
+          }
+          for(const [name,id] of looks){
+            const {http,value:v}=await read('/v3/avatars/looks/'+id);
+            const pass=http===200&&v?.id===id&&v.avatar_type==='photo_avatar'&&v.status==='completed'&&v.supported_api_engines?.includes('avatar_iv');
+            if(!pass)failures++;
+            console.log(JSON.stringify({kind:'look',name,id,http,pass,type:v?.avatar_type??null,status:v?.status??null,engines:v?.supported_api_engines??[],defaultVoiceId:v?.default_voice_id??null}));
+          }
+          for(const [name,id] of voices){
+            const {http,value:v}=await read('/v3/voices/'+id);
+            const pass=http===200&&(v?.voice_id??v?.id)===id&&v?.language==='English'&&v?.gender===(name==='Amina'?'female':'male');
+            if(!pass)failures++;
+            console.log(JSON.stringify({kind:'voice',name,id,http,pass,providerName:v?.name??null,gender:v?.gender??null,language:v?.language??null}));
+          }
+          console.log(JSON.stringify({generationCalls:0,checks:5,failures}));
+          if(failures)process.exitCode=1;
+          JS
