@@ -1,0 +1,46 @@
+name: Stocks approved final segment
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/stocks-approved-final-segment.yml']
+permissions:
+  contents: read
+concurrency:
+  group: stocks-approved-final-segment
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Prepare worker
+        run: |
+          cat > worker.mjs <<'NODE'
+          import fs from 'node:fs';
+          fs.mkdirSync('output',{recursive:true});
+          async function api(path,body,key){const r=await fetch('https://api.heygen.com'+path,{method:body?'POST':'GET',headers:{'X-Api-Key':process.env.HEYGEN_API_KEY,...(body?{'Content-Type':'application/json','Idempotency-Key':key}:{})},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(90000)});if(!r.ok)throw Error('HTTP '+r.status+'; no retry');const j=await r.json();return j.data??j;}
+          const before=await api('/v3/users/me');console.log(JSON.stringify({balanceBefore:before.wallet?.remaining_balance}));if(before.wallet?.currency!=='usd'||before.wallet.remaining_balance<1.8)throw Error('Budget gate');
+          const ledger=[];const save=()=>fs.writeFileSync('output/ledger.json',JSON.stringify(ledger,null,2));
+          for(const scene of [{"key":"opening","speech":"Nora on the left speaks with a warm professional female broadcast voice: \"Welcome to Stocks. This Monday, technology shares are rebounding after last week’s selloff. But can the earnings deliver?\" Marcus listens silently. Start immediately, finish by eleven seconds."},{"key":"analysis","speech":"Marcus on the right speaks with a natural professional male broadcast voice: \"That’s the test, Nora. Investors want evidence that heavy AI spending can produce real returns. Watch revenue, margins, and cash flow.\" Nora listens silently. Start immediately, finish by eleven seconds."},{"key":"closing","speech":"Nora on the left speaks with a warm professional female broadcast voice: \"Lower oil prices are helping sentiment, but company outlooks still matter. We’ll keep the focus on the numbers. Thanks for watching Stocks.\" Marcus listens silently. Start immediately, finish by eleven seconds."}]) {
+           const entry={key:scene.key,state:'submitting'};ledger.push(entry);save();
+           const job=await api('/v3/models/videos',{...{"model":"heygen-video-1","mode":"image_to_video","image":{"type":"asset_id","asset_id":"a6bd64f0ff0d4e66aa3a483a342f7de9"},"duration":12,"resolution":"1080p","prompt_enhancement":"disabled","seed":641019},prompt:"Start from the supplied approved studio image. Preserve exact facial fullness, age, proportions, hair and matte navy wool. Locked tripod two-shot, no cuts or camera motion. Soft broad frontal illumination and gentle fill, constant exposure. Natural skin pores, fine lines and woven matte fabric. No beauty filters, smoothing, shiny edges, glamour lighting, cheekbone sculpting or relighting. Hands rest on desk. Natural restrained speech and blinks. Preserve newsroom. No new text, graphics or music. "+scene.speech},'stocks-approved-final-20261019-v1-'+scene.key);
+           if(!job.video_id)throw Error('Uncertain outcome');entry.videoId=job.video_id;save();console.log(JSON.stringify(entry));
+           let done=false;
+           for(let i=0;i<20;i++){await new Promise(r=>setTimeout(r,15000));const v=await api('/v3/models/videos/'+entry.videoId);entry.state=v.status;save();if(['failed','cancelled'].includes(v.status))throw Error('Terminal failure');if(v.status==='completed'){entry.url=v.video_url;save();const r=await fetch(v.video_url);if(!r.ok)throw Error('Download failed');fs.writeFileSync('output/'+scene.key+'.mp4',Buffer.from(await r.arrayBuffer()));console.log(JSON.stringify(entry));done=true;break;}}
+           if(!done)throw Error('Recover existing pending ID; do not resubmit');
+          }
+          const after=await api('/v3/users/me');console.log(JSON.stringify({balanceAfter:after.wallet?.remaining_balance}));
+          
+          NODE
+      - name: Generate approved segment
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: node worker.mjs
+      - name: Preserve footage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stocks-approved-final-segment
+          path: output/
+          retention-days: 30
