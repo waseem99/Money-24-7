@@ -1,0 +1,38 @@
+name: Stocks studio avatar realism
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/stocks-studio-avatar-realism.yml']
+permissions:
+  contents: read
+concurrency:
+  group: stocks-studio-avatar-realism
+  cancel-in-progress: false
+jobs:
+  test:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Prepare
+        run: |
+          cat > test.mjs <<'NODE'
+          import fs from 'node:fs';
+          fs.mkdirSync('output',{recursive:true});
+          async function api(path,body){const r=await fetch('https://api.heygen.com'+path,{method:body?'POST':'GET',headers:{'X-Api-Key':process.env.HEYGEN_API_KEY,...(body?{'Content-Type':'application/json','Idempotency-Key':'stocks-daphne-studio-realism-20261019-v1'}:{})},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(90000)});if(!r.ok)throw Error('HTTP '+r.status+' '+(await r.text()).slice(0,600));const j=await r.json();return j.data??j;}
+          const before=await api('/v3/users/me');console.log(JSON.stringify({balanceBefore:before.wallet?.remaining_balance}));if(before.wallet?.currency!=='usd'||before.wallet.remaining_balance<0.35)throw Error('Insufficient test budget');
+          const ledger={state:'submitting',avatar:'Daphne_public_6',engine:'avatar_iii'};const save=()=>fs.writeFileSync('output/ledger.json',JSON.stringify(ledger,null,2));save();
+          const job=await api('/v3/videos',{"type":"avatar","avatar_id":"Daphne_public_6","title":"Stocks Daphne studio realism test 20261019","aspect_ratio":"16:9","engine":{"type":"avatar_iii"},"resolution":"1080p","background":{"type":"color","value":"#D9D9D5"},"script":"Welcome to Stocks. A strong headline is only the beginning. We look at revenue, margins, and cash flow to understand the business behind the numbers. Clear reporting starts with evidence.","voice_id":"812d4eea4a8442a382dcaf2dbaddbd93","output_format":"mp4"});ledger.videoId=job.video_id??job.id;if(!ledger.videoId)throw Error('Uncertain submission; do not retry');save();console.log(JSON.stringify(ledger));
+          for(let i=0;i<24;i++){await new Promise(r=>setTimeout(r,15000));const v=await api('/v3/videos/'+ledger.videoId);ledger.state=v.status;save();if(['failed','cancelled'].includes(v.status))throw Error('Terminal failure '+JSON.stringify(v.error??v.failure_message));if(v.status==='completed'){ledger.url=v.video_url;save();console.log(JSON.stringify(ledger));const after=await api('/v3/users/me');console.log(JSON.stringify({balanceAfter:after.wallet?.remaining_balance}));process.exit(0);}}
+          throw Error('Pending existing ID; do not resubmit');
+          NODE
+      - name: Generate one studio-avatar test
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: node test.mjs
+      - name: Save ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-avatar-realism
+          path: output/
