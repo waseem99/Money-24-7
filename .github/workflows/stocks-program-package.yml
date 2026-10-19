@@ -1,0 +1,44 @@
+name: Stocks program package voices
+on:
+  push:
+    branches: [feat/stocks-production-roadmap-20261019]
+    paths: [.github/workflows/stocks-program-package.yml]
+permissions:
+  contents: write
+concurrency:
+  group: stocks-program-package-v1
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.repository == 'waseem99/Money-24-7' && github.ref == 'refs/heads/feat/stocks-production-roadmap-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Single-attempt lock
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/waseem99/Money-24-7/git/refs -f ref=refs/tags/stocks-program-package-20261019-v1 -f sha=${{ github.sha }}
+      - name: Create three exact-script program voiceovers
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';fs.mkdirSync('package-output',{recursive:true});
+          const lines=[{"id":"open","voice_id":"47211675cf674b82aa4fdbe6a785c9b3","text":"This is Stocks. The Business Brief. The stories behind the numbers."},{"id":"handoff","voice_id":"7a544b76e07648849ed54617f18ea280","text":"That is The Business Brief. Coming up next, Earnings Explained: what margins reveal about a business."},{"id":"next","voice_id":"47211675cf674b82aa4fdbe6a785c9b3","text":"Earnings Explained. Beyond the headline, inside the business."}];
+          const ledger=[];
+          for(const line of lines){
+           const r=await fetch('https://api.heygen.com/v3/voices/speech',{method:'POST',headers:{'x-api-key':process.env.HEYGEN_API_KEY,'content-type':'application/json'},body:JSON.stringify({text:line.text,voice_id:line.voice_id,engine:'heygen_voice',speed:1,language:'en'}),signal:AbortSignal.timeout(90000)});
+           if(!r.ok)throw Error('Speech HTTP '+r.status);const j=await r.json();const a=j.data??j;if(!a.audio_url)throw Error('No audio URL');
+           ledger.push({...line,url:a.audio_url});fs.writeFileSync('package-output/ledger.json',JSON.stringify(ledger));console.log(JSON.stringify(ledger.at(-1)));
+           const f=await fetch(a.audio_url);if(!f.ok)throw Error('Download failed');fs.writeFileSync('package-output/'+line.id+'.mp3',Buffer.from(await f.arrayBuffer()));
+          }
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stocks-program-package-v1
+          path: package-output/
+          retention-days: 30
