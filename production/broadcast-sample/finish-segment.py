@@ -20,7 +20,13 @@ for i,(headline,sub) in enumerate(labels):
  card=Image.new('RGBA',(1920,1080));c=ImageDraw.Draw(card);c.rectangle((24,865,1500,975),fill=(7,27,48,235));c.rectangle((24,865,30,975),fill='#b88e49');c.text((48,879),sub,font=ImageFont.truetype(b,18),fill='#e4c390');c.text((48,916),headline,font=ImageFont.truetype(b,29),fill='white');card.save(p/f'card-{i}.png')
 args=['-i',str(p/'joined.mp4'),'-i',str(p/'overlay.png')]
 for i in range(4):args+=['-i',str(p/f'card-{i}.png')]
+durations=[]
+for i in range(4):
+ info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','json',str(p/f'normalized-{i}.mp4')]))
+ durations.append(float(info['format']['duration']))
+bounds=[0]
+for duration in durations:bounds.append(bounds[-1]+duration)
 fc='[0:v][1:v]overlay=0:0[v0];'
-for i in range(4):fc+=f"[v{i}][{i+2}:v]overlay=0:0:enable='between(t,{i*12+0.5},{(i+1)*12-0.25})'[v{i+1}];"
+for i in range(4):fc+=f"[v{i}][{i+2}:v]overlay=0:0:enable='between(t,{bounds[i]+0.5},{bounds[i+1]-0.25})'[v{i+1}];"
 fc+=f"color=c=0x071b30:s=1500x80:r=24,drawtext=fontfile={f}:textfile={p/'ticker.txt'}:fontsize=25:fontcolor=white:x='-t*95':y=28[tick];[v4][tick]overlay=420:998:shortest=1[out]"
-run([*args,'-filter_complex_threads','1','-filter_complex',fc,'-map','[out]','-map','0:a','-t','48','-c:v','libx264','-preset','fast','-crf','18','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart',str(p/'Stocks-The-Business-Brief.mp4')])
+run([*args,'-filter_complex_threads','1','-filter_complex',fc,'-map','[out]','-map','0:a','-t',str(bounds[-1]),'-c:v','libx264','-preset','fast','-crf','18','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart',str(p/'Stocks-The-Business-Brief.mp4')])
