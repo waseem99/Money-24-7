@@ -90,7 +90,13 @@ def frame(t):
  elif t<13:
   idx=min(192,int((t-5)*24)+1);im=Image.open(P/'frames'/f'{idx:03d}.jpg').convert('RGBA');bug(im);strap(im,t-5);crawl(im,t)
  elif t<23:
-  u=t-13;im=plate(u);cam=(math.sin(u*.15)*.10,0,-3.8);texture(im,screen(u),[(-4.65,2.12,2.5),(4.65,2.12,2.5),(4.65,-1.53,2.5),(-4.65,-1.53,2.5)],cam);bug(im);crawl(im,t)
+  u=t-13;im=plate(u);cam=(math.sin(u*.15)*.10,0,-3.8)
+  for x in [-2.6,2.6]:
+   plane(im,[(x-.12,-1.35,2.7),(x+.12,-1.35,2.7),(x+.12,-2.35,2.7),(x-.12,-2.35,2.7)],'#7c8b92',cam,'#b7c4cb')
+   plane(im,[(x-.4,-2.35,2.4),(x+.4,-2.35,2.4),(x+.4,-2.35,3.1),(x-.4,-2.35,3.1)],'#67777e',cam)
+  plane(im,[(-3.98,1.92,2.55),(3.98,1.92,2.55),(3.98,-1.62,2.55),(-3.98,-1.62,2.55)],'#b5c2c8',cam,'#f1eee8')
+  plane(im,[(-3.93,1.87,2.52),(3.93,1.87,2.52),(3.93,-1.57,2.52),(-3.93,-1.57,2.52)],'#030a10',cam)
+  texture(im,screen(u),[(-3.83,1.77,2.5),(3.83,1.77,2.5),(3.83,-1.47,2.5),(-3.83,-1.47,2.5)],cam);bug(im);crawl(im,t)
  else:im=ident(t-23,True)
  # Short wipe across the picture; channel crawl remains uninterrupted on chart transition.
  for cut in [5,13,23]:
