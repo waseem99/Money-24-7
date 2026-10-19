@@ -100,13 +100,16 @@ def frame(t):
   if 0<=u<.5:
    x=int(-1500+ease(u/.5)*3700);d=ImageDraw.Draw(im);d.ellipse((x-640,-420,x+640,1140),fill=TEAL);d.ellipse((x-570,-430,x+570,1130),fill=GOLD);d.ellipse((x-500,-440,x+500,1120),fill=WHITE)
  return im.convert('RGB')
-proc=subprocess.Popen(['ffmpeg','-v','error','-y','-f','rawvideo','-pix_fmt','rgb24','-s','1280x720','-r','24','-i','-','-an','-c:v','libx264','-threads','2','-preset','fast','-crf','18','-pix_fmt','yuv420p',str(P/'silent.mp4')],stdin=subprocess.PIPE)
-for n in range(round(DURATION*FPS)):
- im=frame(n/FPS)
- if n in [72,168,480]:im.save(P/f'frame-{n}.png')
- proc.stdin.write(im.tobytes())
-proc.stdin.close()
-if proc.wait():raise RuntimeError('render failed')
-# Keep original approved speech. The new graphics do not alter presenter identity or audio.
-subprocess.run(['ffmpeg','-v','error','-y','-i',str(P/'silent.mp4'),'-i',str(P.parent/'program-package/open.mp3'),'-i',str(P.parent/'full-frame-review/source.mp4'),'-i',str(P.parent/'segment-review/scene-1.mp4'),'-i',str(P.parent/'program-package/next.mp3'),'-filter_complex','[1:a]apad,atrim=0:30.25[a];[2:a]atrim=0:8,asetpts=PTS-STARTPTS,adelay=5000|5000,apad,atrim=0:30.25[b];[3:a]atrim=0:12.25,asetpts=PTS-STARTPTS,adelay=13000|13000,apad,atrim=0:30.25[c];[4:a]adelay=25250|25250,apad,atrim=0:30.25[d];[a][b][c][d]amix=inputs=4:normalize=0[m]','-map','0:v','-map','[m]','-c:v','copy','-c:a','aac','-b:a','160k','-t','30.25','-movflags','+faststart',str(P/'Stocks-Original-Broadcast-Concept.mp4')],check=True)
-print('Completed 30.25 seconds')
+def main():
+ proc=subprocess.Popen(['ffmpeg','-v','error','-y','-f','rawvideo','-pix_fmt','rgb24','-s','1280x720','-r','24','-i','-','-an','-c:v','libx264','-threads','2','-preset','fast','-crf','18','-pix_fmt','yuv420p',str(P/'silent.mp4')],stdin=subprocess.PIPE)
+ for n in range(round(DURATION*FPS)):
+  im=frame(n/FPS)
+  if n in [72,168,480]:im.save(P/f'frame-{n}.png')
+  proc.stdin.write(im.tobytes())
+ proc.stdin.close()
+ if proc.wait():raise RuntimeError('render failed')
+ # Keep original approved speech. The new graphics do not alter presenter identity or audio.
+ subprocess.run(['ffmpeg','-v','error','-y','-i',str(P/'silent.mp4'),'-i',str(P.parent/'program-package/open.mp3'),'-i',str(P.parent/'full-frame-review/source.mp4'),'-i',str(P.parent/'segment-review/scene-1.mp4'),'-i',str(P.parent/'program-package/next.mp3'),'-filter_complex','[1:a]apad,atrim=0:30.25[a];[2:a]atrim=0:8,asetpts=PTS-STARTPTS,adelay=5000|5000,apad,atrim=0:30.25[b];[3:a]atrim=0:12.25,asetpts=PTS-STARTPTS,adelay=13000|13000,apad,atrim=0:30.25[c];[4:a]adelay=25250|25250,apad,atrim=0:30.25[d];[a][b][c][d]amix=inputs=4:normalize=0[m]','-map','0:v','-map','[m]','-c:v','copy','-c:a','aac','-b:a','160k','-t','30.25','-movflags','+faststart',str(P/'Stocks-Original-Broadcast-Concept.mp4')],check=True)
+ print('Completed 30.25 seconds')
+
+if __name__ == "__main__":main()
