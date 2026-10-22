@@ -59,10 +59,11 @@ export const token = pack => validatePack(pack).slice(0, 12);
 export function command(pack, action = 'APPROVE', target = 'BOTH') {
   return `${action} ${target} ${pack.pilot_id} ${token(pack)}`;
 }
-export function startReview(pack, { reviewer, thread_id, sent_message_id, sent_at }) {
+export function startReview(pack, { reviewer, reviewer_aliases = [], thread_id, sent_message_id, sent_at }) {
   const packHash = validatePack(pack);
+  need(Array.isArray(reviewer_aliases) && reviewer_aliases.every(a => typeof a === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a)), 'Aliases must be verified email addresses');
   need(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reviewer) && thread_id && sent_message_id && date(sent_at), 'Verified reviewer and sent Gmail receipt required');
-  return { schema: 1, pilot_id: pack.pilot_id, pack_hash: packHash, reviewer: reviewer.toLowerCase(), thread_id, sent_message_id, sent_at,
+  return { schema: 1, pilot_id: pack.pilot_id, pack_hash: packHash, reviewer: reviewer.toLowerCase(), reviewer_aliases: reviewer_aliases.map(a => a.toLowerCase()), thread_id, sent_message_id, sent_at,
     status: { P01: 'AWAITING_REVIEW', P02: 'AWAITING_REVIEW' }, processed_message_ids: [], events: [] };
 }
 
@@ -83,7 +84,7 @@ export function processReply(pack, state, message) {
   need(validatePack(pack) === state.pack_hash, 'State does not match sealed pack; new review required');
   need(state.pilot_id === pack.pilot_id, 'Pilot mismatch');
   need(message.id && message.thread_id === state.thread_id, 'Wrong Gmail thread');
-  need(typeof message.from_address === 'string' && message.from_address.toLowerCase() === state.reviewer, 'Wrong reviewer');
+  need(typeof message.from_address === 'string' && [state.reviewer, ...(state.reviewer_aliases || [])].includes(message.from_address.toLowerCase()), 'Wrong reviewer');
   need(message.id !== state.sent_message_id && date(message.sent_at) && Date.parse(message.sent_at) > Date.parse(state.sent_at), 'Original or old message');
   if (state.processed_message_ids.includes(message.id)) return { state, changed: false, reason: 'duplicate' };
   const body = authoredReply(message.text);
@@ -99,7 +100,7 @@ export function processReply(pack, state, message) {
   if (action === 'APPROVE') need(keys.every(k => next.status[k] !== 'CHANGES_REQUESTED'), 'Version has requested changes; send a revised pack');
   for (const k of keys) next.status[k] = action === 'APPROVE' ? 'SCRIPT_APPROVED' : 'CHANGES_REQUESTED';
   next.processed_message_ids.push(message.id);
-  next.events.push({ message_id: message.id, received_at: message.sent_at, reviewer: state.reviewer, action, keys, pack_hash: state.pack_hash, note: note || null });
+  next.events.push({ message_id: message.id, received_at: message.sent_at, reviewer: message.from_address.toLowerCase(), action, keys, pack_hash: state.pack_hash, note: note || null });
   return { state: next, changed: true, reason: action.toLowerCase() };
 }
 export function handoff(pack, state, now) {

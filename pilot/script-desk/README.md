@@ -40,7 +40,7 @@ node pilot/script-desk/cli.mjs check pilot-runs/pack.json
 
 Send the exact sealed drafts with the command printed by `check`. Use `APPROVE P01`, `APPROVE P02` or `APPROVE BOTH`, followed by the pilot ID and pack hash prefix. To request changes use `CHANGES P01` (or P02/BOTH) with the same ID/token, then explain changes on the next line. A changed version needs a new pack and review email; never overwrite the reviewed pack.
 
-After a successful send, record authoritative connector metadata in a private receipt:
+After a successful send, record authoritative connector metadata in a private receipt. Optional `reviewer_aliases` may contain only send-as addresses verified through the same connected Gmail account; never infer aliases from a reply body:
 
 ```json
 {"reviewer":"reviewer@example.org","thread_id":"gmail-thread-id","sent_message_id":"gmail-message-id","sent_at":"2026-01-01T09:00:00Z"}
