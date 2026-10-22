@@ -1,0 +1,39 @@
+name: Tamasha direct API preflight
+
+# Read-only verification on this owner-controlled implementation branch.
+# No pull_request trigger, no generation endpoint, no credential export.
+on:
+  push:
+    branches: [codex/tamasha-script-approval-pilot]
+    paths: [.github/workflows/tamasha-api-preflight.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: tamasha-api-preflight
+  cancel-in-progress: false
+jobs:
+  preflight:
+    if: github.repository == 'waseem99/Money-24-7' && (github.ref == 'refs/heads/codex/tamasha-script-approval-pilot' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify API account and test reserve using GET only
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+        run: node pilot/heygen-api.mjs preflight pilot-runs/api-preflight/report.json 1
+      - name: Preserve private account report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tamasha-api-preflight
+          path: pilot-runs/api-preflight/report.json
+          retention-days: 7
+          if-no-files-found: warn

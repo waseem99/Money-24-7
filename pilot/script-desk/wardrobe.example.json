@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "timezone": "Asia/Karachi",
+  "policy": {
+    "unique_outfit_per_host_per_day": true,
+    "avoid_previous_broadcast_days": 1,
+    "preserve_outfit_on_retry": true
+  },
+  "hosts": [
+    {
+      "host_id": "hamza",
+      "language": "ur-PK",
+      "status": "PENDING",
+      "approval_ref": null,
+      "avatar_identity_id": null,
+      "voice_id": null,
+      "looks": [
+        {
+          "look_id": "hamza_navy_blue_burgundy",
+          "outfit_id": "hamza_navy_blue_burgundy",
+          "label": "Navy suit, light-blue shirt, burgundy tie",
+          "provider_avatar_id": null,
+          "avatar_identity_id": null,
+          "programmes": ["MarketWatch Brief", "The Closing Review", "The Weekly Review", "Monthly Scorecard", "Quarterly Scorecard"],
+          "status": "PENDING",
+          "approval_ref": null,
+          "qa_passed": false
+        }
+      ]
+    }
+  ]
+}
