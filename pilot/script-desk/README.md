@@ -1,6 +1,6 @@
 # Tamasha Script Desk pilot
 
-This bounded pilot creates two five-minute Urdu scripts with English subtitle drafts, sends them for editorial review, and accepts explicit replies against the exact reviewed content. Approval prepares a **no-spend scene handoff**. It never calls a video provider or publishes a programme.
+This bounded pilot creates two five-minute Pakistani Urdu-English scripts with English subtitle drafts, sends them for editorial review, and accepts explicit replies against the exact reviewed content. Approval prepares a **no-spend scene handoff**. It never calls a video provider or publishes a programme.
 
 The existing prepared-video pipeline uses a different, two-host English contract. This pilot has its own one-host Urdu contract; it does not bypass or weaken the earlier pipeline's gates.
 
@@ -15,6 +15,12 @@ The existing prepared-video pipeline uses a different, two-host English contract
 No daily schedule, live exchange feed, automatic publishing or paid-video deployment is installed by this change.
 
 ## Private inputs
+
+### Spoken language and voice direction
+
+Local programmes use conversational urban Pakistani Urdu naturally mixed with everyday English business terms. Use Urdu sentence structure, retain terms such as earnings, market, investors, interest rates, revenue and cash flow, and explain unfamiliar concepts briefly. There is no fixed Urdu/English percentage. Avoid literary Urdu, literal translation, forced slang and accent changes between languages. Use Urdu script plus Latin-script English in voice copy; use Roman Urdu for review unless actual voice testing supports it. The base language field remains `ur-PK`; it does not guarantee a provider's bilingual capability.
+
+Apply the same direction to openings, closings, dialogue and local social cuts. Test each selected voice on conversational and figure-heavy Urdu-English passages before production. Maintain one voice throughout a passage and measure the actual read. A catalogue locale or monolingual preview is insufficient proof. Retain English subtitle drafts; international English programming remains under its existing contract. Approved scripts remain immutable: style revisions require a new sealed version and exact-version review.
 
 Use Node 24 and store all real inputs/output under ignored `pilot-runs/`, outside the public repository. Episode JSON includes programme, host, date, source cutoff/expiry, fact/analysis/example claim ledger, primary source URLs, Urdu spoken blocks, English subtitle drafts and separate visual directions. Target duration is 300 seconds. Word count checks are rough Urdu whitespace estimates, not measured voice timing.
 
