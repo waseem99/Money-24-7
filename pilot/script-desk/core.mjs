@@ -107,7 +107,9 @@ export function handoff(pack, state, now) {
   need(date(now) && validatePack(pack) === state.pack_hash, 'Invalid time or pack');
   const approved = pack.episodes.filter(e => state.status[e.key] === 'SCRIPT_APPROVED');
   return { schema: 1, pilot_id: pack.pilot_id, pack_hash: state.pack_hash, stage: 'PREPRODUCTION_ONLY', render_authorized: false, paid_calls_authorized: false,
+    wardrobe: { status: 'AWAITING_APPROVED_LOOKS' },
     episodes: approved.map(({key,hash,episode}) => ({ key, script_hash: hash, episode_id: episode.episode_id,
+      programme: episode.programme, broadcast_date: episode.broadcast_date, hosts: structuredClone(episode.hosts),
       needs_source_refresh: Date.parse(now) >= Date.parse(episode.expires_at),
       needs_date_refresh: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now)) !== episode.broadcast_date,
       blockers: [...episode.blockers.filter(b => b !== 'Editorial approval pending'), 'Select and approve V11 avatar and voice', 'Measure Urdu read and retime English subtitles', 'Confirm media and source rights', 'Separate video render authorization and budget required'],
