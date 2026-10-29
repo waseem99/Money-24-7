@@ -5,6 +5,7 @@ dist/
 .vercel/
 test-results/
 pilot-runs/
+.data/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
