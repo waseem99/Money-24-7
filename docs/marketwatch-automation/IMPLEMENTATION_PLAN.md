@@ -6,7 +6,7 @@ Updated 5 November 2026. Repository: waseem99/Money-24-7. First implementation: 
 
 Deliver sourced scripts and complete Flow scene packs two hours before each programme, record version-specific email decisions, generate bounded video jobs, then hand clips to the editor and approved masters to Playout.video. Ninety fresh editorial minutes daily; repeats and social derivatives do not count.
 
-Phase 1 is implemented and locally testable. It is NOT a running production service. Live Drive/Gmail transports, script research/generation, video API submission, production scheduling and Playout publishing remain unimplemented. Adding an API key alone will not finish those integrations.
+Phase 1 is implemented and locally testable. Phase 2 now includes PostgreSQL queue schema, calendar-job insertion, leased claims, recovery, incident outbox and an injected-handler worker tick. It is NOT a running production service. PostgreSQL review-state migration, hosted execution, private media storage and real handlers remain pending. Live Drive/Gmail transports, script research/generation, video API submission, production scheduling and Playout publishing remain unimplemented. Adding an API key alone will not finish those integrations.
 
 ## Existing work and integration decision
 
@@ -21,7 +21,7 @@ Phase 1 is implemented and locally testable. It is NOT a running production serv
 | Phase | Deliverable | Pass condition | Status |
 |---|---|---|---|
 | 1 | Calendar compiler, script sealing, durable review rules, local prompt-pack export, no-spend CI | Thursday/Friday times, 90 minutes, revision/reply/timeout tests and baseline tests pass | Implemented in this branch |
-| 2 | Hosted Node 24 service, PostgreSQL state/outbox, private media storage, one-minute due-job worker | Restart and concurrent workers produce one job/email per episode/version/stage; missed deadlines alert | Next |
+| 2 | Hosted Node 24 service, PostgreSQL state/outbox, private media storage, one-minute due-job worker | Restart and concurrent workers produce one job/email per episode/version/stage; missed deadlines alert | Queue subset implemented; deployment/review migration/storage pending |
 | 3 | Drive folder resolver and Gmail send/read authorization | One real script pack saved; one real review email and reply processed; outage cannot auto-approve | Pending credentials and implementation |
 | 4 | Research/scripting provider and validation | Local and international scripts have source/claim ledgers, freshness, clean voice copy, prompts and exact assets; numeric verification passes | Pending |
 | 5 | Account-qualified Google video adapter and budget service | One 60–90s sample meets identity/voice/dialogue QA and measured spend/time limits | Pending |
@@ -29,6 +29,8 @@ Phase 1 is implemented and locally testable. It is NOT a running production serv
 | 7 | Full daily schedule and Playout delivery | 90 fresh minutes, weekend slate, source refreshes, timed premieres, overlays and 24-hour continuity verified | Pending |
 
 Planning estimates after access is available: phases 2–3, 3–5 developer days; phase 4, 2–4; phase 5, 2–4 plus qualification; phase 6, 2–3; then a supervised full-day test and seven-day rehearsal. These are estimates, not committed airtimes. Daily 90-minute capacity is unproven until measured.
+
+See [queue operations and acceptance](QUEUE_RUNBOOK.md) for commands, tests and remaining Phase 2 gaps.
 
 ## Calendar and production clock
 
