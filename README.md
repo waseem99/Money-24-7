@@ -86,3 +86,7 @@ The [AI-first V2 plan](docs/AI_FIRST_BROADCAST_V2_PLAN.md) and [linked execution
 ## Broadcast V2
 
 The [V2 runbook](docs/BROADCAST_V2_RUNBOOK.md) covers six animated newsroom layouts, programme-clock charts, multi-presenter turns, transparent standing footage, timed captions and private media review. Open `/broadcast-preview.html` for the labelled layout rehearsal. The real audition, final film approval and later live-channel experiment remain external gates; see [implementation evidence](docs/BROADCAST_V2_VERIFICATION.md).
+
+## MarketWatch daily automation foundation
+
+The [implementation plan](docs/marketwatch-automation/IMPLEMENTATION_PLAN.md) and `automation/marketwatch/` start the current daily script/Flow pipeline. Run `npm run marketwatch -- doctor` and `npm run test:marketwatch`. This phase includes a 12-programme calendar, version-specific review rules (including the configured ten-minute silence policy) and local script/prompt-pack export. Live email, Drive, research, video generation, hosted scheduling and publishing are pending integrations; no paid calls are activated.

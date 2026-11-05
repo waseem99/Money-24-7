@@ -1,0 +1,18 @@
+name: MarketWatch foundation dry run
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  no-spend-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run test:marketwatch
+      - run: npm run marketwatch -- doctor
+      # Fixed fixture date and example evidence URL: this is not today's verified calendar.
+      - run: npm run marketwatch -- plan --date 2026-11-05 --market-state trading --calendar-source https://example.org/fixture-calendar

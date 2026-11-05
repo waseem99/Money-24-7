@@ -1,0 +1,22 @@
+{
+  "version": "2026-11-05-session",
+  "timezone": "Asia/Karachi",
+  "effective_from": "2026-11-05",
+  "effective_until": "2026-11-30",
+  "fresh_minutes": 90,
+  "review_lead_minutes": 120,
+  "slots": [
+    {"id":"market-ahead","name":"Market Ahead","airtime":"08:45","friday_airtime":"08:30","minutes":10,"presenter":"sara","language":"ur-PK-en"},
+    {"id":"asia-gulf","name":"Across Markets: Asia & Gulf","airtime":"09:00","minutes":8,"presenter":"arjun","language":"en"},
+    {"id":"morning-brief","name":"Morning Brief","airtime":"10:00","minutes":5,"presenter":"ali","language":"ur-PK-en"},
+    {"id":"money-essentials-1","name":"Money Essentials 1","airtime":"11:00","minutes":5,"presenter":"sara","language":"ur-PK-en"},
+    {"id":"midday-brief","name":"Midday Brief","airtime":"12:15","minutes":5,"presenter":"ali","language":"ur-PK-en"},
+    {"id":"economy-context","name":"Economy in Context","airtime":"13:00","minutes":10,"presenter":"sara","language":"ur-PK-en"},
+    {"id":"afternoon-brief","name":"Afternoon Brief","airtime":"14:45","minutes":5,"presenter":"ali","language":"ur-PK-en"},
+    {"id":"company-focus","name":"Company in Focus","airtime":"15:00","minutes":7,"presenter":"ali","language":"ur-PK-en"},
+    {"id":"closing-review","name":"Closing Review","airtime":"16:00","friday_airtime":"17:00","minutes":15,"presenter":"ali","language":"ur-PK-en","preclose_review":true},
+    {"id":"europe-americas","name":"Across Markets: Europe & Americas","airtime":"18:00","minutes":10,"presenter":"nora","language":"en"},
+    {"id":"money-essentials-2","name":"Money Essentials 2","airtime":"19:00","minutes":5,"presenter":"sara","language":"ur-PK-en"},
+    {"id":"evening-brief","name":"Evening Brief","airtime":"20:00","minutes":5,"presenter":"ali","language":"ur-PK-en"}
+  ]
+}
